@@ -23,11 +23,20 @@ def main(rid, out_path):
     sp = os.path.join(rdir, "scores.json")
     if os.path.exists(sp):
         s = json.load(open(sp))
+        pay = {int(k): {int(h): v for h, v in t.items()}
+               for k, t in json.load(open(os.path.join(ROOT, "keno_qld_paytable.json")))["payouts"].items()}
+        first, n = s["test_games"][0], s["n_test"]
+
+        def ticket(k, x):
+            won = [pay[k].get(h, 0) for h in x["per_game"]]
+            return {"net20": sum(won[:20]) - 20, "net40": sum(won) - n,
+                    "pays": [[(first + i) % 1000, h, w] for i, (h, w) in enumerate(zip(x["per_game"], won)) if w]}
         data["scores"] = {p: {"k6": r["reward"], "k10": r["k10_hit_rate"], "band": r["in_luck_band"],
                               "adv": r["advantage"], "w": r["weight_after"],
                               "k10hits": r["sizes"]["10"]["hits"],
                               "complete": [[int(k), x["first_complete"]] for k, x in r["sizes"].items()
-                                           if x["complete_hits"]]}
+                                           if x["complete_hits"]],
+                              "sizes": {k: ticket(int(k), x) for k, x in r["sizes"].items()}}
                           for p, r in s["results"].items()}
         data["next_roll"], data["mean"] = s["on_a_roll"], s["group_mean_reward"]
     tpl = open(os.path.join(ROOT, "lab", "dashboard.tpl.html")).read()

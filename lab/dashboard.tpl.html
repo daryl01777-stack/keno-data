@@ -48,6 +48,8 @@ button[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:va
 .tag{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
 .roll{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--good);color:var(--surface)}
 .bar{height:6px;border-radius:3px;background:var(--ball);overflow:hidden}.bar div{height:100%;background:var(--accent)}
+.pays{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}.pays b{color:var(--fg)}
+.up{color:var(--good)!important}.down{color:var(--warn)!important}
 .result{border-top:1px solid var(--line);padding-top:10px;display:grid;gap:6px}.out{color:var(--warn);font-weight:700}
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;display:grid;gap:10px}
 ul.check{list-style:none;margin:0;padding:0;display:grid;gap:6px}
@@ -111,13 +113,20 @@ const balls = (nums, ranked) => nums.map((n,i)=>`<div class="ball">${ranked?`<i>
 const maxW = Math.max(...Object.values(D.weights));
 const cents = x => Math.round(x*100) + "c";
 const N = +D.round.slice(1), S = D.scores;
-function res(k){ if(!S) return `<div class="meta"><span>Round ${N} result: <b>pending</b></span></div>`; const s = S[k];
+function res(k){ if(!S) return `<div class="meta"><span>Round ${N} result: <b>pending</b></span></div>`; const s = S[k], t = s.sizes[size], all = Object.values(s.sizes).reduce((a,x)=>a+x.net40,0);
   const comp = s.complete.length ? s.complete.map(([n,g])=>`K${n} in game ${g}`).join(", ") : "none";
   return `<div class="result"><div class="tag">Round ${N} result</div>
     <div class="meta"><span>K6 return <b>${cents(s.k6)}/$1</b></span><span>K10 hits <b>${s.k10hits}/400 (${(s.k10*100).toFixed(1)}%)</b></span>
     <span class="${s.band?'':'out'}">${s.band?'Inside luck band':'Just outside luck band'}</span>
     <span>Complete hits <b>${comp}</b></span><span>Advantage <b>${s.adv>0?'+':''}${s.adv.toFixed(2)}</b></span>
-    <span>Weight now <b>${(s.w*100).toFixed(1)}%</b></span></div></div>`; }
+    <span>Weight now <b>${(s.w*100).toFixed(1)}%</b></span></div>
+    <div class="tag">K${size} ticket, $1 a game</div>
+    <div class="meta"><span>First 20 games <b class="${cls(t.net20)}">${money(t.net20)}</b></span><span>All 40 games <b class="${cls(t.net40)}">${money(t.net40)}</b></span>
+    <span>All sizes K4-K10, 40 games ($280 staked) <b class="${cls(all)}">${money(all)}</b></span></div>
+    <div class="meta"><span>Paying games <b>${t.pays.length} of 40</b></span></div>
+    <div class="pays">${t.pays.map(([g,h,w])=>`<span>Game ${g}: ${h}/${size} <b>$${w}</b></span>`).join("") || "<span>None</span>"}</div></div>`; }
+const money = x => (x>0?"+":x<0?"−":"") + "$" + Math.abs(x).toLocaleString();
+const cls = x => x>0 ? "up" : x<0 ? "down" : "";
 
 const bne = s => { const m = s.match(/(\d\d):(\d\d)/); const h = (+m[1] + 10) % 24, mm = m[2]; return `${h % 12 || 12}:${mm} ${h < 12 ? "am" : "pm"}`; };
 const bneDate = s => { const d = new Date(Date.parse(s) + 10*3600e3); return d.getUTCDate() + " " + ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][d.getUTCMonth()]; };
