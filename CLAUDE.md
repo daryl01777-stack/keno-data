@@ -49,5 +49,6 @@ Use the in-chat dashboard layout from round 1:
 - one card per policy
 - test status checklist and the fingerprint
 
+Show times in Brisbane time only (AEST, UTC+10, no daylight saving), in the dashboard and in chat.
 Scored rounds add results to each card. Daryl wants honest opinions, never what he
 wants to hear.
