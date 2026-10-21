@@ -168,11 +168,11 @@ def main(path, last_game, round_id, out_path):
         "primary_ticket_size": PRIMARY,
         "nested_sizes": SIZES,
         "policies": {k: v[:10] for k, v in policies.items()},
-        "verdict_rule": ("Main test: hits per game on the K10 ticket, compared with 10,000 random "
-                         "K10 tickets over the same test games; a policy counts as unusual only above "
-                         "the 95th percentile. ROI reported on K6 (pre-declared) plus K4-K10 for "
-                         "reference. With 5 policies, about 1 in 4 rounds will show a false 'unusual' "
-                         "result by chance, so only repeats across rounds count."),
+        "verdict_rule": ("Reward is the K6 return per $1 (pre-declared); K4-K10 returns reported for "
+                         "reference. K10 hit rate is labelled against the exact luck band: over 40 "
+                         "games, 95% of random K10 tickets land between 21% and 29%. The band is a "
+                         "label only, never a gate. With 7 policies, one landing outside the band by "
+                         "chance is common, so only repeats across rounds count."),
         "window_vs_chance": nullc,
         "flagged": flagged,
     }
