@@ -1,0 +1,28 @@
+name: keno fetch
+on:
+  push:
+    paths: ["requests/fetch.txt"]
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency: keno-fetch
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch latest games and save them
+        run: |
+          git config user.name "keno-bot"
+          git config user.email "keno-bot@users.noreply.github.com"
+          git checkout -B main origin/main
+          set +e
+          python3 keno.py sync 200 > /tmp/out.txt 2>&1
+          code=$?
+          set -e
+          { date -u +%FT%TZ; cat /tmp/out.txt; echo "exit $code"; } > requests/last_result.txt
+          cat requests/last_result.txt
+          git add requests/last_result.txt
+          git commit -m "fetch result: exit $code" || true
+          git pull --rebase origin main
+          git push origin HEAD:main
