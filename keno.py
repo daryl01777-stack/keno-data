@@ -2,10 +2,11 @@
 """
 keno.py - collect Queensland Keno draw results. Runs in Termux on your phone.
 
-Main use - leave this running and it keeps draws.csv in your GitHub repo up to date:
-  python keno.py collect         backfill the last 100 games, then add each new game
+Main use - run on a schedule (cron); updates draws.csv in the repo and exits:
+  python keno.py sync            add any of the last 200 games not on file, push
 
 Other commands:
+  python keno.py collect         stay running and add each game as it's drawn
   python keno.py now             show the latest completed game
   python keno.py last 100        save the last 100 completed games to a file
   python keno.py range 237 276   save a run of games by number (handles 999 -> 0)
@@ -407,6 +408,40 @@ def cmd_collect():
                 pending, last_push = 0, time.time()
 
 
+def cmd_sync(n=200):
+    """One-shot: bring draws.csv up to date with the last n games, push, and exit."""
+    if not os.path.isdir(os.path.join(REPO, ".git")):
+        sys.exit(f"No GitHub repo at {REPO}.")
+    store = load_store()
+    exports = os.path.join(REPO, "exports")
+    if os.path.isdir(exports):                     # fold in any older export files
+        for name in sorted(os.listdir(exports)):
+            if name.endswith(".csv"):
+                with open(os.path.join(exports, name), newline="") as f:
+                    for row in csv.DictReader(f):
+                        try:
+                            g = {"game": int(row["game"]), "closed": parse_time(row["closed_utc"]),
+                                 "draw": [int(row[f"n{i}"]) for i in range(1, 21)]}
+                        except (KeyError, TypeError, ValueError):
+                            continue
+                        if g["closed"]:
+                            store.setdefault(stamp(g), g)
+    before = len(store)
+    g = latest()
+    want = back_from(g["game"], n)
+    have = recent_numbers(store, g["closed"])
+    missing = [x for x in want if x not in have and x != g["game"]]
+    got = history(missing, g["closed"], verbose=False) if missing else {}
+    store[stamp(g)] = g
+    for x in got.values():
+        store[stamp(x)] = x
+    save_store(store)
+    pushed = publish(f"sync to game {g['game']}")
+    t = datetime.now(BNE).strftime("%d %b %H:%M")
+    print(f"{t}  latest game {g['game']}  +{len(store) - before} new  "
+          f"{len(store)} on file  {'pushed' if pushed else 'PUSH FAILED'}")
+
+
 def cmd_probe():
     g = latest()
     print(f"Live feed OK. Latest completed game: {g['game']}")
@@ -432,7 +467,9 @@ def main(argv):
         return
     cmd, args = argv[0], argv[1:]
     try:
-        if cmd == "collect":
+        if cmd == "sync":
+            cmd_sync(int(args[0]) if args else 200)
+        elif cmd == "collect":
             cmd_collect()
         elif cmd == "now":
             cmd_now()
