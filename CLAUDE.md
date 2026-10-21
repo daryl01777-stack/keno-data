@@ -49,6 +49,8 @@ Use the in-chat dashboard layout from round 1:
 - one card per policy
 - test status checklist and the fingerprint
 
+Build the page with `python lab/dashboard.py R00N out.html` (works before and after scoring)
+and republish it to the same artifact: https://claude.ai/artifact/CHcWvqAfQfKLw4Eoqu2MEg
 Show times in Brisbane time only (AEST, UTC+10, no daylight saving), in the dashboard and in chat.
 Scored rounds add results to each card. Daryl wants honest opinions, never what he
 wants to hear.

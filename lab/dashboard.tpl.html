@@ -1,0 +1,169 @@
+<title>Keno Lab Rounds</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: single column, a lottery-ball grid as the hero, then policy cards. */
+:root{
+  --bg:#f3f5f8; --surface:#ffffff; --fg:#17202b; --muted:#5b6675; --line:#d9dfe7;
+  --accent:#c2410c; --accent-soft:#fde7dc; --ball:#e8edf3; --good:#15803d; --warn:#a16207;
+  --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
+  --body:"Atkinson Hyperlegible",ui-sans-serif,system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f141b; --surface:#18202a; --fg:#e7ecf2; --muted:#9aa6b5; --line:#2a3542;
+  --accent:#fb8a4c; --accent-soft:#3a2216; --ball:#232d3a; --good:#4ade80; --warn:#facc15; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f141b; --surface:#18202a; --fg:#e7ecf2; --muted:#9aa6b5; --line:#2a3542;
+  --accent:#fb8a4c; --accent-soft:#3a2216; --ball:#232d3a; --good:#4ade80; --warn:#facc15; color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font:15px/1.5 var(--body)}
+.wrap{max-width:880px;margin:0 auto;padding-block:24px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:20px}
+header{display:flex;flex-wrap:wrap;align-items:center;gap:12px}
+h1{font:800 clamp(26px,5vw,36px)/1.1 var(--display);margin:0;text-wrap:balance}
+h2{font:600 18px/1.2 var(--display);margin:0}
+.pill{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 10px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.sub{color:var(--muted);margin:0;flex-basis:100%}
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media (max-width:560px){.tiles{grid-template-columns:repeat(2,1fr)}}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.tile b{display:block;font:800 26px/1.1 var(--display);font-variant-numeric:tabular-nums}
+.tile span{font-size:12px;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+.primary{background:var(--surface);border:2px solid var(--accent);border-radius:14px;padding:18px;display:grid;gap:14px}
+.row{display:flex;flex-wrap:wrap;align-items:center;gap:10px;justify-content:space-between}
+.balls{display:flex;flex-wrap:wrap;gap:8px}
+.ball{width:44px;height:44px;border-radius:50%;background:var(--ball);display:grid;place-items:center;font:700 16px var(--mono);position:relative}
+.ball i{position:absolute;top:-4px;left:-4px;font:500 10px var(--mono);font-style:normal;color:var(--muted)}
+.primary .ball{background:var(--accent);color:var(--surface);width:52px;height:52px;font-size:19px}
+button{font:700 13px var(--body);border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:8px;padding:7px 12px;cursor:pointer}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.controls{display:flex;flex-wrap:wrap;gap:16px;align-items:center}
+.group{display:flex;flex-wrap:wrap;gap:6px}
+.lbl{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;display:grid;gap:10px;align-content:start}
+.card .balls{gap:6px}.card .ball{width:36px;height:36px;font-size:14px}
+.meta{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.meta b{color:var(--fg)}
+.tag{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.roll{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--good);color:var(--surface)}
+.bar{height:6px;border-radius:3px;background:var(--ball);overflow:hidden}.bar div{height:100%;background:var(--accent)}
+.result{border-top:1px solid var(--line);padding-top:10px;display:grid;gap:6px}.out{color:var(--warn);font-weight:700}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;display:grid;gap:10px}
+ul.check{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+ul.check li::before{content:"○ ";color:var(--muted)}ul.check li.done::before{content:"✓ ";color:var(--good)}
+.sha{font:500 12px var(--mono);word-break:break-all;background:var(--ball);padding:10px;border-radius:8px}
+.note{color:var(--muted);font-size:14px;margin:0;max-width:65ch}
+table{border-collapse:collapse;font-size:13px;width:100%;font-variant-numeric:tabular-nums}
+td,th{padding:4px 6px;border-bottom:1px solid var(--line);text-align:right}td:first-child,th:first-child{text-align:left}
+.scroll{overflow-x:auto}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1 id="h1">Keno lab</h1><span class="pill" id="status"></span>
+    <p class="sub" id="subline"></p>
+  </header>
+
+  <section class="tiles">
+    <div class="tile"><b>100</b><span>Training games</span></div>
+    <div class="tile"><b>49</b><span>Ticket variants</span></div>
+    <div class="tile"><b>40</b><span>Test games</span></div>
+    <div class="tile"><b id="scored"></b><span>Scored games</span></div>
+  </section>
+
+  <section class="primary">
+    <div class="row"><div><div class="tag">Primary prediction · Anomaly composite</div><h2 id="ptitle"></h2></div>
+      <button id="copy" type="button">Copy numbers</button></div>
+    <div class="balls" id="pballs"></div>
+    <p class="note" id="presult"></p>
+  </section>
+
+  <section class="controls">
+    <div class="group" id="cats" role="group" aria-label="Category"></div>
+    <div class="group" id="sizes" role="group" aria-label="Ticket size"><span class="lbl" style="align-self:center">Size</span></div>
+  </section>
+
+  <section class="cards" id="cards"></section>
+
+  <section class="panel">
+    <h2>Training window vs chance</h2>
+    <p class="note" id="scannote"></p>
+    <div class="scroll"><table id="scan"><tr><th>Check</th><th>Observed</th><th>Chance median</th><th>p</th></tr></table></div>
+  </section>
+
+  <section class="panel">
+    <h2>Test status</h2>
+    <ul class="check" id="checklist"></ul>
+    <div class="lbl">Fingerprint (sha256 of frozen.json)</div>
+    <div class="sha" id="sha"></div>
+    <p class="note">Keno draws are certified random. Every policy, including the random ones, should land near 25% K10 hit rate and lose money over time. K6 returns about 75c per $1 on average.</p>
+  </section>
+</div>
+
+<script>
+const D = __DATA__;
+const CAT = {"Anomaly composite":"Anomaly","Hot (most drawn)":"Signal","Surge (last 20 games)":"Signal","Pair cluster":"Signal","Overdue (longest gap)":"Signal","Random A":"Baseline","Random B":"Baseline"};
+const ORDER = ["Anomaly composite","Hot (most drawn)","Surge (last 20 games)","Pair cluster","Overdue (longest gap)","Random A","Random B"];
+let cat = "All", size = 6;
+const $ = id => document.getElementById(id);
+const balls = (nums, ranked) => nums.map((n,i)=>`<div class="ball">${ranked?`<i>${i+1}</i>`:""}${n}</div>`).join("");
+const maxW = Math.max(...Object.values(D.weights));
+const cents = x => Math.round(x*100) + "c";
+const N = +D.round.slice(1), S = D.scores;
+function res(k){ if(!S) return `<div class="meta"><span>Round ${N} result: <b>pending</b></span></div>`; const s = S[k];
+  const comp = s.complete.length ? s.complete.map(([n,g])=>`K${n} in game ${g}`).join(", ") : "none";
+  return `<div class="result"><div class="tag">Round ${N} result</div>
+    <div class="meta"><span>K6 return <b>${cents(s.k6)}/$1</b></span><span>K10 hits <b>${s.k10hits}/400 (${(s.k10*100).toFixed(1)}%)</b></span>
+    <span class="${s.band?'':'out'}">${s.band?'Inside luck band':'Just outside luck band'}</span>
+    <span>Complete hits <b>${comp}</b></span><span>Advantage <b>${s.adv>0?'+':''}${s.adv.toFixed(2)}</b></span>
+    <span>Weight now <b>${(s.w*100).toFixed(1)}%</b></span></div></div>`; }
+
+const bne = s => { const m = s.match(/(\d\d):(\d\d)/); const h = (+m[1] + 10) % 24, mm = m[2]; return `${h % 12 || 12}:${mm} ${h < 12 ? "am" : "pm"}`; };
+const bneDate = s => { const d = new Date(Date.parse(s) + 10*3600e3); return d.getUTCDate() + " " + ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][d.getUTCMonth()]; };
+$("subline").textContent = `Frozen ${bneDate(D.frozen)}, ${bne(D.frozen.slice(11))} Brisbane time. Trained on games ${D.train[0]}-${D.train[1]}, tested on games ${D.test[0]}-${D.test[1]} (expected ${bne(D.close[0])} to ${bne(D.close[1])}).`;
+$("h1").textContent = `Keno lab · Round ${N}`;
+$("status").textContent = S ? "Scored" : "Frozen · test pending";
+$("scored").textContent = S ? 40 : 0;
+const minP = Math.min(...Object.values(D.scan).map(v=>v.p_chance));
+$("scannote").textContent = `Share of 2,000 random 100-game windows at least as extreme. The lowest is ${minP.toFixed(2)}` + (minP >= 0.05 ? ", so the window looks like ordinary random draws." : ". With 10 checks, one value under 0.05 turns up by chance in about 4 windows out of 10.");
+$("presult").innerHTML = S
+  ? `Round ${N}: K6 returned <b>${cents(S["Anomaly composite"].k6)} per $1</b> (group average ${cents(D.mean)}). Went in on a roll: ${D.roll}. Now on a roll: <b>${D.next_roll}</b>.`
+  : `On a roll: <b>${D.roll}</b>. That comes from luck in earlier rounds, not skill.`;
+const rollNow = S ? D.next_roll : D.roll;
+$("sha").textContent = D.sha;
+
+function render(){
+  const p = D.policies["Anomaly composite"].slice(0,size);
+  $("ptitle").textContent = `K${size} ticket`;
+  $("pballs").innerHTML = balls(p, true);
+  $("cards").innerHTML = ORDER.filter(k=>cat==="All"||CAT[k]===cat).map(k=>{
+    const w = D.weights[k], pr = D.prev[k];
+    return `<article class="card">
+      <div class="row"><div><div class="tag">${CAT[k]}</div><h2>${k}</h2></div>${k===rollNow?`<span class="roll">${S?'On a roll next':'On a roll'}</span>`:''}</div>
+      <div class="balls">${balls(D.policies[k].slice(0,size).slice().sort((a,b)=>a-b))}</div>
+      <div class="meta"><span>Weight <b>${(w*100).toFixed(1)}%</b></span><span>R${N-1} K6 return <b>${Math.round(pr.k6*100)}c/$1</b></span><span>R${N-1} K10 hits <b>${(pr.k10*100).toFixed(1)}%</b></span></div>
+      <div class="bar" aria-hidden="true"><div style="width:${(w/maxW*100).toFixed(0)}%"></div></div>
+      ${res(k)}
+    </article>`}).join("");
+  document.querySelectorAll("#cats button").forEach(b=>b.setAttribute("aria-pressed", b.dataset.v===cat));
+  document.querySelectorAll("#sizes button").forEach(b=>b.setAttribute("aria-pressed", +b.dataset.v===size));
+}
+["All","Anomaly","Signal","Baseline"].forEach(c=>{const b=document.createElement("button");b.type="button";b.textContent=c;b.dataset.v=c;b.onclick=()=>{cat=c;render()};$("cats").append(b)});
+for(let s=4;s<=10;s++){const b=document.createElement("button");b.type="button";b.textContent="K"+s;b.dataset.v=s;b.onclick=()=>{size=s;render()};$("sizes").append(b)}
+for(const [k,v] of Object.entries(D.scan)) $("scan").insertAdjacentHTML("beforeend",`<tr><td>${k}</td><td>${v.observed}</td><td>${v.chance_median}</td><td>${v.p_chance.toFixed(3)}</td></tr>`);
+$("checklist").innerHTML = [
+  [`Round ${N-1} scored and weights updated`,1],
+  [`Round ${N} frozen ${bne(D.frozen.slice(11))}, fingerprint posted`,1],
+  [`Test window open (game ${D.test[0]}, about ${bne(D.close[0])})`,Date.now() >= Date.parse(D.frozen.slice(0,11)+D.close[0]) || !!S],
+  [`All 40 test games in draws.csv (game ${D.test[1]}, about ${bne(D.close[1])})`,!!S],
+  ["Scored with lab/score.py and GRPO update applied",!!S]
+].map(([t,d])=>`<li class="${d?'done':''}">${t}</li>`).join("");
+$("copy").onclick = async () => {
+  const txt = D.policies["Anomaly composite"].slice(0,size).join(" ");
+  try { await navigator.clipboard.writeText(txt); $("copy").textContent="Copied"; }
+  catch { const r=document.createRange(); r.selectNodeContents($("pballs")); getSelection().removeAllRanges(); getSelection().addRange(r); $("copy").textContent="Selected"; }
+  setTimeout(()=>$("copy").textContent="Copy numbers",1500);
+};
+render();
+</script>
