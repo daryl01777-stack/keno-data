@@ -4,12 +4,16 @@ Daryl's experiment, run for fun. Queensland Keno draws are certified random, so 
 policy is expected to beat chance. Report results honestly; never imply an edge.
 
 ## Data
-- Daryl runs `keno` in Termux on his phone. It is an alias for
-  `python keno.py last 200`, which saves `exports/keno_last200_<first>-<last>_<stamp>.csv`
-  and pushes it here. `draws.csv` is an older collector file.
+- To fetch draws, Claude commits a new timestamp to `requests/fetch.txt` and pushes.
+  The GitHub Actions workflow `keno fetch` then runs `python3 keno.py sync 200` on
+  GitHub's servers, updates `draws.csv`, and writes the outcome to
+  `requests/last_result.txt` (usually within 30 seconds). Keno allows GitHub's servers.
+- Backup: Daryl can type `keno` in Termux. It is an alias for
+  `cd ~/keno-data && git pull -q --rebase origin main && python keno.py sync`.
+- `draws.csv` is the master file. `exports/` holds older one-off files that sync folds in.
 - Merge every CSV by `closed_utc`. Game numbers run 0-999 then wrap; a game closes every 160 s.
-- The Keno site blocks cloud servers (Akamai "Access Denied"), so never fetch results
-  from a cloud session. The data always comes from the phone via this repo.
+- The Keno site blocks Anthropic's servers (Akamai "Access Denied"), so never fetch
+  results directly from a Claude session. Always go through the workflow or the phone.
 - `keno_qld_paytable.json` gives $1 payouts for K4-K10. Average return: K4-K6 about 74-75c,
   K7-K10 about 64-65c per $1. K7-K10 top prizes are growing jackpots, so the table is a floor.
 
@@ -23,7 +27,7 @@ policy is expected to beat chance. Report results honestly; never imply an edge.
    JSON (`sort_keys`, compact separators), and post its sha256 in chat before the test
    window opens. Commit it to `rounds/R00N/frozen.json` and `frozen.sha256`.
    The test window is the first 40 games closing at least 4 minutes after the freeze.
-4. Scoring, after Daryl runs `keno` once the test games are drawn. For each policy:
+4. Scoring, after a fetch once the test games are drawn. For each policy:
    K10 hits and hit rate, K6 return (the reward), return for K4-K10, complete hits, and
    the first game with a complete hit. No random-ticket simulation: use the exact
    luck band instead. For K10 over 40 games, 95% of tickets land between 21% and 29%.
