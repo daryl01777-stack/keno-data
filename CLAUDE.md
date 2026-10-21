@@ -4,16 +4,17 @@ Daryl's experiment, run for fun. Queensland Keno draws are certified random, so 
 policy is expected to beat chance. Report results honestly; never imply an edge.
 
 ## Data
-- To fetch draws, Claude commits a new timestamp to `requests/fetch.txt` and pushes.
-  The GitHub Actions workflow `keno fetch` then runs `python3 keno.py sync 200` on
-  GitHub's servers, updates `draws.csv`, and writes the outcome to
-  `requests/last_result.txt` (usually within 30 seconds). Keno allows GitHub's servers.
-- Backup: Daryl can type `keno` in Termux. It is an alias for
-  `cd ~/keno-data && git pull -q --rebase origin main && python keno.py sync`.
+- Main route: Daryl types `keno` in Termux on his phone. It is an alias for
+  `cd ~/keno-data && git pull -q --rebase origin main && python keno.py sync`, which adds
+  any of the last 200 games to `draws.csv` and pushes. Ask him to run it when draws are needed.
+- The GitHub Actions workflow `keno fetch` (triggered by committing a new timestamp to
+  `requests/fetch.txt`; outcome in `requests/last_result.txt`) worked once on 21 Oct but
+  was then blocked by Keno's Akamai protection twice in a row. Treat it as unreliable:
+  try it at most once, never retry repeatedly to get past the block, and fall back to the phone.
 - `draws.csv` is the master file. `exports/` holds older one-off files that sync folds in.
 - Merge every CSV by `closed_utc`. Game numbers run 0-999 then wrap; a game closes every 160 s.
 - The Keno site blocks Anthropic's servers (Akamai "Access Denied"), so never fetch
-  results directly from a Claude session. Always go through the workflow or the phone.
+  results directly from a Claude session.
 - `keno_qld_paytable.json` gives $1 payouts for K4-K10. Average return: K4-K6 about 74-75c,
   K7-K10 about 64-65c per $1. K7-K10 top prizes are growing jackpots, so the table is a floor.
 
