@@ -1,4 +1,4 @@
-2026-10-21T06:25:07Z
+2026-10-21T06:25:31Z
 Error: HTTP 403 from https://api-info-qld.keno.com.au/v2/games/kds?jurisdiction=QLD
   <HTML><HEAD>
 <TITLE>Access Denied</TITLE>
@@ -6,7 +6,7 @@ Error: HTTP 403 from https://api-info-qld.keno.com.au/v2/games/kds?jurisdiction=
 <H1>Access Denied</H1>
  
 You don't have permission to access "http&#58;&#47;&#47;api&#45;info&#45;qld&#46;keno&#46;com&#46;au&#47;v2&#47;games&#47;kds&#63;" on this server.<P>
-Reference&#32;&#35;18&#46;9b721102&#46;1792563907&#46;dad0a4f9
-<P>https&#58;&#47;&#47;errors&#46;edgesuite&#46;net&#47;18&#46;9b721102&#46;1792563907&#46;dad0a4f9</P>
+Reference&#32;&#35;18&#46;c51c2117&#46;1792563931&#46;6e58f63d
+<P>https&#58;&#47;&#47;errors&#46;edgesuite&#46;net&#47;18&#46;c51c2117&#46;1792563931&#46;6e58f63d</P>
 <
 exit 1
