@@ -1,1 +1,8 @@
 round,policy,k10_hits,k10_hit_rate,k6_return,k6_roi_pct,complete_hits,first_complete_game,advantage,weight_after
+R001,Anomaly composite,87,0.2175,0.2,-80.0,0,,-0.568,0.094146
+R001,Hot (most drawn),88,0.22,0.2,-80.0,0,,-0.568,0.094146
+R001,Overdue (longest gap),95,0.2375,0.55,-45.0,1,274,1.493,0.2639
+R001,Pair cluster,86,0.215,0.075,-92.5,0,,-1.304,0.065153
+R001,Random A,97,0.2425,0.225,-77.5,0,,-0.421,0.101339
+R001,Random B,102,0.255,0.275,-72.5,0,,-0.126,0.117415
+R001,Surge (last 20 games),102,0.255,0.55,-45.0,1,270,1.493,0.2639

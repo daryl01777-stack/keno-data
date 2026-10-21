@@ -28,7 +28,7 @@ policy is expected to beat chance. Report results honestly; never imply an edge.
    JSON (`sort_keys`, compact separators), and post its sha256 in chat before the test
    window opens. Commit it to `rounds/R00N/frozen.json` and `frozen.sha256`.
    The test window is the first 40 games closing at least 4 minutes after the freeze.
-4. Scoring, after a fetch once the test games are drawn. For each policy:
+4. Scoring with `python lab/score.py R00N`, once the test games are in draws.csv. For each policy:
    K10 hits and hit rate, K6 return (the reward), return for K4-K10, complete hits, and
    the first game with a complete hit. No random-ticket simulation: use the exact
    luck band instead. For K10 over 40 games, 95% of tickets land between 21% and 29%.
@@ -36,7 +36,8 @@ policy is expected to beat chance. Report results honestly; never imply an edge.
 5. GRPO update. Reward is the K6 return. Advantage = (reward - group mean) / group sd.
    Each weight is multiplied by exp(0.5 x advantage), then all weights are renormalised.
    Update `ledger/weights.json` and append to `ledger/leaderboard.csv`. The policy with
-   the highest weight is flagged "On a roll" for the next round.
+   the highest weight is flagged "On a roll" for the next round (ties go to the higher
+   K10 hit rate). `lab/score.py` does steps 4-6 apart from the commit.
 6. Commit the scores to `rounds/R00N/scores.json`.
 
 ## Reporting
