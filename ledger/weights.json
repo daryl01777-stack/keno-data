@@ -1,0 +1,14 @@
+{
+ "after_round": null,
+ "learning_rate": 0.5,
+ "reward": "K6 return per $1 in the round",
+ "weights": {
+  "Anomaly composite": 0.142857,
+  "Hot (most drawn)": 0.142857,
+  "Surge (last 20 games)": 0.142857,
+  "Pair cluster": 0.142857,
+  "Overdue (longest gap)": 0.142857,
+  "Random A": 0.142857,
+  "Random B": 0.142857
+ }
+}
