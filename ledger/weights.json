@@ -1,15 +1,15 @@
 {
- "after_round": "R002",
+ "after_round": "R003",
  "learning_rate": 0.5,
  "reward": "K6 return per $1 in the round",
  "weights": {
-  "Anomaly composite": 0.039167,
-  "Hot (most drawn)": 0.039167,
-  "Surge (last 20 games)": 0.242048,
-  "Pair cluster": 0.059758,
-  "Overdue (longest gap)": 0.388961,
-  "Random A": 0.057841,
-  "Random B": 0.173057
+  "Anomaly composite": 0.02835,
+  "Hot (most drawn)": 0.02807,
+  "Surge (last 20 games)": 0.168387,
+  "Pair cluster": 0.171657,
+  "Overdue (longest gap)": 0.31089,
+  "Random A": 0.041867,
+  "Random B": 0.250779
  },
  "on_a_roll": "Overdue (longest gap)"
 }
