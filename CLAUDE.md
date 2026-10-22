@@ -28,6 +28,10 @@ policy is expected to beat chance. Report results honestly; never imply an edge.
    10 points down to 1, multiplied by its current weight in `ledger/weights.json`; the 10 numbers
    with the most points form the blend's tickets. The blend is scored and shown, but stays out of
    the GRPO update because it is built from the weights.
+   From R006 it also sets three Heads or Tails bets ($1 a game for all 40 test games):
+   H/T trend (whichever of heads or tails won more training games), H/T contrarian (the other
+   side) and Always evens. Payouts: heads or tails $2, evens $4 per $1 (`keno_qld_paytable.json`).
+   They are scored and shown in their own panel, outside the GRPO update.
 3. Freeze: add `frozen_utc`, `test_games` and the expected close times, write canonical
    JSON (`sort_keys`, compact separators), and post its sha256 in chat before the test
    window opens. Commit it to `rounds/R00N/frozen.json` and `frozen.sha256`.

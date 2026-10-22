@@ -88,6 +88,12 @@ td,th{padding:4px 6px;border-bottom:1px solid var(--line);text-align:right}td:fi
 
   <section class="cards" id="cards"></section>
 
+  <section class="panel" id="htpanel" hidden>
+    <h2>Heads or Tails</h2>
+    <p class="note" id="htnote"></p>
+    <div class="cards" id="htcards"></div>
+  </section>
+
   <section class="panel">
     <h2>Training window vs chance</h2>
     <p class="note" id="scannote"></p>
@@ -175,5 +181,16 @@ $("copy").onclick = async () => {
   catch { const r=document.createRange(); r.selectNodeContents($("pballs")); getSelection().removeAllRanges(); getSelection().addRange(r); $("copy").textContent="Selected"; }
   setTimeout(()=>$("copy").textContent="Copy numbers",1500);
 };
+if (D.ht) {
+  const c = D.ht.training_counts, H = D.ht_scores;
+  $("htpanel").hidden = false;
+  $("htnote").textContent = `$1 a game on each bet for all 40 test games. Heads or tails pays $2, evens pays $4. Training games went heads ${c.heads}, tails ${c.tails}, evens ${c.evens}. Every bet returns about 80c per $1 on average, whatever the history.` + (H ? ` Test games went heads ${H.counts.heads}, tails ${H.counts.tails}, evens ${H.counts.evens}.` : "");
+  $("htcards").innerHTML = Object.entries(D.ht.bets).map(([name, side]) => {
+    const b = H && H.bets[name];
+    return `<article class="card"><div class="tag">${name}</div><h2>${side[0].toUpperCase()+side.slice(1)}</h2>
+      <div class="meta">${b ? `<span>Won <b>${b.wins} of 40</b></span><span>Net <b class="${cls(b.net)}">${money(b.net)}</b></span>` : "<span>Result: <b>pending</b></span>"}</div>
+      ${b && b.win_games.length ? `<div class="pays">${b.win_games.map(g=>`<span>Game ${g}</span>`).join("")}</div>` : ""}</article>`;
+  }).join("");
+}
 render();
 </script>

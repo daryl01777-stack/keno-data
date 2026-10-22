@@ -101,11 +101,28 @@ def main(rid):
                          min([s["first_complete"] for s in r["sizes"].values() if s["first_complete"] is not None],
                              default=""), r["advantage"], r["weight_after"]])
 
-    out = {"round": rid, "scored_utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+    ht = None
+    if "heads_tails" in frozen:
+        ptab = json.load(open(path("keno_qld_paytable.json")))["heads_tails"]
+        outcome = []
+        for g in want:
+            lo = sum(1 for n in games[g]["draw"] if n <= 40)
+            outcome.append("heads" if lo > 10 else "tails" if lo < 10 else "evens")
+        ht = {"outcomes": outcome, "counts": {k: outcome.count(k) for k in ("heads", "tails", "evens")},
+              "bets": {}}
+        for name, side in frozen["heads_tails"]["bets"].items():
+            wins = [g for g, o in zip(want, outcome) if o == side]
+            ret = len(wins) * ptab[side]
+            ht["bets"][name] = {"side": side, "wins": len(wins), "win_games": wins,
+                                "returned": ret, "net": ret - n_test}
+
+    out = {"round": rid, "heads_tails": ht, "scored_utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
            "test_games": [first, last], "n_test": n_test, "group_mean_reward": round(mean, 4),
            "group_sd_reward": round(sd, 4), "on_a_roll": leader, "results": results}
     json.dump(out, open(path("rounds", rid, "scores.json"), "w"), indent=1)
 
+    if ht:
+        print("  Heads/Tails:", ht["counts"], {n: (b["side"], b["net"]) for n, b in ht["bets"].items()})
     print(f"{rid}: games {first}-{last}, group mean K6 return {mean:.3f}, sd {sd:.3f}, on a roll: {leader}")
     for n, r in sorted(results.items(), key=lambda kv: -kv[1]["reward"]):
         s6, s10 = r["sizes"][6], r["sizes"][10]

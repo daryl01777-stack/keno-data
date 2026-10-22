@@ -171,8 +171,14 @@ def main(path, last_game, round_id, out_path):
         a, b = iu[0][o], iu[1][o]
         flagged["top pairs"].append((int(a + 1), int(b + 1), int(s["C"][a, b])))
 
+    ht = {"heads": int((s["heads"] > 10).sum()), "tails": int((s["heads"] < 10).sum()),
+          "evens": int((s["heads"] == 10).sum())}
+    trend = "heads" if ht["heads"] >= ht["tails"] else "tails"
     rec = {
         "round": round_id,
+        "heads_tails": {"training_counts": ht, "bets": {
+            "H/T trend": trend, "H/T contrarian": "tails" if trend == "heads" else "heads",
+            "Always evens": "evens"}},
         "training_games": [nums[0], nums[-1]],
         "training_closed_utc": [train[0]["closed"], train[-1]["closed"]],
         "training_data_sha256": data_hash,

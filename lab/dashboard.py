@@ -19,7 +19,8 @@ def main(rid, out_path):
             "test": d["test_games"], "close": d["test_expected_close_utc"],
             "policies": d["policies"], "weights": d["weights_at_freeze"], "roll": d["on_a_roll"],
             "prev": prev, "scan": d["window_vs_chance"],
-            "sha": open(os.path.join(rdir, "frozen.sha256")).read().strip(), "scores": None}
+            "sha": open(os.path.join(rdir, "frozen.sha256")).read().strip(), "scores": None,
+            "ht": d.get("heads_tails"), "ht_scores": None}
     sp = os.path.join(rdir, "scores.json")
     if os.path.exists(sp):
         s = json.load(open(sp))
@@ -39,6 +40,7 @@ def main(rid, out_path):
                               "sizes": {k: ticket(int(k), x) for k, x in r["sizes"].items()}}
                           for p, r in s["results"].items()}
         data["next_roll"], data["mean"] = s["on_a_roll"], s["group_mean_reward"]
+        data["ht_scores"] = s.get("heads_tails")
     tpl = open(os.path.join(ROOT, "lab", "dashboard.tpl.html")).read()
     open(out_path, "w").write(tpl.replace("__DATA__", json.dumps(data)))
 
