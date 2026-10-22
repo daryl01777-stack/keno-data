@@ -1,4 +1,4 @@
-round,policy,k10_hits,k10_hit_rate,k6_return,k6_roi_pct,complete_hits,first_complete_game,advantage,weight_after
+round,policy,k10_hits,k10_hit_rate,reward,reward_roi_pct,complete_hits,first_complete_game,advantage,weight_after
 R001,Anomaly composite,87,0.2175,0.2,-80.0,0,,-0.568,0.094146
 R001,Hot (most drawn),88,0.22,0.2,-80.0,0,,-0.568,0.094146
 R001,Overdue (longest gap),95,0.2375,0.55,-45.0,1,274,1.493,0.2639

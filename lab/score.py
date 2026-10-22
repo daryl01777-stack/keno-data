@@ -95,7 +95,7 @@ def main(rid):
         cw = csv.writer(f)
         for n, r in results.items():
             r.setdefault("advantage", ""); r.setdefault("weight_after", "")
-            k6, k10 = r["sizes"][6], r["sizes"][10]
+            k6, k10 = r["sizes"][frozen["primary_ticket_size"]], r["sizes"][10]
             cw.writerow([rid, n, k10["hits"], k10["hit_rate"], k6["return_per_dollar"], k6["roi_pct"],
                          sum(s["complete_hits"] for s in r["sizes"].values()),
                          min([s["first_complete"] for s in r["sizes"].values() if s["first_complete"] is not None],
@@ -123,14 +123,15 @@ def main(rid):
 
     if ht:
         print("  Heads/Tails:", ht["counts"], {n: (b["side"], b["net"]) for n, b in ht["bets"].items()})
-    print(f"{rid}: games {first}-{last}, group mean K6 return {mean:.3f}, sd {sd:.3f}, on a roll: {leader}")
+    print(f"{rid}: games {first}-{last}, group mean K{frozen["primary_ticket_size"]} return {mean:.3f}, sd {sd:.3f}, on a roll: {leader}")
     for n, r in sorted(results.items(), key=lambda kv: -kv[1]["reward"]):
-        s6, s10 = r["sizes"][6], r["sizes"][10]
-        print(f"  {n:24s} K6 ${s6['returned']:>5} back ({s6['roi_pct']:+.0f}%)  "
+        pk = frozen["primary_ticket_size"]
+        s6, s10 = r["sizes"][pk], r["sizes"][10]
+        print(f"  {n:24s} K{pk} ${s6['returned']:>5} back ({s6['roi_pct']:+.0f}%)  "
               f"K10 {s10['hits']}/{10*n_test} = {s10['hit_rate']:.1%}  "
               f"complete {[ (k, s['complete_hits']) for k, s in r['sizes'].items() if s['complete_hits']]}  "
-              + (f"best K6 catch {s6['best_catch']}  adv {r['advantage']:+.2f}  w {r['weight_before']:.3f}->{r['weight_after']:.3f}"
-                 if n in new else f"best K6 catch {s6['best_catch']}  (outside GRPO)"))
+              + (f"best K{pk} catch {s6['best_catch']}  adv {r['advantage']:+.2f}  w {r['weight_before']:.3f}->{r['weight_after']:.3f}"
+                 if n in new else f"best K{pk} catch {s6['best_catch']}  (outside GRPO)"))
 
 
 if __name__ == "__main__":

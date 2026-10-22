@@ -23,7 +23,7 @@ policy is expected to beat chance. Report results honestly; never imply an edge.
 2. `python lab/round.py <merged csv> <last training game> R00N out.json` runs the anomaly
    scan (10 checks against 2,000 random 100-game windows) and builds 7 policies:
    Anomaly composite (primary), Hot, Surge, Pair cluster, Overdue, Random A, Random B.
-   Each policy keeps a ranked top 10, nested as tickets K4-K10. K6 is the primary size.
+   Each policy keeps a ranked top 10, nested as tickets K4-K10. K4 is the primary size from R007 (K6 up to R006).
    From R005 it also builds a Weighted blend: each of the 7 policies gives its top 10 numbers
    10 points down to 1, multiplied by its current weight in `ledger/weights.json`; the 10 numbers
    with the most points form the blend's tickets. The blend is scored and shown, but stays out of
@@ -37,11 +37,11 @@ policy is expected to beat chance. Report results honestly; never imply an edge.
    window opens. Commit it to `rounds/R00N/frozen.json` and `frozen.sha256`.
    The test window is the first 40 games closing at least 4 minutes after the freeze.
 4. Scoring with `python lab/score.py R00N`, once the test games are in draws.csv. For each policy:
-   K10 hits and hit rate, K6 return (the reward), return for K4-K10, complete hits, and
+   K10 hits and hit rate, the primary-size return (the reward), return for K4-K10, complete hits, and
    the first game with a complete hit. No random-ticket simulation: use the exact
    luck band instead. For K10 over 40 games, 95% of tickets land between 21% and 29%.
    That band is a label only, never a gate.
-5. GRPO update. Reward is the K6 return. Advantage = (reward - group mean) / group sd.
+5. GRPO update. Reward is the primary-size return (K6 to R006, K4 from R007). Advantage = (reward - group mean) / group sd.
    Weights (from R004 scoring on): each policy's weight is exp(its mean advantage over the last
    10 scored rounds, this one included), renormalised to sum to 1. So chance results fade instead
    of compounding. (R001-R003 used a multiplicative update; weights.json was recomputed from their

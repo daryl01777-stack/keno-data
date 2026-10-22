@@ -11,7 +11,7 @@ import numpy as np
 N_TRAIN, N_RECENT, SIMS = 100, 20, 2000
 P = 0.25                          # chance a given number is drawn in a game
 SIZES = list(range(4, 11))        # nested tickets K4..K10 (paytable covers K4-K10)
-PRIMARY = 6                       # pre-declared ticket size for the ROI verdict
+PRIMARY = 4                       # pre-declared ticket size for the reward (K6 up to R006)
 BLEND = "Weighted blend"          # scored, but outside the GRPO group
 
 
@@ -185,7 +185,7 @@ def main(path, last_game, round_id, out_path):
         "primary_ticket_size": PRIMARY,
         "nested_sizes": SIZES,
         "policies": {k: v[:10] for k, v in policies.items()},
-        "verdict_rule": ("Reward is the K6 return per $1 (pre-declared); K4-K10 returns reported for "
+        "verdict_rule": (f"Reward is the K{PRIMARY} return per $1 (pre-declared); K4-K10 returns reported for "
                          "reference. K10 hit rate is labelled against the exact luck band: over 40 "
                          "games, 95% of random K10 tickets land between 21% and 29%. The band is a "
                          "label only, never a gate. With 7 policies, one landing outside the band by "

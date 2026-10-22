@@ -12,12 +12,12 @@ def round_data(rid):
     rdir = os.path.join(ROOT, "rounds", rid)
     d = json.load(open(os.path.join(rdir, "frozen.json")))
     prev_id = f"R{int(rid[1:]) - 1:03d}"
-    prev = {r["policy"]: {"k6": float(r["k6_return"]), "k10": float(r["k10_hit_rate"])}
+    prev = {r["policy"]: {"k6": float(r["reward"]), "k10": float(r["k10_hit_rate"])}
             for r in csv.DictReader(open(os.path.join(ROOT, "ledger", "leaderboard.csv")))
             if r["round"] == prev_id}
     data = {"round": rid, "frozen": d["frozen_utc"], "train": d["training_games"],
             "test": d["test_games"], "close": d["test_expected_close_utc"],
-            "policies": d["policies"],
+            "policies": d["policies"], "primary": d["primary_ticket_size"],
             "weights": d.get("weights_at_freeze") or {p: round(1 / 7, 6) for p in d["policies"]},
             "roll": d.get("on_a_roll") or "none yet (first round)",
             "prev": prev, "scan": d["window_vs_chance"],

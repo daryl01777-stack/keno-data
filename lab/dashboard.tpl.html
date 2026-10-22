@@ -97,7 +97,7 @@ td,th{padding:4px 6px;border-bottom:1px solid var(--line);text-align:right}td:fi
 
   <section class="panel">
     <h2>Results so far</h2>
-    <p class="note">Net result of each policy's K6 ticket, $1 a game for 40 games ($40 staked per round).</p>
+    <p class="note">Net result of each policy's primary ticket (K6 up to round 6, K4 from round 7), $1 a game for 40 games ($40 staked per round).</p>
     <div class="scroll"><table id="history"></table></div>
   </section>
 
@@ -112,7 +112,7 @@ td,th{padding:4px 6px;border-bottom:1px solid var(--line);text-align:right}td:fi
     <ul class="check" id="checklist"></ul>
     <div class="lbl">Fingerprint (sha256 of frozen.json)</div>
     <div class="sha" id="sha"></div>
-    <p class="note">Keno draws are certified random. Every policy, including the random ones, should land near 25% K10 hit rate and lose money over time. K6 returns about 75c per $1 on average.</p>
+    <p class="note">Keno draws are certified random. Every policy, including the random ones, should land near 25% K10 hit rate and lose money over time. K4 to K6 tickets return about 74-75c per $1 on average.</p>
   </section>
 </div>
 
@@ -129,7 +129,7 @@ const cents = x => x >= 1 ? "$" + x.toFixed(2) : Math.round(x*100) + "c";
 function res(k){ if(!S) return `<div class="meta"><span>Round ${N} result: <b>pending</b></span></div>`; const s = S[k], t = s.sizes[size], all = Object.values(s.sizes).reduce((a,x)=>a+x.net40,0);
   const comp = s.complete.length ? s.complete.map(([n,g])=>`K${n} in game ${g}`).join(", ") : "none";
   return `<div class="result"><div class="tag">Round ${N} result</div>
-    <div class="meta"><span>K6 return <b>${cents(s.k6)}/$1</b></span><span>K10 hits <b>${s.k10hits}/400 (${(s.k10*100).toFixed(1)}%)</b></span>
+    <div class="meta"><span>K${D.primary} return <b>${cents(s.k6)}/$1</b></span><span>K10 hits <b>${s.k10hits}/400 (${(s.k10*100).toFixed(1)}%)</b></span>
     <span class="${s.band?'':'out'}">${s.band?'Inside luck band':'Just outside luck band'}</span>
     <span>Complete hits <b>${comp}</b></span>${s.adv===""?"<span>Outside the GRPO update</span>":`<span>Advantage <b>${s.adv>0?'+':''}${s.adv.toFixed(2)}</b></span>
     <span>Weight now <b>${(s.w*100).toFixed(1)}%</b></span>`}</div>
@@ -153,7 +153,7 @@ function render(){
       <div class="row"><div><div class="tag">${CAT[k]}</div><h2>${k}</h2></div>${k===rollNow?`<span class="roll">${S?'On a roll next':'On a roll'}</span>`:''}</div>
       <div class="balls">${balls(D.policies[k].slice(0,size).slice().sort((a,b)=>a-b))}</div>
       ${w===undefined ? `<div class="meta"><span>Built from the policy weights below; not weighted itself</span></div>` :
-      `<div class="meta"><span>Weight <b>${(w*100).toFixed(1)}%</b></span>${pr?`<span>R${N-1} K6 return <b>${Math.round(pr.k6*100)}c/$1</b></span><span>R${N-1} K10 hits <b>${(pr.k10*100).toFixed(1)}%</b></span>`:""}</div>
+      `<div class="meta"><span>Weight <b>${(w*100).toFixed(1)}%</b></span>${pr?`<span>R${N-1} K${ALL[IDS[IDS.indexOf(D.round)-1]]?.primary ?? 6} return <b>${Math.round(pr.k6*100)}c/$1</b></span><span>R${N-1} K10 hits <b>${(pr.k10*100).toFixed(1)}%</b></span>`:""}</div>
       <div class="bar" aria-hidden="true"><div style="width:${(w/maxW*100).toFixed(0)}%"></div></div>`}
       ${res(k)}
     </article>`}).join("");
@@ -171,12 +171,12 @@ IDS.forEach(r=>{const b=document.createElement("button");b.type="button";b.textC
 const scoredIds = IDS.filter(r=>ALL[r].scores);
 $("history").innerHTML = `<tr><th>Policy</th>${scoredIds.map(r=>`<th>R${+r.slice(1)}</th>`).join("")}<th>Total</th></tr>` +
   ALLP.filter(k=>scoredIds.some(r=>ALL[r].scores[k])).map(k=>{
-    const v = scoredIds.map(r=>ALL[r].scores[k] ? ALL[r].scores[k].sizes[6].net40 : null);
+    const v = scoredIds.map(r=>ALL[r].scores[k] ? ALL[r].scores[k].sizes[ALL[r].primary].net40 : null);
     const tot = v.reduce((a,x)=>a+(x||0),0);
     return `<tr><td>${k}</td>${v.map(x=>`<td class="${x===null?"":cls(x)}">${x===null?"–":money(x)}</td>`).join("")}<td class="${cls(tot)}"><b>${money(tot)}</b></td></tr>`;
   }).join("");
 function show(rid){
-D = ALL[rid]; N = +D.round.slice(1); S = D.scores;
+D = ALL[rid]; N = +D.round.slice(1); S = D.scores; size = D.primary;
 ORDER = ALLP.filter(k=>D.policies[k]);
 maxW = Math.max(...Object.values(D.weights));
 if (!["All", ...ORDER.map(k=>CAT[k])].includes(cat)) cat = "All";
@@ -188,7 +188,7 @@ $("scored").textContent = S ? 40 : 0;
 const minP = Math.min(...Object.values(D.scan).map(v=>v.p_chance));
 $("scannote").textContent = `Share of 2,000 random 100-game windows at least as extreme. The lowest is ${minP.toFixed(2)}` + (minP >= 0.05 ? ", so the window looks like ordinary random draws." : ". With 10 checks, one value under 0.05 turns up by chance in about 4 windows out of 10.");
 $("presult").innerHTML = S
-  ? `Round ${N}: K6 returned <b>${cents(S["Anomaly composite"].k6)} per $1</b> (group average ${cents(D.mean)}). Went in on a roll: ${D.roll}. Now on a roll: <b>${D.next_roll}</b>.`
+  ? `Round ${N}: K${D.primary} returned <b>${cents(S["Anomaly composite"].k6)} per $1</b> (group average ${cents(D.mean)}). Went in on a roll: ${D.roll}. Now on a roll: <b>${D.next_roll}</b>.`
   : `On a roll: <b>${D.roll}</b>. That comes from luck in earlier rounds, not skill.`;
 rollNow = S ? D.next_roll : D.roll;
 $("sha").textContent = D.sha;
