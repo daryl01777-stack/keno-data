@@ -20,6 +20,23 @@ def parse(s):
     return datetime.fromisoformat(s.replace("Z", "+00:00"))
 
 
+WINDOW = 10   # weights come from each policy's average advantage over the last 10 scored rounds
+
+
+def averaged_weights(rid, current):
+    """Softmax of each policy's mean advantage over the last WINDOW rounds (this one included)."""
+    hist = {}
+    with open(path("ledger", "leaderboard.csv"), newline="") as f:
+        for r in csv.DictReader(f):
+            if r["advantage"] and r["round"] != rid and r["policy"] in current:
+                hist.setdefault(r["round"], {})[r["policy"]] = float(r["advantage"])
+    rounds = [hist[k] for k in sorted(hist)][-(WINDOW - 1):] + [current]
+    avg = {n: sum(r[n] for r in rounds) / len(rounds) for n in current}
+    e = {n: math.exp(a) for n, a in avg.items()}
+    total = sum(e.values())
+    return {n: round(v / total, 6) for n, v in e.items()}
+
+
 def main(rid):
     frozen = json.load(open(path("rounds", rid, "frozen.json")))
     pay = {int(k): {int(h): v for h, v in t.items()}
@@ -60,17 +77,12 @@ def main(rid):
         results[name] = res
 
     w = json.load(open(path("ledger", "weights.json")))
-    lr = w["learning_rate"]
     rewards = {n: results[n]["reward"] for n in w["weights"]}  # GRPO group only
     mean = sum(rewards.values()) / len(rewards)
     sd = math.sqrt(sum((x - mean) ** 2 for x in rewards.values()) / len(rewards))
-    new = {}
     for n in w["weights"]:
-        adv = (rewards[n] - mean) / sd if sd > 0 else 0.0
-        results[n]["advantage"] = round(adv, 3)
-        new[n] = w["weights"][n] * math.exp(lr * adv)
-    total = sum(new.values())
-    new = {n: round(v / total, 6) for n, v in new.items()}
+        results[n]["advantage"] = round((rewards[n] - mean) / sd if sd > 0 else 0.0, 3)
+    new = averaged_weights(rid, {n: results[n]["advantage"] for n in w["weights"]})
     for n in new:
         results[n]["weight_before"] = w["weights"][n]
         results[n]["weight_after"] = new[n]

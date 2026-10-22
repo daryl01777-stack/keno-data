@@ -38,7 +38,10 @@ policy is expected to beat chance. Report results honestly; never imply an edge.
    luck band instead. For K10 over 40 games, 95% of tickets land between 21% and 29%.
    That band is a label only, never a gate.
 5. GRPO update. Reward is the K6 return. Advantage = (reward - group mean) / group sd.
-   Each weight is multiplied by exp(0.5 x advantage), then all weights are renormalised.
+   Weights (from R004 scoring on): each policy's weight is exp(its mean advantage over the last
+   10 scored rounds, this one included), renormalised to sum to 1. So chance results fade instead
+   of compounding. (R001-R003 used a multiplicative update; weights.json was recomputed from their
+   advantages under this rule on 22 Oct.)
    Update `ledger/weights.json` and append to `ledger/leaderboard.csv`. The policy with
    the highest weight is flagged "On a roll" for the next round (ties go to the higher
    K10 hit rate). `lab/score.py` does steps 4-6 apart from the commit.

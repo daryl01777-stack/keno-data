@@ -1,15 +1,15 @@
 {
  "after_round": "R003",
- "learning_rate": 0.5,
+ "rule": "softmax of mean advantage over the last 10 scored rounds",
  "reward": "K6 return per $1 in the round",
  "weights": {
-  "Anomaly composite": 0.02835,
-  "Hot (most drawn)": 0.02807,
-  "Surge (last 20 games)": 0.168387,
-  "Pair cluster": 0.171657,
-  "Overdue (longest gap)": 0.31089,
-  "Random A": 0.041867,
-  "Random B": 0.250779
+  "Anomaly composite": 0.05235,
+  "Hot (most drawn)": 0.052002,
+  "Overdue (longest gap)": 0.258344,
+  "Pair cluster": 0.173867,
+  "Random A": 0.067895,
+  "Random B": 0.22392,
+  "Surge (last 20 games)": 0.171621
  },
  "on_a_roll": "Overdue (longest gap)"
 }
