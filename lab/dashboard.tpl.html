@@ -65,6 +65,7 @@ td,th{padding:4px 6px;border-bottom:1px solid var(--line);text-align:right}td:fi
   <header>
     <h1 id="h1">Keno lab</h1><span class="pill" id="status"></span>
     <p class="sub" id="subline"></p>
+    <div class="group" id="rounds" role="group" aria-label="Round"><span class="lbl" style="align-self:center">Round</span></div>
   </header>
 
   <section class="tiles">
@@ -95,6 +96,12 @@ td,th{padding:4px 6px;border-bottom:1px solid var(--line);text-align:right}td:fi
   </section>
 
   <section class="panel">
+    <h2>Results so far</h2>
+    <p class="note">Net result of each policy's K6 ticket, $1 a game for 40 games ($40 staked per round).</p>
+    <div class="scroll"><table id="history"></table></div>
+  </section>
+
+  <section class="panel">
     <h2>Training window vs chance</h2>
     <p class="note" id="scannote"></p>
     <div class="scroll"><table id="scan"><tr><th>Check</th><th>Observed</th><th>Chance median</th><th>p</th></tr></table></div>
@@ -110,15 +117,15 @@ td,th{padding:4px 6px;border-bottom:1px solid var(--line);text-align:right}td:fi
 </div>
 
 <script>
-const D = __DATA__;
+const ALL = __DATA__;
+const IDS = Object.keys(ALL).sort();
+let D, N, S, ORDER, maxW, rollNow;
 const CAT = {"Anomaly composite":"Anomaly","Hot (most drawn)":"Signal","Surge (last 20 games)":"Signal","Pair cluster":"Signal","Overdue (longest gap)":"Signal","Random A":"Baseline","Random B":"Baseline","Weighted blend":"Blend"};
-const ORDER = ["Anomaly composite","Hot (most drawn)","Surge (last 20 games)","Pair cluster","Overdue (longest gap)","Random A","Random B","Weighted blend"].filter(k=>D.policies[k]);
+const ALLP = ["Anomaly composite","Hot (most drawn)","Surge (last 20 games)","Pair cluster","Overdue (longest gap)","Random A","Random B","Weighted blend"];
 let cat = "All", size = 6;
 const $ = id => document.getElementById(id);
 const balls = (nums, ranked) => nums.map((n,i)=>`<div class="ball">${ranked?`<i>${i+1}</i>`:""}${n}</div>`).join("");
-const maxW = Math.max(...Object.values(D.weights));
-const cents = x => Math.round(x*100) + "c";
-const N = +D.round.slice(1), S = D.scores;
+const cents = x => x >= 1 ? "$" + x.toFixed(2) : Math.round(x*100) + "c";
 function res(k){ if(!S) return `<div class="meta"><span>Round ${N} result: <b>pending</b></span></div>`; const s = S[k], t = s.sizes[size], all = Object.values(s.sizes).reduce((a,x)=>a+x.net40,0);
   const comp = s.complete.length ? s.complete.map(([n,g])=>`K${n} in game ${g}`).join(", ") : "none";
   return `<div class="result"><div class="tag">Round ${N} result</div>
@@ -136,18 +143,6 @@ const cls = x => x>0 ? "up" : x<0 ? "down" : "";
 
 const bne = s => { const m = s.match(/(\d\d):(\d\d)/); const h = (+m[1] + 10) % 24, mm = m[2]; return `${h % 12 || 12}:${mm} ${h < 12 ? "am" : "pm"}`; };
 const bneDate = s => { const d = new Date(Date.parse(s) + 10*3600e3); return d.getUTCDate() + " " + ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][d.getUTCMonth()]; };
-$("subline").textContent = `Frozen ${bneDate(D.frozen)}, ${bne(D.frozen.slice(11))} Brisbane time. Trained on games ${D.train[0]}-${D.train[1]}, tested on games ${D.test[0]}-${D.test[1]} (expected ${bne(D.close[0])} to ${bne(D.close[1])}).`;
-$("h1").textContent = `Keno lab · Round ${N}`;
-$("status").textContent = S ? "Scored" : "Frozen · test pending";
-$("scored").textContent = S ? 40 : 0;
-const minP = Math.min(...Object.values(D.scan).map(v=>v.p_chance));
-$("scannote").textContent = `Share of 2,000 random 100-game windows at least as extreme. The lowest is ${minP.toFixed(2)}` + (minP >= 0.05 ? ", so the window looks like ordinary random draws." : ". With 10 checks, one value under 0.05 turns up by chance in about 4 windows out of 10.");
-$("presult").innerHTML = S
-  ? `Round ${N}: K6 returned <b>${cents(S["Anomaly composite"].k6)} per $1</b> (group average ${cents(D.mean)}). Went in on a roll: ${D.roll}. Now on a roll: <b>${D.next_roll}</b>.`
-  : `On a roll: <b>${D.roll}</b>. That comes from luck in earlier rounds, not skill.`;
-const rollNow = S ? D.next_roll : D.roll;
-$("sha").textContent = D.sha;
-
 function render(){
   const p = D.policies["Anomaly composite"].slice(0,size);
   $("ptitle").textContent = `K${size} ticket`;
@@ -165,8 +160,42 @@ function render(){
   document.querySelectorAll("#cats button").forEach(b=>b.setAttribute("aria-pressed", b.dataset.v===cat));
   document.querySelectorAll("#sizes button").forEach(b=>b.setAttribute("aria-pressed", +b.dataset.v===size));
 }
-["All","Anomaly","Signal","Baseline"].concat(D.policies["Weighted blend"]?["Blend"]:[]).forEach(c=>{const b=document.createElement("button");b.type="button";b.textContent=c;b.dataset.v=c;b.onclick=()=>{cat=c;render()};$("cats").append(b)});
+$("copy").onclick = async () => {
+  const txt = D.policies["Anomaly composite"].slice(0,size).join(" ");
+  try { await navigator.clipboard.writeText(txt); $("copy").textContent="Copied"; }
+  catch { const r=document.createRange(); r.selectNodeContents($("pballs")); getSelection().removeAllRanges(); getSelection().addRange(r); $("copy").textContent="Selected"; }
+  setTimeout(()=>$("copy").textContent="Copy numbers",1500);
+};
 for(let s=4;s<=10;s++){const b=document.createElement("button");b.type="button";b.textContent="K"+s;b.dataset.v=s;b.onclick=()=>{size=s;render()};$("sizes").append(b)}
+IDS.forEach(r=>{const b=document.createElement("button");b.type="button";b.textContent=+r.slice(1);b.dataset.v=r;b.onclick=()=>{try{history.replaceState(null,"","#"+r)}catch{};show(r)};$("rounds").append(b)});
+const scoredIds = IDS.filter(r=>ALL[r].scores);
+$("history").innerHTML = `<tr><th>Policy</th>${scoredIds.map(r=>`<th>R${+r.slice(1)}</th>`).join("")}<th>Total</th></tr>` +
+  ALLP.filter(k=>scoredIds.some(r=>ALL[r].scores[k])).map(k=>{
+    const v = scoredIds.map(r=>ALL[r].scores[k] ? ALL[r].scores[k].sizes[6].net40 : null);
+    const tot = v.reduce((a,x)=>a+(x||0),0);
+    return `<tr><td>${k}</td>${v.map(x=>`<td class="${x===null?"":cls(x)}">${x===null?"–":money(x)}</td>`).join("")}<td class="${cls(tot)}"><b>${money(tot)}</b></td></tr>`;
+  }).join("");
+function show(rid){
+D = ALL[rid]; N = +D.round.slice(1); S = D.scores;
+ORDER = ALLP.filter(k=>D.policies[k]);
+maxW = Math.max(...Object.values(D.weights));
+if (!["All", ...ORDER.map(k=>CAT[k])].includes(cat)) cat = "All";
+document.querySelectorAll("#rounds button").forEach(b=>b.setAttribute("aria-pressed", b.dataset.v===rid));
+$("subline").textContent = `Frozen ${bneDate(D.frozen)}, ${bne(D.frozen.slice(11))} Brisbane time. Trained on games ${D.train[0]}-${D.train[1]}, tested on games ${D.test[0]}-${D.test[1]} (expected ${bne(D.close[0])} to ${bne(D.close[1])}).`;
+$("h1").textContent = `Keno lab · Round ${N}`;
+$("status").textContent = S ? "Scored" : "Frozen · test pending";
+$("scored").textContent = S ? 40 : 0;
+const minP = Math.min(...Object.values(D.scan).map(v=>v.p_chance));
+$("scannote").textContent = `Share of 2,000 random 100-game windows at least as extreme. The lowest is ${minP.toFixed(2)}` + (minP >= 0.05 ? ", so the window looks like ordinary random draws." : ". With 10 checks, one value under 0.05 turns up by chance in about 4 windows out of 10.");
+$("presult").innerHTML = S
+  ? `Round ${N}: K6 returned <b>${cents(S["Anomaly composite"].k6)} per $1</b> (group average ${cents(D.mean)}). Went in on a roll: ${D.roll}. Now on a roll: <b>${D.next_roll}</b>.`
+  : `On a roll: <b>${D.roll}</b>. That comes from luck in earlier rounds, not skill.`;
+rollNow = S ? D.next_roll : D.roll;
+$("sha").textContent = D.sha;
+
+$("cats").innerHTML = "";
+["All","Anomaly","Signal","Baseline"].concat(D.policies["Weighted blend"]?["Blend"]:[]).forEach(c=>{const b=document.createElement("button");b.type="button";b.textContent=c;b.dataset.v=c;b.onclick=()=>{cat=c;render()};$("cats").append(b)});
+$("scan").innerHTML = "<tr><th>Check</th><th>Observed</th><th>Chance median</th><th>p</th></tr>";
 for(const [k,v] of Object.entries(D.scan)) $("scan").insertAdjacentHTML("beforeend",`<tr><td>${k}</td><td>${v.observed}</td><td>${v.chance_median}</td><td>${v.p_chance.toFixed(3)}</td></tr>`);
 $("checklist").innerHTML = [
   [`Round ${N-1} scored and weights updated`,1],
@@ -175,15 +204,9 @@ $("checklist").innerHTML = [
   [`All 40 test games in draws.csv (game ${D.test[1]}, about ${bne(D.close[1])})`,!!S],
   ["Scored with lab/score.py and GRPO update applied",!!S]
 ].map(([t,d])=>`<li class="${d?'done':''}">${t}</li>`).join("");
-$("copy").onclick = async () => {
-  const txt = D.policies["Anomaly composite"].slice(0,size).join(" ");
-  try { await navigator.clipboard.writeText(txt); $("copy").textContent="Copied"; }
-  catch { const r=document.createRange(); r.selectNodeContents($("pballs")); getSelection().removeAllRanges(); getSelection().addRange(r); $("copy").textContent="Selected"; }
-  setTimeout(()=>$("copy").textContent="Copy numbers",1500);
-};
+$("htpanel").hidden = !D.ht;
 if (D.ht) {
   const c = D.ht.training_counts, H = D.ht_scores;
-  $("htpanel").hidden = false;
   $("htnote").textContent = `$1 a game on each bet for all 40 test games. Heads or tails pays $2, evens pays $4. Training games went heads ${c.heads}, tails ${c.tails}, evens ${c.evens}. Every bet returns about 80c per $1 on average, whatever the history.` + (H ? ` Test games went heads ${H.counts.heads}, tails ${H.counts.tails}, evens ${H.counts.evens}.` : "");
   $("htcards").innerHTML = Object.entries(D.ht.bets).map(([name, side]) => {
     const b = H && H.bets[name];
@@ -193,4 +216,7 @@ if (D.ht) {
   }).join("");
 }
 render();
+}
+const start = location.hash.slice(1);
+show(ALL[start] ? start : IDS[IDS.length-1]);
 </script>

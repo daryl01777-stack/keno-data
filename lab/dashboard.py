@@ -8,7 +8,7 @@ import csv, json, os, sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
-def main(rid, out_path):
+def round_data(rid):
     rdir = os.path.join(ROOT, "rounds", rid)
     d = json.load(open(os.path.join(rdir, "frozen.json")))
     prev_id = f"R{int(rid[1:]) - 1:03d}"
@@ -17,7 +17,9 @@ def main(rid, out_path):
             if r["round"] == prev_id}
     data = {"round": rid, "frozen": d["frozen_utc"], "train": d["training_games"],
             "test": d["test_games"], "close": d["test_expected_close_utc"],
-            "policies": d["policies"], "weights": d["weights_at_freeze"], "roll": d["on_a_roll"],
+            "policies": d["policies"],
+            "weights": d.get("weights_at_freeze") or {p: round(1 / 7, 6) for p in d["policies"]},
+            "roll": d.get("on_a_roll") or "none yet (first round)",
             "prev": prev, "scan": d["window_vs_chance"],
             "sha": open(os.path.join(rdir, "frozen.sha256")).read().strip(), "scores": None,
             "ht": d.get("heads_tails"), "ht_scores": None}
@@ -41,8 +43,16 @@ def main(rid, out_path):
                           for p, r in s["results"].items()}
         data["next_roll"], data["mean"] = s["on_a_roll"], s["group_mean_reward"]
         data["ht_scores"] = s.get("heads_tails")
+    return data
+
+
+def main(rid, out_path):
+    """Build the page with every round up to rid; it opens on rid."""
+    last = int(rid[1:])
+    rounds = {r: round_data(r) for r in sorted(os.listdir(os.path.join(ROOT, "rounds")))
+              if r.startswith("R") and int(r[1:]) <= last}
     tpl = open(os.path.join(ROOT, "lab", "dashboard.tpl.html")).read()
-    open(out_path, "w").write(tpl.replace("__DATA__", json.dumps(data)))
+    open(out_path, "w").write(tpl.replace("__DATA__", json.dumps(rounds)))
 
 
 if __name__ == "__main__":
