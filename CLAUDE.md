@@ -71,5 +71,7 @@ Build the page with `python lab/dashboard.py R00N out.html` (works before and af
 includes every round up to R00N with a round picker and a results-so-far table)
 and republish it to the same artifact: https://claude.ai/artifact/CHcWvqAfQfKLw4Eoqu2MEg
 Show times in Brisbane time only (AEST, UTC+10, no daylight saving), in the dashboard and in chat.
-Scored rounds add results to each card. Daryl wants honest opinions, never what he
+Scored rounds add results to each card. The headline result per ticket (from 22 Oct, applied to
+all rounds by `lab/dashboard.py`) is a $20 ticket for the first 20 test games, then its winnings
+replayed at $1 a game until it busts, catches all k numbers, reaches $40, or the 40-game window ends. Daryl wants honest opinions, never what he
 wants to hear.

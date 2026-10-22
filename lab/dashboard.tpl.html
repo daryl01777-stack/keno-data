@@ -103,7 +103,7 @@ td,th{padding:4px 6px;border-bottom:1px solid var(--line);text-align:right}td:fi
 
   <section class="panel">
     <h2>Results so far</h2>
-    <p class="note">Net result of each policy's primary ticket (K6 up to round 6, K4 from round 7), $1 a game for 40 games ($40 staked per round).</p>
+    <p class="note">Net result of each policy's primary ticket (K6 up to round 6, K4 from round 7): a $20 ticket for 20 games, then winnings replayed until it busts, catches all its numbers, reaches $40 or the 40-game window ends.</p>
     <div class="scroll"><table id="history"></table></div>
   </section>
 
@@ -133,7 +133,7 @@ let cat = "All", size = 6;
 const $ = id => document.getElementById(id);
 const balls = (nums, ranked) => nums.map((n,i)=>`<div class="ball">${ranked?`<i>${i+1}</i>`:""}${n}</div>`).join("");
 const cents = x => x >= 1 ? "$" + x.toFixed(2) : Math.round(x*100) + "c";
-function res(k){ if(!S) return `<div class="meta"><span>Round ${N} result: <b>pending</b></span></div>`; const s = S[k], t = s.sizes[size], all = Object.values(s.sizes).reduce((a,x)=>a+x.net40,0);
+function res(k){ if(!S) return `<div class="meta"><span>Round ${N} result: <b>pending</b></span></div>`; const s = S[k], t = s.sizes[size], all = Object.values(s.sizes).reduce((a,x)=>a+x.replay.net,0), rp = t.replay;
   const comp = s.complete.length ? s.complete.map(([n,g])=>`K${n} in game ${g}`).join(", ") : "none";
   return `<div class="result"><div class="tag">Round ${N} result</div>
     <div class="meta"><span>K${D.primary} return <b>${cents(s.k6)}/$1</b></span><span>K10 hits <b>${s.k10hits}/400 (${(s.k10*100).toFixed(1)}%)</b></span>
@@ -141,9 +141,11 @@ function res(k){ if(!S) return `<div class="meta"><span>Round ${N} result: <b>pe
     <span>Complete hits <b>${comp}</b></span>${s.adv===""?"<span>Outside the GRPO update</span>":`<span>Advantage <b>${s.adv>0?'+':''}${s.adv.toFixed(2)}</b></span>
     <span>Weight now <b>${(s.w*100).toFixed(1)}%</b></span>`}</div>
     <div class="tag">K${size} ticket, $1 a game</div>
-    <div class="meta"><span>First 20 games <b class="${cls(t.net20)}">${money(t.net20)}</b></span><span>All 40 games <b class="${cls(t.net40)}">${money(t.net40)}</b></span>
-    <span>All sizes K4-K10, 40 games ($280 staked) <b class="${cls(all)}">${money(all)}</b></span></div>
-    <div class="meta"><span>Paying games <b>${t.pays.length} of 40</b></span></div>
+    <div class="meta"><span>$20 ticket, 20 games <b class="${cls(t.net20)}">${money(t.net20)}</b></span><span>With winnings replayed <b class="${cls(rp.net)}">${money(rp.net)}</b></span>
+    <span>Ended: <b>${rp.end}</b> after ${rp.games} games (game ${rp.last_game})</span></div>
+    <div class="meta">
+    <span>All sizes K4-K10 with replay ($140 staked) <b class="${cls(all)}">${money(all)}</b></span></div>
+    <div class="meta"><span>Paying games across all 40 <b>${t.pays.length}</b></span></div>
     <div class="pays">${t.pays.map(([g,h,w])=>`<span>Game ${g}: ${h}/${size} <b>$${w}</b></span>`).join("") || "<span>None</span>"}</div></div>`; }
 function catchTable(){
   $("catchpanel").hidden = !S;
@@ -193,7 +195,7 @@ IDS.forEach(r=>{const b=document.createElement("button");b.type="button";b.textC
 const scoredIds = IDS.filter(r=>ALL[r].scores);
 $("history").innerHTML = `<tr><th>Policy</th>${scoredIds.map(r=>`<th>R${+r.slice(1)}</th>`).join("")}<th>Total</th></tr>` +
   ALLP.filter(k=>scoredIds.some(r=>ALL[r].scores[k])).map(k=>{
-    const v = scoredIds.map(r=>ALL[r].scores[k] ? ALL[r].scores[k].sizes[ALL[r].primary].net40 : null);
+    const v = scoredIds.map(r=>ALL[r].scores[k] ? ALL[r].scores[k].sizes[ALL[r].primary].replay.net : null);
     const tot = v.reduce((a,x)=>a+(x||0),0);
     return `<tr><td>${k}</td>${v.map(x=>`<td class="${x===null?"":cls(x)}">${x===null?"–":money(x)}</td>`).join("")}<td class="${cls(tot)}"><b>${money(tot)}</b></td></tr>`;
   }).join("");

@@ -8,6 +8,36 @@ import csv, json, math, os, sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
+def replay(k, hits, won, first, buy=20, target=40):
+    """A $20 ticket for the first 20 test games, then its winnings are replayed at $1 a game.
+    It stops when the bank runs out (bust), the ticket catches all k numbers, the bank reaches
+    $40 (twice the cost), or the test window ends."""
+    bank, played = sum(won[:buy]), buy
+    full = [i for i in range(buy) if hits[i] == k]
+    if full:
+        end = "caught all"
+    elif bank >= target:
+        end = "reached $40"
+    elif bank < 1:
+        end = "bust"
+    else:
+        end = "window ended"
+        for i in range(buy, len(won)):
+            bank += won[i] - 1
+            played += 1
+            if hits[i] == k:
+                end, full = "caught all", [i]
+                break
+            if bank >= target:
+                end = "reached $40"
+                break
+            if bank < 1:
+                end = "bust"
+                break
+    return {"bank": bank, "net": bank - buy, "games": played, "end": end,
+            "last_game": (first + played - 1) % 1000}
+
+
 def round_data(rid):
     rdir = os.path.join(ROOT, "rounds", rid)
     d = json.load(open(os.path.join(rdir, "frozen.json")))
@@ -33,6 +63,7 @@ def round_data(rid):
         def ticket(k, x):
             won = [pay[k].get(h, 0) for h in x["per_game"]]
             return {"net20": sum(won[:20]) - 20, "net40": sum(won) - n,
+                    "replay": replay(k, x["per_game"], won, first),
                     "pays": [[(first + i) % 1000, h, w] for i, (h, w) in enumerate(zip(x["per_game"], won)) if w]}
         data["scores"] = {p: {"k6": r["reward"], "k10": r["k10_hit_rate"], "band": r["in_luck_band"],
                               "adv": r["advantage"], "w": r["weight_after"],
