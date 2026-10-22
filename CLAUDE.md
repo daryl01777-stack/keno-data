@@ -24,6 +24,10 @@ policy is expected to beat chance. Report results honestly; never imply an edge.
    scan (10 checks against 2,000 random 100-game windows) and builds 7 policies:
    Anomaly composite (primary), Hot, Surge, Pair cluster, Overdue, Random A, Random B.
    Each policy keeps a ranked top 10, nested as tickets K4-K10. K6 is the primary size.
+   From R005 it also builds a Weighted blend: each of the 7 policies gives its top 10 numbers
+   10 points down to 1, multiplied by its current weight in `ledger/weights.json`; the 10 numbers
+   with the most points form the blend's tickets. The blend is scored and shown, but stays out of
+   the GRPO update because it is built from the weights.
 3. Freeze: add `frozen_utc`, `test_games` and the expected close times, write canonical
    JSON (`sort_keys`, compact separators), and post its sha256 in chat before the test
    window opens. Commit it to `rounds/R00N/frozen.json` and `frozen.sha256`.
