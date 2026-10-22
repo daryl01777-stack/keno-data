@@ -115,6 +115,15 @@ def pair_cluster(s):
     return [c + 1 for c in chosen]
 
 
+def persistence(X, s):
+    """Numbers that run above average in every quarter of the window (7+ of 25 games, 6.25
+    expected), steadiest first, then most drawn. Rewards consistency rather than one hot run."""
+    q = X.reshape(4, -1, 80).sum(1)
+    above, spread = (q >= 7).sum(0), q.std(0)
+    order = sorted(range(80), key=lambda i: (-above[i], spread[i], -s["freq"][i], i))
+    return [i + 1 for i in order]
+
+
 def seeded_random(label, data_hash):
     seed = int(hashlib.sha256(f"{label}|{data_hash}".encode()).hexdigest()[:16], 16)
     r = np.random.default_rng(seed)
@@ -139,6 +148,7 @@ def main(path, last_game, round_id, out_path):
         "Surge (last 20 games)": ranking(s["z_rec"], s["freq"]),
         "Pair cluster": pair_cluster(s),
         "Anomaly composite": ranking(composite, s["freq"]),
+        "Persistence": persistence(X, s),
     }
     for label in ("Random A", "Random B"):
         pick, seed = seeded_random(label, data_hash)

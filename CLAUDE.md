@@ -22,10 +22,12 @@ policy is expected to beat chance. Report results honestly; never imply an edge.
 1. Training window: the latest 100 completed games.
 2. `python lab/round.py <merged csv> <last training game> R00N out.json` runs the anomaly
    scan (10 checks against 2,000 random 100-game windows) and builds 7 policies:
-   Anomaly composite (primary), Hot, Surge, Pair cluster, Overdue, Random A, Random B.
+   Anomaly composite (primary), Hot, Surge, Pair cluster, Overdue, Random A, Random B, and from R008
+   Persistence (numbers drawn 7+ times in each 25-game quarter, i.e. above average every quarter;
+   steadiest first, then most drawn; it shares about half its top 10 with Hot).
    Each policy keeps a ranked top 10, nested as tickets K4-K10. K4 is the primary size from R007 (K6 up to R006).
    It also builds a Weighted blend (from R005). From R008 the blend is a seat allocation: Hot,
-   Surge, Pair cluster and Overdue (not Anomaly composite, which already mixes the other signals,
+   Surge, Pair cluster, Overdue and Persistence once it has a weight (not Anomaly composite, which already mixes the other signals,
    and not Random A/B, which are controls) take turns by
    Sainte-Lague (weight / 1, 3, 5...), using their weights in `ledger/weights.json`; on its turn a
    policy adds its best-ranked number not already taken, so overlap is not additive and each policy
@@ -42,7 +44,8 @@ policy is expected to beat chance. Report results honestly; never imply an edge.
    The test window is the first 40 games closing at least 4 minutes after the freeze.
 4. Scoring with `python lab/score.py R00N`, once the test games are in draws.csv. For each policy:
    K10 hits and hit rate, the primary-size return (the reward), return for K4-K10, complete hits, and
-   the first game with a complete hit. No random-ticket simulation: use the exact
+   the first game with a complete hit. Every policy except the blend is in the GRPO group; a policy
+   added later is averaged over the rounds it has played. No random-ticket simulation: use the exact
    luck band instead. For K10 over 40 games, 95% of tickets land between 21% and 29%.
    That band is a label only, never a gate.
 5. GRPO update. Reward is the primary-size return (K6 to R006, K4 from R007). Advantage = (reward - group mean) / group sd.

@@ -31,7 +31,8 @@ def averaged_weights(rid, current):
             if r["advantage"] and r["round"] != rid and r["policy"] in current:
                 hist.setdefault(r["round"], {})[r["policy"]] = float(r["advantage"])
     rounds = [hist[k] for k in sorted(hist)][-(WINDOW - 1):] + [current]
-    avg = {n: sum(r[n] for r in rounds) / len(rounds) for n in current}
+    # a policy added later is averaged over the rounds it has played
+    avg = {n: sum(r[n] for r in rounds if n in r) / sum(1 for r in rounds if n in r) for n in current}
     e = {n: math.exp(a) for n, a in avg.items()}
     total = sum(e.values())
     return {n: round(v / total, 6) for n, v in e.items()}
@@ -77,14 +78,15 @@ def main(rid):
         results[name] = res
 
     w = json.load(open(path("ledger", "weights.json")))
-    rewards = {n: results[n]["reward"] for n in w["weights"]}  # GRPO group only
+    group = [n for n in results if n != "Weighted blend"]       # GRPO group: every policy but the blend
+    rewards = {n: results[n]["reward"] for n in group}
     mean = sum(rewards.values()) / len(rewards)
     sd = math.sqrt(sum((x - mean) ** 2 for x in rewards.values()) / len(rewards))
-    for n in w["weights"]:
+    for n in group:
         results[n]["advantage"] = round((rewards[n] - mean) / sd if sd > 0 else 0.0, 3)
-    new = averaged_weights(rid, {n: results[n]["advantage"] for n in w["weights"]})
+    new = averaged_weights(rid, {n: results[n]["advantage"] for n in group})
     for n in new:
-        results[n]["weight_before"] = w["weights"][n]
+        results[n]["weight_before"] = w["weights"].get(n, "")
         results[n]["weight_after"] = new[n]
     # ties on weight go to the higher K10 hit rate
     leader = max(new, key=lambda n: (new[n], results[n]['k10_hit_rate']))
@@ -130,7 +132,7 @@ def main(rid):
         print(f"  {n:24s} K{pk} ${s6['returned']:>5} back ({s6['roi_pct']:+.0f}%)  "
               f"K10 {s10['hits']}/{10*n_test} = {s10['hit_rate']:.1%}  "
               f"complete {[ (k, s['complete_hits']) for k, s in r['sizes'].items() if s['complete_hits']]}  "
-              + (f"best K{pk} catch {s6['best_catch']}  adv {r['advantage']:+.2f}  w {r['weight_before']:.3f}->{r['weight_after']:.3f}"
+              + (f"best K{pk} catch {s6['best_catch']}  adv {r['advantage']:+.2f}  w {r['weight_before'] or 0:.3f}->{r['weight_after']:.3f}"
                  if n in new else f"best K{pk} catch {s6['best_catch']}  (outside GRPO)"))
 
 
