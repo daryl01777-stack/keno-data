@@ -147,10 +147,12 @@ def main(path, last_game, round_id, out_path):
     # Weighted blend: policies take turns by seat allocation (Sainte-Lague, divisors 1, 3, 5...),
     # so each gets a share of the 10 slots in proportion to its weight. On its turn a policy adds
     # its best-ranked number not already taken; overlap is not additive. Anomaly composite is left
-    # out because it is already built from the other signals. Scored but kept out of GRPO.
+    # out because it is already built from the other signals, and the random controls are left out
+    # because they are controls. Scored but kept out of GRPO.
     weights = json.load(open(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                                           "ledger", "weights.json")))["weights"]
-    voters = {k: w for k, w in weights.items() if k != "Anomaly composite"}
+    voters = {k: w for k, w in weights.items()
+              if k not in ("Anomaly composite", "Random A", "Random B")}
     seats = {k: 0 for k in voters}
     blend = []
     while len(blend) < 10:
