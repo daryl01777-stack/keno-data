@@ -61,7 +61,7 @@ def main(rid):
 
     w = json.load(open(path("ledger", "weights.json")))
     lr = w["learning_rate"]
-    rewards = {n: r["reward"] for n, r in results.items()}
+    rewards = {n: results[n]["reward"] for n in w["weights"]}  # GRPO group only
     mean = sum(rewards.values()) / len(rewards)
     sd = math.sqrt(sum((x - mean) ** 2 for x in rewards.values()) / len(rewards))
     new = {}
@@ -82,6 +82,7 @@ def main(rid):
     with open(path("ledger", "leaderboard.csv"), "a", newline="") as f:
         cw = csv.writer(f)
         for n, r in results.items():
+            r.setdefault("advantage", ""); r.setdefault("weight_after", "")
             k6, k10 = r["sizes"][6], r["sizes"][10]
             cw.writerow([rid, n, k10["hits"], k10["hit_rate"], k6["return_per_dollar"], k6["roi_pct"],
                          sum(s["complete_hits"] for s in r["sizes"].values()),
@@ -99,7 +100,8 @@ def main(rid):
         print(f"  {n:24s} K6 ${s6['returned']:>5} back ({s6['roi_pct']:+.0f}%)  "
               f"K10 {s10['hits']}/{10*n_test} = {s10['hit_rate']:.1%}  "
               f"complete {[ (k, s['complete_hits']) for k, s in r['sizes'].items() if s['complete_hits']]}  "
-              f"best K6 catch {s6['best_catch']}  adv {r['advantage']:+.2f}  w {r['weight_before']:.3f}->{r['weight_after']:.3f}")
+              + (f"best K6 catch {s6['best_catch']}  adv {r['advantage']:+.2f}  w {r['weight_before']:.3f}->{r['weight_after']:.3f}"
+                 if n in new else f"best K6 catch {s6['best_catch']}  (outside GRPO)"))
 
 
 if __name__ == "__main__":

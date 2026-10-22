@@ -105,8 +105,8 @@ td,th{padding:4px 6px;border-bottom:1px solid var(--line);text-align:right}td:fi
 
 <script>
 const D = __DATA__;
-const CAT = {"Anomaly composite":"Anomaly","Hot (most drawn)":"Signal","Surge (last 20 games)":"Signal","Pair cluster":"Signal","Overdue (longest gap)":"Signal","Random A":"Baseline","Random B":"Baseline"};
-const ORDER = ["Anomaly composite","Hot (most drawn)","Surge (last 20 games)","Pair cluster","Overdue (longest gap)","Random A","Random B"];
+const CAT = {"Anomaly composite":"Anomaly","Hot (most drawn)":"Signal","Surge (last 20 games)":"Signal","Pair cluster":"Signal","Overdue (longest gap)":"Signal","Random A":"Baseline","Random B":"Baseline","Weighted blend":"Blend"};
+const ORDER = ["Anomaly composite","Hot (most drawn)","Surge (last 20 games)","Pair cluster","Overdue (longest gap)","Random A","Random B","Weighted blend"].filter(k=>D.policies[k]);
 let cat = "All", size = 6;
 const $ = id => document.getElementById(id);
 const balls = (nums, ranked) => nums.map((n,i)=>`<div class="ball">${ranked?`<i>${i+1}</i>`:""}${n}</div>`).join("");
@@ -118,8 +118,8 @@ function res(k){ if(!S) return `<div class="meta"><span>Round ${N} result: <b>pe
   return `<div class="result"><div class="tag">Round ${N} result</div>
     <div class="meta"><span>K6 return <b>${cents(s.k6)}/$1</b></span><span>K10 hits <b>${s.k10hits}/400 (${(s.k10*100).toFixed(1)}%)</b></span>
     <span class="${s.band?'':'out'}">${s.band?'Inside luck band':'Just outside luck band'}</span>
-    <span>Complete hits <b>${comp}</b></span><span>Advantage <b>${s.adv>0?'+':''}${s.adv.toFixed(2)}</b></span>
-    <span>Weight now <b>${(s.w*100).toFixed(1)}%</b></span></div>
+    <span>Complete hits <b>${comp}</b></span>${s.adv===""?"<span>Outside the GRPO update</span>":`<span>Advantage <b>${s.adv>0?'+':''}${s.adv.toFixed(2)}</b></span>
+    <span>Weight now <b>${(s.w*100).toFixed(1)}%</b></span>`}</div>
     <div class="tag">K${size} ticket, $1 a game</div>
     <div class="meta"><span>First 20 games <b class="${cls(t.net20)}">${money(t.net20)}</b></span><span>All 40 games <b class="${cls(t.net40)}">${money(t.net40)}</b></span>
     <span>All sizes K4-K10, 40 games ($280 staked) <b class="${cls(all)}">${money(all)}</b></span></div>
@@ -151,14 +151,15 @@ function render(){
     return `<article class="card">
       <div class="row"><div><div class="tag">${CAT[k]}</div><h2>${k}</h2></div>${k===rollNow?`<span class="roll">${S?'On a roll next':'On a roll'}</span>`:''}</div>
       <div class="balls">${balls(D.policies[k].slice(0,size).slice().sort((a,b)=>a-b))}</div>
-      <div class="meta"><span>Weight <b>${(w*100).toFixed(1)}%</b></span><span>R${N-1} K6 return <b>${Math.round(pr.k6*100)}c/$1</b></span><span>R${N-1} K10 hits <b>${(pr.k10*100).toFixed(1)}%</b></span></div>
-      <div class="bar" aria-hidden="true"><div style="width:${(w/maxW*100).toFixed(0)}%"></div></div>
+      ${w===undefined ? `<div class="meta"><span>Built from the policy weights below; not weighted itself</span></div>` :
+      `<div class="meta"><span>Weight <b>${(w*100).toFixed(1)}%</b></span>${pr?`<span>R${N-1} K6 return <b>${Math.round(pr.k6*100)}c/$1</b></span><span>R${N-1} K10 hits <b>${(pr.k10*100).toFixed(1)}%</b></span>`:""}</div>
+      <div class="bar" aria-hidden="true"><div style="width:${(w/maxW*100).toFixed(0)}%"></div></div>`}
       ${res(k)}
     </article>`}).join("");
   document.querySelectorAll("#cats button").forEach(b=>b.setAttribute("aria-pressed", b.dataset.v===cat));
   document.querySelectorAll("#sizes button").forEach(b=>b.setAttribute("aria-pressed", +b.dataset.v===size));
 }
-["All","Anomaly","Signal","Baseline"].forEach(c=>{const b=document.createElement("button");b.type="button";b.textContent=c;b.dataset.v=c;b.onclick=()=>{cat=c;render()};$("cats").append(b)});
+["All","Anomaly","Signal","Baseline"].concat(D.policies["Weighted blend"]?["Blend"]:[]).forEach(c=>{const b=document.createElement("button");b.type="button";b.textContent=c;b.dataset.v=c;b.onclick=()=>{cat=c;render()};$("cats").append(b)});
 for(let s=4;s<=10;s++){const b=document.createElement("button");b.type="button";b.textContent="K"+s;b.dataset.v=s;b.onclick=()=>{size=s;render()};$("sizes").append(b)}
 for(const [k,v] of Object.entries(D.scan)) $("scan").insertAdjacentHTML("beforeend",`<tr><td>${k}</td><td>${v.observed}</td><td>${v.chance_median}</td><td>${v.p_chance.toFixed(3)}</td></tr>`);
 $("checklist").innerHTML = [

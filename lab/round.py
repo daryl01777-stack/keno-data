@@ -4,7 +4,7 @@ random baselines, and a chance (null) comparison for every anomaly statistic.
 
 usage: python round.py DRAWS_CSV LAST_TRAINING_GAME ROUND_ID OUT_JSON
 """
-import csv, hashlib, json, sys
+import csv, hashlib, json, os, sys
 from datetime import datetime, timedelta, timezone
 import numpy as np
 
@@ -12,6 +12,7 @@ N_TRAIN, N_RECENT, SIMS = 100, 20, 2000
 P = 0.25                          # chance a given number is drawn in a game
 SIZES = list(range(4, 11))        # nested tickets K4..K10 (paytable covers K4-K10)
 PRIMARY = 6                       # pre-declared ticket size for the ROI verdict
+BLEND = "Weighted blend"          # scored, but outside the GRPO group
 
 
 def load(path):
@@ -142,6 +143,16 @@ def main(path, last_game, round_id, out_path):
     for label in ("Random A", "Random B"):
         pick, seed = seeded_random(label, data_hash)
         policies[label] = pick
+
+    # Weighted blend: every GRPO policy votes for its top 10 (10 points for rank 1 down to 1),
+    # scaled by its current weight. Scored but kept out of the GRPO update.
+    weights = json.load(open(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                                          "ledger", "weights.json")))["weights"]
+    votes = np.zeros(80)
+    for label, w in weights.items():
+        for r, n in enumerate(policies[label][:10]):
+            votes[n - 1] += w * (10 - r)
+    policies[BLEND] = ranking(votes, s["freq"])
 
     obs = summary(s)
     nullc = null_compare(obs, SIMS, np.random.default_rng(12345))
