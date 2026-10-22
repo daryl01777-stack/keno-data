@@ -144,15 +144,20 @@ def main(path, last_game, round_id, out_path):
         pick, seed = seeded_random(label, data_hash)
         policies[label] = pick
 
-    # Weighted blend: every GRPO policy votes for its top 10 (10 points for rank 1 down to 1),
-    # scaled by its current weight. Scored but kept out of the GRPO update.
+    # Weighted blend: policies take turns by seat allocation (Sainte-Lague, divisors 1, 3, 5...),
+    # so each gets a share of the 10 slots in proportion to its weight. On its turn a policy adds
+    # its best-ranked number not already taken; overlap is not additive. Anomaly composite is left
+    # out because it is already built from the other signals. Scored but kept out of GRPO.
     weights = json.load(open(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                                           "ledger", "weights.json")))["weights"]
-    votes = np.zeros(80)
-    for label, w in weights.items():
-        for r, n in enumerate(policies[label][:10]):
-            votes[n - 1] += w * (10 - r)
-    policies[BLEND] = ranking(votes, s["freq"])
+    voters = {k: w for k, w in weights.items() if k != "Anomaly composite"}
+    seats = {k: 0 for k in voters}
+    blend = []
+    while len(blend) < 10:
+        k = max(voters, key=lambda k: (voters[k] / (2 * seats[k] + 1), voters[k]))
+        blend.append(next(n for n in policies[k] if n not in blend))
+        seats[k] += 1
+    policies[BLEND] = blend
 
     obs = summary(s)
     nullc = null_compare(obs, SIMS, np.random.default_rng(12345))

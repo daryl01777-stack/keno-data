@@ -24,10 +24,13 @@ policy is expected to beat chance. Report results honestly; never imply an edge.
    scan (10 checks against 2,000 random 100-game windows) and builds 7 policies:
    Anomaly composite (primary), Hot, Surge, Pair cluster, Overdue, Random A, Random B.
    Each policy keeps a ranked top 10, nested as tickets K4-K10. K4 is the primary size from R007 (K6 up to R006).
-   From R005 it also builds a Weighted blend: each of the 7 policies gives its top 10 numbers
-   10 points down to 1, multiplied by its current weight in `ledger/weights.json`; the 10 numbers
-   with the most points form the blend's tickets. The blend is scored and shown, but stays out of
-   the GRPO update because it is built from the weights.
+   It also builds a Weighted blend (from R005). From R008 the blend is a seat allocation: the 6
+   policies other than Anomaly composite (which already mixes the other signals) take turns by
+   Sainte-Lague (weight / 1, 3, 5...), using their weights in `ledger/weights.json`; on its turn a
+   policy adds its best-ranked number not already taken, so overlap is not additive and each policy
+   is independent. Pick order is the ticket ranking, so K4 is the first 4 picks. (R005-R007 used an
+   additive vote over all 7 policies.) The blend is scored and shown, but stays out of the GRPO
+   update because it is built from the weights.
    From R006 it also sets three Heads or Tails bets ($1 a game for all 40 test games):
    H/T trend (whichever of heads or tails won more training games), H/T contrarian (the other
    side) and Always evens. Payouts: heads or tails $2, evens $4 per $1 (`keno_qld_paytable.json`).
