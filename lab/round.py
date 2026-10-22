@@ -124,6 +124,16 @@ def persistence(X, s):
     return [i + 1 for i in order]
 
 
+def ideal_sizes():
+    """Each policy's best ticket size so far (highest average replay net over the last 10 scored
+    rounds), from ledger/sizes.json. Recorded at freeze so the recommended size is frozen too."""
+    p = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "ledger", "sizes.json")
+    if not os.path.exists(p):
+        return {}
+    return {k: {"size": v["ideal"], "avg_net": v["avg_net"][str(v["ideal"])], "rounds": v["rounds"]}
+            for k, v in json.load(open(p))["policies"].items()}
+
+
 def seeded_random(label, data_hash):
     seed = int(hashlib.sha256(f"{label}|{data_hash}".encode()).hexdigest()[:16], 16)
     r = np.random.default_rng(seed)
@@ -208,6 +218,7 @@ def main(path, last_game, round_id, out_path):
                          "label only, never a gate. With 7 policies, one landing outside the band by "
                          "chance is common, so only repeats across rounds count."),
         "window_vs_chance": nullc,
+        "ideal_sizes": ideal_sizes(),
         "flagged": flagged,
     }
     json.dump(rec, open(out_path, "w"), indent=1)

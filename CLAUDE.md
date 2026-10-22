@@ -43,12 +43,22 @@ policy is expected to beat chance. Report results honestly; never imply an edge.
    window opens. Commit it to `rounds/R00N/frozen.json` and `frozen.sha256`.
    The test window is the first 40 games closing at least 4 minutes after the freeze.
 4. Scoring with `python lab/score.py R00N`, once the test games are in draws.csv. For each policy:
-   K10 hits and hit rate, the primary-size return (the reward), return for K4-K10, complete hits, and
+   K10 hits and hit rate, the replay result for every size (see below), the reward, return for
+   K4-K10, complete hits, and
    the first game with a complete hit. Every policy except the blend is in the GRPO group; a policy
    added later is averaged over the rounds it has played. No random-ticket simulation: use the exact
    luck band instead. For K10 over 40 games, 95% of tickets land between 21% and 29%.
    That band is a label only, never a gate.
-5. GRPO update. Reward is the primary-size return (K6 to R006, K4 from R007). Advantage = (reward - group mean) / group sd.
+   Replay result (`lab/replay.py`): a $20 ticket for the first 20 test games, then its winnings
+   replayed at $1 a game until it busts, catches all k numbers, reaches $40, or times out at the end
+   of the 40-game window. Net = final bank - $20.
+5. GRPO update. Reward (from 22 Oct, Daryl's call) is the average replay net across K4-K10, in
+   dollars. Advantage = (reward - group mean) / group sd. When weights are computed, every round in
+   the 10-round window is re-judged under this reward from its stored per-game catches.
+   (Leaderboard `reward` up to R006 holds the old per-$1 K6 return; from R007 it is the replay reward.)
+   `ledger/sizes.json` holds each policy's average replay net by size over the last 10 rounds and its
+   best ("ideal") size; round.py freezes those as `ideal_sizes`, and the dashboard shows the
+   weights' pick: the on-a-roll policy's ticket at its ideal size.
    Weights (from R004 scoring on): each policy's weight is exp(its mean advantage over the last
    10 scored rounds, this one included), renormalised to sum to 1. So chance results fade instead
    of compounding. (R001-R003 used a multiplicative update; weights.json was recomputed from their

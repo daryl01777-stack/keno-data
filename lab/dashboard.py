@@ -5,37 +5,9 @@ usage: python lab/dashboard.py R003 OUT_HTML
 """
 import csv, json, math, os, sys
 
+from replay import replay
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-
-def replay(k, hits, won, first, buy=20, target=40):
-    """A $20 ticket for the first 20 test games, then its winnings are replayed at $1 a game.
-    It stops when the bank runs out (bust), the ticket catches all k numbers, the bank reaches
-    $40 (twice the cost), or the test window ends."""
-    bank, played = sum(won[:buy]), buy
-    full = [i for i in range(buy) if hits[i] == k]
-    if full:
-        end = "caught all"
-    elif bank >= target:
-        end = "reached $40"
-    elif bank < 1:
-        end = "bust"
-    else:
-        end = "window ended"
-        for i in range(buy, len(won)):
-            bank += won[i] - 1
-            played += 1
-            if hits[i] == k:
-                end, full = "caught all", [i]
-                break
-            if bank >= target:
-                end = "reached $40"
-                break
-            if bank < 1:
-                end = "bust"
-                break
-    return {"bank": bank, "net": bank - buy, "games": played, "end": end,
-            "last_game": (first + played - 1) % 1000}
 
 
 def round_data(rid):
@@ -52,7 +24,7 @@ def round_data(rid):
             "roll": d.get("on_a_roll") or "none yet (first round)",
             "prev": prev, "scan": d["window_vs_chance"],
             "sha": open(os.path.join(rdir, "frozen.sha256")).read().strip(), "scores": None,
-            "ht": d.get("heads_tails"), "ht_scores": None}
+            "ht": d.get("heads_tails"), "ht_scores": None, "ideal": d.get("ideal_sizes", {})}
     sp = os.path.join(rdir, "scores.json")
     if os.path.exists(sp):
         s = json.load(open(sp))
@@ -92,9 +64,11 @@ def main(rid, out_path):
     odds = {k: [math.comb(20, h) * math.comb(60, k - h) / math.comb(80, k) for h in range(k + 1)]
             for k in range(4, 11)}
     pay = json.load(open(os.path.join(ROOT, "keno_qld_paytable.json")))["payouts"]
+    sp = os.path.join(ROOT, "ledger", "sizes.json")
+    sizes = json.load(open(sp)) if os.path.exists(sp) else None
     tpl = open(os.path.join(ROOT, "lab", "dashboard.tpl.html")).read()
     open(out_path, "w").write(tpl.replace("__DATA__", json.dumps(rounds))
-                              .replace("__ODDS__", json.dumps({"odds": odds, "pay": pay})))
+                              .replace("__ODDS__", json.dumps({"odds": odds, "pay": pay, "sizes": sizes})))
 
 
 if __name__ == "__main__":

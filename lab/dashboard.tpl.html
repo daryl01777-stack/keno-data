@@ -80,6 +80,7 @@ td,th{padding:4px 6px;border-bottom:1px solid var(--line);text-align:right}td:fi
       <button id="copy" type="button">Copy numbers</button></div>
     <div class="balls" id="pballs"></div>
     <p class="note" id="presult"></p>
+    <p class="note" id="wpick" hidden></p>
   </section>
 
   <section class="controls">
@@ -99,6 +100,12 @@ td,th{padding:4px 6px;border-bottom:1px solid var(--line);text-align:right}td:fi
     <h2 id="catchtitle">Catch table</h2>
     <p class="note" id="catchnote"></p>
     <div class="scroll"><table id="catches"></table></div>
+  </section>
+
+  <section class="panel" id="sizepanel" hidden>
+    <h2>Best ticket size so far</h2>
+    <p class="note" id="sizenote"></p>
+    <div class="scroll"><table id="sizetable"></table></div>
   </section>
 
   <section class="panel">
@@ -178,6 +185,7 @@ function render(){
       ${w===undefined ? `<div class="meta"><span>${k==="Weighted blend" ? "Built from the policy weights; not weighted itself" : "New this round; gets its first weight when scored"}</span></div>` :
       `<div class="meta"><span>Weight <b>${(w*100).toFixed(1)}%</b></span>${pr?`<span>R${N-1} K${ALL[IDS[IDS.indexOf(D.round)-1]]?.primary ?? 6} return <b>${Math.round(pr.k6*100)}c/$1</b></span><span>R${N-1} K10 hits <b>${(pr.k10*100).toFixed(1)}%</b></span>`:""}</div>
       <div class="bar" aria-hidden="true"><div style="width:${(w/maxW*100).toFixed(0)}%"></div></div>`}
+      ${D.ideal[k] ? `<div class="meta"><span>Best size so far <b>K${D.ideal[k].size}</b> (average ${money(Math.round(D.ideal[k].avg_net))} per $20 ticket over ${D.ideal[k].rounds} rounds)</span></div>` : ""}
       ${res(k)}
     </article>`}).join("");
   catchTable();
@@ -215,6 +223,9 @@ $("presult").innerHTML = S
   ? `Round ${N}: K${D.primary} returned <b>${cents(S["Anomaly composite"].k6)} per $1</b> (group average ${cents(D.mean)}). Went in on a roll: ${D.roll}. Now on a roll: <b>${D.next_roll}</b>.`
   : `On a roll: <b>${D.roll}</b>. That comes from luck in earlier rounds, not skill.`;
 rollNow = S ? D.next_roll : D.roll;
+const pick = D.ideal[D.roll];
+$("wpick").hidden = !pick;
+if (pick) $("wpick").innerHTML = `Weights' pick: <b>${D.roll}</b> at its best size so far, <b>K${pick.size}</b>: ${D.policies[D.roll].slice(0,pick.size).join(" ")}`;
 $("sha").textContent = D.sha;
 
 $("cats").innerHTML = "";
@@ -240,6 +251,14 @@ if (D.ht) {
   }).join("");
 }
 render();
+}
+if (CH.sizes) {
+  const P = CH.sizes.policies, ks = [4,5,6,7,8,9,10];
+  $("sizepanel").hidden = false;
+  $("sizenote").textContent = `Average result of a $20 ticket with winnings replayed, by size, over the last ${CH.sizes.window} scored rounds (to round ${+CH.sizes.after_round.slice(1)}). The best size per policy is in bold. A handful of rounds is far too few for these to mean much; one big catch decides most of them.`;
+  $("sizetable").innerHTML = `<tr><th>Policy</th>${ks.map(k=>`<th>K${k}</th>`).join("")}</tr>` +
+    ALLP.filter(p=>P[p]).map(p=>`<tr><td>${p}</td>${ks.map(k=>{const v=P[p].avg_net[k]; const b=P[p].ideal===k;
+      return `<td class="${cls(v)}">${b?"<b>":""}${money(Math.round(v))}${b?"</b>":""}</td>`}).join("")}</tr>`).join("");
 }
 const start = location.hash.slice(1);
 show(ALL[start] ? start : IDS[IDS.length-1]);
