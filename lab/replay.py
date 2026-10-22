@@ -1,13 +1,15 @@
 """The headline ticket result and the history it feeds into the weights.
 
 A ticket is bought for the first 20 test games ($20). Its winnings are then replayed at $1 a
-game until the bank runs out (bust), the ticket catches all k numbers, the bank reaches $40
-(twice the cost), or the 40-game test window ends (time out).
+game until the bank runs out (bust), a single game pays more than $20 (a big win: 4/4, 5/5,
+5/6+, 6/7+, 6/8+, 7/9+, 7/10+; a $20 prize would only buy the rest of the window, so it does
+not count), or the 40-game test window ends (time out). A big win in the first 20 games ends
+the ticket there.
 """
 import json, os
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-BUY, TARGET, WINDOW = 20, 40, 10
+BUY, BIG, WINDOW = 20, 20, 10      # a big win pays more than BIG dollars in one game
 
 
 def paytable():
@@ -17,10 +19,9 @@ def paytable():
 
 def replay(k, hits, won, first):
     bank, played = sum(won[:BUY]), BUY
-    if any(h == k for h in hits[:BUY]):
-        end = "caught all"
-    elif bank >= TARGET:
-        end = "reached $40"
+    big = [i for i in range(BUY) if won[i] > BIG]
+    if big:
+        end = f"big win {hits[big[0]]}/{k}"
     elif bank < 1:
         end = "bust"
     else:
@@ -28,11 +29,8 @@ def replay(k, hits, won, first):
         for i in range(BUY, len(won)):
             bank += won[i] - 1
             played += 1
-            if hits[i] == k:
-                end = "caught all"
-                break
-            if bank >= TARGET:
-                end = "reached $40"
+            if won[i] > BIG:
+                end = f"big win {hits[i]}/{k}"
                 break
             if bank < 1:
                 end = "bust"
