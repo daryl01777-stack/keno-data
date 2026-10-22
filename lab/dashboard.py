@@ -3,7 +3,7 @@
 
 usage: python lab/dashboard.py R003 OUT_HTML
 """
-import csv, json, os, sys
+import csv, json, math, os, sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -43,6 +43,12 @@ def round_data(rid):
                           for p, r in s["results"].items()}
         data["next_roll"], data["mean"] = s["on_a_roll"], s["group_mean_reward"]
         data["ht_scores"] = s.get("heads_tails")
+        # catch table: how often each catch landed across every ticket this round, per size
+        data["catches"] = {k: [0] * (int(k) + 1) for k in s["results"][next(iter(s["results"]))]["sizes"]}
+        for r in s["results"].values():
+            for k, x in r["sizes"].items():
+                for h in x["per_game"]:
+                    data["catches"][k][h] += 1
     return data
 
 
@@ -51,8 +57,13 @@ def main(rid, out_path):
     last = int(rid[1:])
     rounds = {r: round_data(r) for r in sorted(os.listdir(os.path.join(ROOT, "rounds")))
               if r.startswith("R") and int(r[1:]) <= last}
+    # chance of catching h of a k-number ticket in one game: C(20,h) C(60,k-h) / C(80,k)
+    odds = {k: [math.comb(20, h) * math.comb(60, k - h) / math.comb(80, k) for h in range(k + 1)]
+            for k in range(4, 11)}
+    pay = json.load(open(os.path.join(ROOT, "keno_qld_paytable.json")))["payouts"]
     tpl = open(os.path.join(ROOT, "lab", "dashboard.tpl.html")).read()
-    open(out_path, "w").write(tpl.replace("__DATA__", json.dumps(rounds)))
+    open(out_path, "w").write(tpl.replace("__DATA__", json.dumps(rounds))
+                              .replace("__ODDS__", json.dumps({"odds": odds, "pay": pay})))
 
 
 if __name__ == "__main__":
