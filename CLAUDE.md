@@ -50,7 +50,7 @@ policy is expected to beat chance. Report results honestly; never imply an edge.
    luck band instead. For K10 over 40 games, 95% of tickets land between 21% and 29%.
    That band is a label only, never a gate.
    Replay result (`lab/replay.py`): a $20 ticket for the first 20 test games, then its winnings
-   replayed at $1 a game until it busts, catches all k numbers, or times out at the end
+   replayed at $1 a game until it busts, catches all k numbers, reaches $40, or times out at the end
    of the 40-game window. Net = final bank - $20.
 5. GRPO update. Reward (from 22 Oct, Daryl's call) is the average replay net across K4-K10, in
    dollars. Advantage = (reward - group mean) / group sd. When weights are computed, every round in
@@ -83,5 +83,5 @@ and republish it to the same artifact: https://claude.ai/artifact/CHcWvqAfQfKLw4
 Show times in Brisbane time only (AEST, UTC+10, no daylight saving), in the dashboard and in chat.
 Scored rounds add results to each card. The headline result per ticket (from 22 Oct, applied to
 all rounds by `lab/dashboard.py`) is a $20 ticket for the first 20 test games, then its winnings
-replayed at $1 a game until it busts, catches all k numbers, or the 40-game window ends. Daryl wants honest opinions, never what he
+replayed at $1 a game until it busts, catches all k numbers, reaches $40, or the 40-game window ends. Daryl wants honest opinions, never what he
 wants to hear.

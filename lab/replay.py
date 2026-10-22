@@ -1,13 +1,13 @@
 """The headline ticket result and the history it feeds into the weights.
 
 A ticket is bought for the first 20 test games ($20). Its winnings are then replayed at $1 a
-game until the bank runs out (bust), the ticket catches all k numbers, or the 40-game test
-window ends (time out).
+game until the bank runs out (bust), the ticket catches all k numbers, the bank reaches $40
+(twice the cost), or the 40-game test window ends (time out).
 """
 import json, os
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-BUY, WINDOW = 20, 10
+BUY, TARGET, WINDOW = 20, 40, 10
 
 
 def paytable():
@@ -19,6 +19,8 @@ def replay(k, hits, won, first):
     bank, played = sum(won[:BUY]), BUY
     if any(h == k for h in hits[:BUY]):
         end = "caught all"
+    elif bank >= TARGET:
+        end = "reached $40"
     elif bank < 1:
         end = "bust"
     else:
@@ -28,6 +30,9 @@ def replay(k, hits, won, first):
             played += 1
             if hits[i] == k:
                 end = "caught all"
+                break
+            if bank >= TARGET:
+                end = "reached $40"
                 break
             if bank < 1:
                 end = "bust"
