@@ -57,7 +57,8 @@ button[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:va
 .sz.win{background:var(--good-soft);border-color:var(--good);color:var(--good)}
 .sz.bust{background:var(--bad-soft);border-color:var(--bad);color:var(--bad)}
 .sz.timeout{background:var(--warn-soft);border-color:var(--warn);color:var(--warn)}
-.sz[aria-pressed="true"]{outline:2px solid var(--fg);outline-offset:1px}
+.sz.best{box-shadow:0 0 0 2px #fff,0 0 0 3px var(--line)}
+.sz[aria-pressed="true"]{outline:2px solid var(--fg);outline-offset:3px}
 .legend{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:13px}.legend .sz{padding:1px 6px;font-size:11px}
 .result{border-top:1px solid var(--line);padding-top:10px;display:grid;gap:6px}.out{color:var(--warn);font-weight:700}
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;display:grid;gap:10px}
@@ -131,20 +132,15 @@ document.getElementById("cards").addEventListener("click", e => {
 const $ = id => document.getElementById(id);
 const balls = (nums, ranked) => nums.map((n,i)=>`<div class="ball">${ranked?`<i>${i+1}</i>`:""}${n}</div>`).join("");
 const cents = x => x >= 1 ? "$" + x.toFixed(2) : Math.round(x*100) + "c";
-function res(k, size){ if(!S) return `<div class="meta"><span>Round ${N} result: <b>pending</b></span></div>`; const s = S[k], t = s.sizes[size], all = Object.values(s.sizes).reduce((a,x)=>a+x.replay.net,0), rp = t.replay;
-  const comp = s.complete.length ? s.complete.map(([n,g])=>`K${n} in game ${g}`).join(", ") : "none";
+function res(k, size){ if(!S) return `<div class="meta"><span>Round ${N} result: <b>pending</b></span></div>`; const s = S[k], t = s.sizes[size], rp = t.replay;
+  const pays = t.pays.filter(([g]) => (g - D.test[0] + 1000) % 1000 < rp.games);
   return `<div class="result"><div class="tag">Round ${N} result</div>
-    <div class="meta"><span>Average replay result, K4-K10 <b class="${cls(s.rr)}">${money(Math.round(s.rr))}</b></span><span>K10 hits <b>${s.k10hits}/400 (${(s.k10*100).toFixed(1)}%)</b></span>
-    <span class="${s.band?'':'out'}">${s.band?'Inside luck band':'Just outside luck band'}</span>
-    <span>Complete hits <b>${comp}</b></span>${s.adv===""?"<span>Outside the GRPO update</span>":`<span>Advantage <b>${s.adv>0?'+':''}${s.adv.toFixed(2)}</b></span>
-    <span>Weight now <b>${(s.w*100).toFixed(1)}%</b></span>`}</div>
+    ${s.adv===""?"":`<div class="meta"><span>Weight now <b>${(s.w*100).toFixed(1)}%</b></span></div>`}
     <div class="tag">K${size} ticket, $1 a game</div>
     <div class="meta"><span>$20 ticket, 20 games <b class="${cls(t.net20)}">${money(t.net20)}</b></span><span>With winnings replayed <b class="${cls(rp.net)}">${money(rp.net)}</b></span>
     <span>Ended: <b>${rp.end}</b> after ${rp.games} games (game ${rp.last_game})</span></div>
-    <div class="meta">
-    <span>All sizes K4-K10 with replay ($140 staked) <b class="${cls(all)}">${money(all)}</b></span></div>
-    <div class="meta"><span>Paying games across all 40 <b>${t.pays.length}</b></span></div>
-    <div class="pays">${t.pays.map(([g,h,w])=>`<span>Game ${g}: ${h}/${size} <b>$${w}</b></span>`).join("") || "<span>None</span>"}</div></div>`; }
+    <div class="meta"><span>Paying games in those ${rp.games} <b>${pays.length}</b></span></div>
+    <div class="pays">${pays.map(([g,h,w])=>`<span>Game ${g}: ${h}/${size} <b>$${w}</b></span>`).join("") || "<span>None</span>"}</div></div>`; }
 function catchTable(){
   $("catchpanel").hidden = !S;
   if (!S) return;
@@ -174,12 +170,12 @@ function render(){
     const tone = e => !e ? "" : e.startsWith("big win") ? "win" : e === "bust" ? "bust" : "timeout";
     return `<article class="card">
       <div class="row"><div><div class="tag">${CAT[k]}</div><h2>${k}</h2></div>${k===rollNow?`<span class="roll">${S?'On a roll next':'On a roll'}</span>`:''}</div>
-      <div class="group" role="group" aria-label="${k} ticket size">${[4,5,6,7,8,9,10].map(z=>`<button type="button" class="sz ${tone(ends[z])}" data-k="${k}" data-s="${z}" aria-pressed="${z===cs}" title="${ends[z] || ""}">K${z}</button>`).join("")}</div>
+      <div class="group" role="group" aria-label="${k} ticket size">${[4,5,6,7,8,9,10].map(z=>`<button type="button" class="sz ${tone(ends[z])}${D.ideal[k]&&D.ideal[k].size===z?" best":""}" data-k="${k}" data-s="${z}" aria-pressed="${z===cs}">K${z}</button>`).join("")}</div>
       <div class="balls">${balls(D.policies[k].slice(0,cs).slice().sort((a,b)=>a-b))}</div>
       ${w===undefined ? `<div class="meta"><span>${k==="Weighted blend" ? "Built from the policy weights; not weighted itself" : "New this round; gets its first weight when scored"}</span></div>` :
-      `<div class="meta"><span>Weight <b>${(w*100).toFixed(1)}%</b></span>${pr?`<span>R${N-1} average replay <b class="${cls(pr.rr)}">${money(Math.round(pr.rr))}</b></span><span>R${N-1} K10 hits <b>${(pr.k10*100).toFixed(1)}%</b></span>`:""}</div>
+      `<div class="meta"><span>Weight <b>${(w*100).toFixed(1)}%</b></span></div>
       <div class="bar" aria-hidden="true"><div style="width:${(w/maxW*100).toFixed(0)}%"></div></div>`}
-      ${D.ideal[k] ? `<div class="meta"><span>Best size so far <b>K${D.ideal[k].size}</b> (average ${money(Math.round(D.ideal[k].avg_net))} per $20 ticket over ${D.ideal[k].rounds} rounds)</span></div>` : ""}
+      ${D.ideal[k] ? `<div class="meta"><span>Best size so far <b>K${D.ideal[k].size}</b> (white box; average ${money(Math.round(D.ideal[k].avg_net))} per $20 ticket over ${D.ideal[k].rounds} rounds)</span></div>` : ""}
       ${res(k, cs)}
     </article>`}).join("");
   catchTable();
