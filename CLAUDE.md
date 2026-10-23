@@ -19,6 +19,10 @@ policy is expected to beat chance. Report results honestly; never imply an edge.
   K7-K10 about 64-65c per $1. K7-K10 top prizes are growing jackpots, so the table is a floor.
 
 ## Round protocol
+Rules frozen for R008-R017 (Daryl, 23 Oct): no changes to the reward, weights rule, policies,
+blend, test window or replay rule until R017 is scored. Bug fixes and dashboard display changes
+are fine; anything else waits for the review after R017.
+
 1. Training window: the latest 100 completed games.
 2. `python lab/round.py <merged csv> <last training game> R00N out.json` runs the anomaly
    scan (10 checks against 2,000 random 100-game windows) and builds 7 policies:
@@ -49,7 +53,8 @@ policy is expected to beat chance. Report results honestly; never imply an edge.
    K10 hits and hit rate, the replay result for every size (see below), the reward, return for
    K4-K10, complete hits, and
    the first game with a complete hit. Every policy except the blend is in the GRPO group; a policy
-   added later is averaged over the rounds it has played. No random-ticket simulation: use the exact
+   added later counts the window rounds it missed as zero advantage (from 23 Oct, after R008
+   scoring; before that it was averaged over only the rounds it had played). No random-ticket simulation: use the exact
    luck band instead. For K10 over 40 games, 95% of tickets land between 21% and 29%.
    That band is a label only, never a gate.
    Replay result (`lab/replay.py`): a $20 ticket for the first 20 test games, then its winnings
@@ -60,7 +65,8 @@ policy is expected to beat chance. Report results honestly; never imply an edge.
    tickets that reached the take-win cutoff (a single prize over $20) in the round, 0-7: consistency
    over single big prizes. (22 Oct to R007 it was the average replay net in dollars.) Advantage = (reward - group mean) / group sd. When weights are computed, every round in
    the 10-round window is re-judged under this reward from its stored per-game catches.
-   (Leaderboard `reward` up to R006 holds the old per-$1 K6 return; from R007 it is the replay reward.)
+   (Leaderboard `reward` up to R006 holds the old per-$1 K6 return; from R007 it is the replay reward.
+   `reward_roi_pct` holds ROI up to R007 and is left blank from R008, since a count has no ROI.)
    `ledger/sizes.json` holds, per policy and size over the last 10 rounds, cutoff wins (`big`), the
    rate against chance (`x_chance`; chance from `replay.chance()`, exact: K4 8.8%, K5 1.8%, K6 8.4%,
    K7 2.4%, K8 6.7%, K9 1.8%, K10 4.9% a round) and the average replay net, plus the best ("ideal")

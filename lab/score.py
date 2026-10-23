@@ -26,7 +26,8 @@ def parse(s):
 def averaged_weights(rid, current):
     """Softmax of each policy's mean advantage over the last WINDOW scored rounds (this one
     included). Every round's advantages are recomputed from its replays under the current reward, so the whole
-    window is judged the same way."""
+    window is judged the same way. A policy added later counts the rounds it missed as zero advantage (the
+    group average), so one lucky first round can't carry its whole weight."""
     pay = paytable()
     rounds = []
     for r in scored_rounds()[-(WINDOW - 1):]:
@@ -38,8 +39,7 @@ def averaged_weights(rid, current):
         sd = math.sqrt(sum((x - m) ** 2 for x in rew.values()) / len(rew))
         rounds.append({p: (x - m) / sd if sd > 0 else 0.0 for p, x in rew.items()})
     rounds = rounds[-(WINDOW - 1):] + [current]
-    # a policy added later is averaged over the rounds it has played
-    avg = {n: sum(r[n] for r in rounds if n in r) / sum(1 for r in rounds if n in r) for n in current}
+    avg = {n: sum(r.get(n, 0.0) for r in rounds) / len(rounds) for n in current}
     e = {n: math.exp(a) for n, a in avg.items()}
     total = sum(e.values())
     return {n: round(v / total, 6) for n, v in e.items()}
@@ -99,7 +99,9 @@ def main(rid):
         results[n]["weight_after"] = new[n]
     # ties on weight go to the higher K10 hit rate
     leader = max(new, key=lambda n: (new[n], results[n]['k10_hit_rate']))
-    w.update({"after_round": rid, "weights": new, "on_a_roll": leader})
+    w.update({"after_round": rid, "weights": new, "on_a_roll": leader,
+              "rule": "softmax of mean advantage over the last 10 scored rounds (rounds a policy missed count as 0)",
+              "reward": "cutoff wins: how many K4-K10 replay tickets got a single prize over $20 in the round (0-7)"})
     json.dump(w, open(path("ledger", "weights.json"), "w"), indent=1)
 
     with open(path("ledger", "leaderboard.csv"), "a", newline="") as f:
@@ -107,7 +109,7 @@ def main(rid):
         for n, r in results.items():
             r.setdefault("advantage", ""); r.setdefault("weight_after", "")
             k10 = r["sizes"][10]
-            cw.writerow([rid, n, k10["hits"], k10["hit_rate"], r["reward"], round(r["reward"] / len(r["sizes"]) * 100, 1),
+            cw.writerow([rid, n, k10["hits"], k10["hit_rate"], r["reward"], "",
                          sum(s["complete_hits"] for s in r["sizes"].values()),
                          min([s["first_complete"] for s in r["sizes"].values() if s["first_complete"] is not None],
                              default=""), r["advantage"], r["weight_after"]])
