@@ -47,9 +47,9 @@ are fine; anything else waits for the review after R017.
    JSON (`sort_keys`, compact separators), and post its sha256 in chat before the test
    window opens. Commit it to `rounds/R00N/frozen.json` and `frozen.sha256`.
    The test window is the first 40 games closing at least 4 minutes after the freeze.
-   After each freeze, schedule a reminder (send_later) for about 2 minutes after the last test
-   game's expected close, telling Daryl the round is ready to score (run `keno`, then say "score it").
-   When it fires, send a push notification (PushNotification) as well as the thread message.
+   After each freeze, message the project coordinator with the last test game's expected close
+   (Brisbane time); the coordinator schedules the phone alert telling Daryl the round is ready to
+   score (run `keno`, then say "score it"). Don't also schedule one from the round's thread.
 4. Scoring with `python lab/score.py R00N`, once the test games are in draws.csv. For each policy:
    K10 hits and hit rate, the replay result for every size (see below), the reward, return for
    K4-K10, complete hits, and
