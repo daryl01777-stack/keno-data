@@ -97,24 +97,6 @@ td,th{padding:4px 6px;white-space:nowrap;border-bottom:1px solid var(--line);tex
     <div class="scroll"><table id="catches"></table></div>
   </section>
 
-  <section class="panel" id="sizepanel" hidden>
-    <h2>Best ticket size so far</h2>
-    <p class="note" id="sizenote"></p>
-    <div class="scroll"><table id="sizetable"></table></div>
-  </section>
-
-  <section class="panel">
-    <h2>Results so far</h2>
-    <p class="note">Net result of each policy's primary ticket (K6 up to round 6, K4 from round 7): a $20 ticket for 20 games, then winnings replayed until it busts, one game pays more than $20, or the 40-game window ends.</p>
-    <div class="scroll"><table id="history"></table></div>
-  </section>
-
-  <section class="panel">
-    <h2>Training window vs chance</h2>
-    <p class="note" id="scannote"></p>
-    <div class="scroll"><table id="scan"><tr><th>Check</th><th>Observed</th><th>Chance median</th><th>p</th></tr></table></div>
-  </section>
-
   <section class="panel">
     <h2>Test status</h2>
     <ul class="check" id="checklist"></ul>
@@ -195,13 +177,6 @@ $("copy").onclick = async () => {
 };
 for(let s=4;s<=10;s++){const b=document.createElement("button");b.type="button";b.textContent="K"+s;b.dataset.v=s;b.onclick=()=>{size=s;render()};$("sizes").append(b)}
 IDS.forEach(r=>{const b=document.createElement("button");b.type="button";b.textContent=+r.slice(1);b.dataset.v=r;b.onclick=()=>{try{history.replaceState(null,"","#"+r)}catch{};show(r)};$("rounds").append(b)});
-const scoredIds = IDS.filter(r=>ALL[r].scores);
-$("history").innerHTML = `<tr><th>Policy</th>${scoredIds.map(r=>`<th>R${+r.slice(1)}</th>`).join("")}<th>Total</th></tr>` +
-  ALLP.filter(k=>scoredIds.some(r=>ALL[r].scores[k])).map(k=>{
-    const v = scoredIds.map(r=>ALL[r].scores[k] ? ALL[r].scores[k].sizes[ALL[r].primary].replay.net : null);
-    const tot = v.reduce((a,x)=>a+(x||0),0);
-    return `<tr><td>${k}</td>${v.map(x=>`<td class="${x===null?"":cls(x)}">${x===null?"–":money(x)}</td>`).join("")}<td class="${cls(tot)}"><b>${money(tot)}</b></td></tr>`;
-  }).join("");
 function show(rid){
 D = ALL[rid]; N = +D.round.slice(1); S = D.scores; size = D.primary;
 ORDER = ALLP.filter(k=>D.policies[k]);
@@ -212,8 +187,6 @@ $("subline").textContent = `Frozen ${bneDate(D.frozen)}, ${bne(D.frozen.slice(11
 $("h1").textContent = `Keno lab · Round ${N}`;
 $("status").textContent = S ? "Scored" : "Frozen · test pending";
 $("scored").textContent = S ? 40 : 0;
-const minP = Math.min(...Object.values(D.scan).map(v=>v.p_chance));
-$("scannote").textContent = `Share of 2,000 random 100-game windows at least as extreme. The lowest is ${minP.toFixed(2)}` + (minP >= 0.05 ? ", so the window looks like ordinary random draws." : ". With 10 checks, one value under 0.05 turns up by chance in about 4 windows out of 10.");
 $("presult").innerHTML = S
   ? `Round ${N}: Anomaly composite's average replay result across K4-K10 was <b>${money(Math.round(S["Anomaly composite"].rr))}</b> per $20 ticket (group average ${money(Math.round(D.rr_mean))}). Went in on a roll: ${D.roll}. Now on a roll: <b>${D.next_roll}</b>.`
   : `On a roll: <b>${D.roll}</b>. That comes from luck in earlier rounds, not skill.`;
@@ -225,8 +198,6 @@ $("sha").textContent = D.sha;
 
 $("cats").innerHTML = "";
 ["All","Anomaly","Signal","Baseline"].concat(D.policies["Weighted blend"]?["Blend"]:[]).forEach(c=>{const b=document.createElement("button");b.type="button";b.textContent=c;b.dataset.v=c;b.onclick=()=>{cat=c;render()};$("cats").append(b)});
-$("scan").innerHTML = "<tr><th>Check</th><th>Observed</th><th>Chance median</th><th>p</th></tr>";
-for(const [k,v] of Object.entries(D.scan)) $("scan").insertAdjacentHTML("beforeend",`<tr><td>${k}</td><td>${v.observed}</td><td>${v.chance_median}</td><td>${v.p_chance.toFixed(3)}</td></tr>`);
 $("checklist").innerHTML = [
   [`Round ${N-1} scored and weights updated`,1],
   [`Round ${N} frozen ${bne(D.frozen.slice(11))}, fingerprint posted`,1],
@@ -235,14 +206,6 @@ $("checklist").innerHTML = [
   ["Scored with lab/score.py and GRPO update applied",!!S]
 ].map(([t,d])=>`<li class="${d?'done':''}">${t}</li>`).join("");
 render();
-}
-if (CH.sizes) {
-  const P = CH.sizes.policies, ks = [4,5,6,7,8,9,10];
-  $("sizepanel").hidden = false;
-  $("sizenote").textContent = `Average result of a $20 ticket with winnings replayed, by size, over the last ${CH.sizes.window} scored rounds (to round ${+CH.sizes.after_round.slice(1)}). The best size per policy is in bold. A handful of rounds is far too few for these to mean much; one big catch decides most of them.`;
-  $("sizetable").innerHTML = `<tr><th>Policy</th>${ks.map(k=>`<th>K${k}</th>`).join("")}</tr>` +
-    ALLP.filter(p=>P[p]).map(p=>`<tr><td>${p}</td>${ks.map(k=>{const v=P[p].avg_net[k]; const b=P[p].ideal===k;
-      return `<td class="${cls(v)}">${b?"<b>":""}${money(Math.round(v))}${b?"</b>":""}</td>`}).join("")}</tr>`).join("");
 }
 const start = location.hash.slice(1);
 show(ALL[start] ? start : IDS[IDS.length-1]);
