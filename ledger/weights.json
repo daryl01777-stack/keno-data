@@ -1,16 +1,16 @@
 {
- "after_round": "R008",
+ "after_round": "R009",
  "rule": "softmax of mean advantage over the last 10 scored rounds (rounds a policy missed count as 0)",
  "reward": "cutoff wins: how many K4-K10 replay tickets got a single prize over $20 in the round (0-7)",
  "weights": {
-  "Anomaly composite": 0.106064,
-  "Hot (most drawn)": 0.127249,
-  "Overdue (longest gap)": 0.296148,
-  "Pair cluster": 0.068777,
-  "Persistence": 0.113536,
-  "Random A": 0.0907,
-  "Random B": 0.099812,
-  "Surge (last 20 games)": 0.097714
+  "Anomaly composite": 0.098506,
+  "Hot (most drawn)": 0.115814,
+  "Overdue (longest gap)": 0.343381,
+  "Pair cluster": 0.067025,
+  "Persistence": 0.10465,
+  "Random A": 0.085715,
+  "Random B": 0.093327,
+  "Surge (last 20 games)": 0.091582
  },
  "on_a_roll": "Overdue (longest gap)"
 }
