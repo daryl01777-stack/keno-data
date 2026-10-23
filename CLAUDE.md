@@ -79,7 +79,7 @@ Use the in-chat dashboard layout from round 1:
   the ideal size is underlined and the selected size is drawn slightly larger)
 - category chips (All / Anomaly / Signal / Baseline / Blend); a K4-K10 size selector on the primary
   card and inside each policy card, coloured by replay outcome (green big win, red bust, yellow timed out)
-- one card per policy
+- one card per policy, ordered by current weight (weight after scoring on scored rounds); unweighted cards (blend, new policies) last
 - test status checklist and the fingerprint
 
 Build the page with `python lab/dashboard.py R00N out.html` (works before and after scoring; it
