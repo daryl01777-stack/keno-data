@@ -92,6 +92,8 @@ From R010 round.py writes it under `shadow` in frozen.json. R009 was added after
 from games up to 308 only, before any test result was seen) in `rounds/R009/shadow.json` and
 `shadow.sha256`. Score with `python lab/shadow.py R00N` after score.py; it writes
 `rounds/R00N/shadow_scores.json` and appends `ledger/shadow.csv` with Random A/B for comparison.
+The dashboard shows it as a "Shadow" card (own chip, no weight, last in order, its own fingerprint
+under the main one) and scores it from shadow_scores.json; it is left out of the group averages.
 
 ## Reporting
 Use the in-chat dashboard layout from round 1:

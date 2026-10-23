@@ -8,6 +8,7 @@ import csv, json, math, os, sys
 from replay import chance, replay
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SHADOW = "Retro pick"
 
 
 def round_data(rid):
@@ -25,6 +26,14 @@ def round_data(rid):
             "prev": prev, "scan": d["window_vs_chance"],
             "sha": open(os.path.join(rdir, "frozen.sha256")).read().strip(), "scores": None,
             "ideal": d.get("ideal_sizes", {})}
+    shp = os.path.join(rdir, "shadow.json")       # Retro pick: shadow ticket outside the weights and blend
+    sh = json.load(open(shp)) if os.path.exists(shp) else d.get("shadow")
+    if sh:
+        data["policies"] = dict(d["policies"], **sh["policies"])
+        data["ideal"] = dict(data["ideal"], **{SHADOW: {"size": sh["ideal_size"], "rule": sh["rule"]}})
+        data["shadow"] = {"rule": sh["rule"], "late": bool(sh.get("added_after_freeze")),
+                          "frozen": sh["frozen_utc"],
+                          "sha": open(os.path.join(rdir, "shadow.sha256")).read().strip() if os.path.exists(shp) else None}
     sp = os.path.join(rdir, "scores.json")
     if os.path.exists(sp):
         s = json.load(open(sp))
@@ -44,13 +53,18 @@ def round_data(rid):
                                            if x["complete_hits"]],
                               "sizes": {k: ticket(int(k), x) for k, x in r["sizes"].items()}}
                           for p, r in s["results"].items()}
+        ssp = os.path.join(rdir, "shadow_scores.json")
+        if sh and os.path.exists(ssp):
+            x = json.load(open(ssp))
+            data["scores"][SHADOW] = {"k10": x["k10_hit_rate"], "adv": "", "w": "", "k10hits": x["k10_hits"],
+                                      "complete": [], "sizes": {k: ticket(int(k), v) for k, v in x["sizes"].items()}}
         data["next_roll"], data["mean"] = s["on_a_roll"], s["group_mean_reward"]
         for v in data["scores"].values():      # average replay result across K4-K10 (the reward)
             v["rr"] = sum(x["replay"]["net"] for x in v["sizes"].values()) / len(v["sizes"])
             v["big"] = sum(x["replay"]["end"].startswith("big win") for x in v["sizes"].values())
-        group = [v["rr"] for p, v in data["scores"].items() if p != "Weighted blend"]
+        group = [v["rr"] for p, v in data["scores"].items() if p not in ("Weighted blend", SHADOW)]
         data["rr_mean"] = sum(group) / len(group)
-        bg = [v["big"] for p, v in data["scores"].items() if p != "Weighted blend"]
+        bg = [v["big"] for p, v in data["scores"].items() if p not in ("Weighted blend", SHADOW)]
         data["big_mean"] = sum(bg) / len(bg)
         # catch table: how often each catch landed across every ticket this round, per size
         data["catches"] = {k: [0] * (int(k) + 1) for k in s["results"][next(iter(s["results"]))]["sizes"]}
