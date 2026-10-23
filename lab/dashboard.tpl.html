@@ -103,7 +103,7 @@ td,th{padding:4px 6px;white-space:nowrap;border-bottom:1px solid var(--line);tex
   <section class="cards" id="cards"></section>
 
   <section class="panel" id="heatpanel" hidden>
-    <h2>Results by policy and size</h2>
+    <h2>Cutoff wins by policy and size</h2>
     <p class="note" id="heatnote"></p>
     <div class="scroll"><table id="heat" class="heat"></table></div>
     <p class="note" id="heatdetail">Tap a cell to see the round-by-round results behind it.</p>
@@ -148,18 +148,20 @@ function heatmap(){
   if (!upto.length) return;
   const sizes = [4,5,6,7,8,9,10], cell = {};
   ORDER.forEach(k => { cell[k] = {}; sizes.forEach(z => {
-    const runs = upto.filter(r => ALL[r].scores[k]).map(r => [r, ALL[r].scores[k].sizes[z].replay.net]);
-    cell[k][z] = runs.length ? {avg: runs.reduce((a,x)=>a+x[1],0)/runs.length, runs} : null; }); });
-  const max = Math.max(1, ...ORDER.flatMap(k => sizes.map(z => cell[k][z] ? Math.abs(cell[k][z].avg) : 0)));
-  const best = k => { const v = sizes.filter(z => cell[k][z]); if (!v.length) return 0; const m = v.reduce((a,z)=>cell[k][z].avg > cell[k][a].avg ? z : a); return v.filter(z => cell[k][z].avg === cell[k][m].avg).length === 1 ? m : 0; };
-  const shade = v => `background:color-mix(in srgb, var(${v>=0?"--good":"--bad"}) ${Math.round(8 + 62*Math.min(1,Math.abs(v)/max))}%, transparent)`;
-  $("heatnote").textContent = `Average result per $20 ticket with winnings replayed, rounds ${+upto[0].slice(1)}-${+upto[upto.length-1].slice(1)}. Green made money, red lost it; darker is bigger. Each row's best size is underlined. Random A and B show what luck alone does.`;
+    const runs = upto.filter(r => ALL[r].scores[k]).map(r => [r, ALL[r].scores[k].sizes[z].replay]);
+    cell[k][z] = runs.length ? {hits: runs.filter(([,x]) => x.end.startsWith("big win")).length, runs} : null; }); });
+  const max = Math.max(1, ...ORDER.flatMap(k => sizes.map(z => cell[k][z] ? cell[k][z].hits : 0)));
+  const best = k => D.ideal[k] ? D.ideal[k].size : 0;
+  const shade = h => h ? `background:color-mix(in srgb, var(--good) ${Math.round(15 + 55*h/max)}%, transparent)` : "";
+  $("heatnote").textContent = `How many times each ticket reached the take-win cutoff (a single prize over $20), rounds ${+upto[0].slice(1)}-${+upto[upto.length-1].slice(1)}. Darker green is more often. The bottom row is how often a random ticket of that size gets there in a round. Each row's best size is underlined. Random A and B show what luck alone does.`;
   $("heat").innerHTML = `<tr><th>Policy</th>${sizes.map(z=>`<th>K${z}</th>`).join("")}<th>Rds</th></tr>` +
     ORDER.map(k => { const bz = best(k); return `<tr><td>${k.replace(/ \(.*\)/,"")}</td>${sizes.map(z => { const c = cell[k][z];
-      return c ? `<td class="hc${z===bz?" best":""}" style="${shade(c.avg)}" data-k="${k}" data-z="${z}">${money(Math.round(c.avg))}</td>` : "<td>–</td>"; }).join("")}<td>${cell[k][4] ? cell[k][4].runs.length : 0}</td></tr>`; }).join("");
+      return c ? `<td class="hc${z===bz?" best":""}" style="${shade(c.hits)}" data-k="${k}" data-z="${z}">${c.hits}</td>` : "<td>–</td>"; }).join("")}<td>${cell[k][4] ? cell[k][4].runs.length : 0}</td></tr>`; }).join("") +
+    `<tr><td>Chance per round</td>${sizes.map(z=>`<td>${Math.round(CH.chance[z]*100)}%</td>`).join("")}<td></td></tr>`;
   $("heat").onclick = e => { const td = e.target.closest("td[data-k]"); if (!td) return; const c = cell[td.dataset.k][td.dataset.z];
-    $("heatdetail").innerHTML = `<b>${td.dataset.k} · K${td.dataset.z}</b>: ` + c.runs.map(([r,v]) => `round ${+r.slice(1)} <b class="${cls(v)}">${money(v)}</b>`).join(", "); };
+    $("heatdetail").innerHTML = `<b>${td.dataset.k} · K${td.dataset.z}</b>: ` + c.runs.map(([r,x]) => `round ${+r.slice(1)} ${x.end.startsWith("big win") ? `<b class="up">${x.end}</b>` : x.end} <b class="${cls(x.net)}">${money(x.net)}</b>`).join(", "); };
 }
+const idealTxt = o => o.big !== undefined ? `${o.big} cutoff win${o.big===1?"":"s"} in ${o.rounds} rounds` : `average ${money(Math.round(o.avg_net))} per $20 ticket over ${o.rounds} rounds`;
 const money = x => (x>0?"+":x<0?"−":"") + "$" + Math.abs(x).toLocaleString();
 const cls = x => x>0 ? "up" : x<0 ? "down" : "";
 
@@ -180,7 +182,7 @@ function render(){
       ${w===undefined ? `<div class="meta"><span>${k==="Weighted blend" ? "Built from the policy weights; not weighted itself" : "New this round; gets its first weight when scored"}</span></div>` :
       `<div class="meta"><span>Weight <b>${(w*100).toFixed(1)}%</b></span></div>
       <div class="bar" aria-hidden="true"><div style="width:${(w/maxW*100).toFixed(0)}%"></div></div>`}
-      ${D.ideal[k] ? `<div class="meta"><span>Best size so far <b>K${D.ideal[k].size}</b> (underlined; average ${money(Math.round(D.ideal[k].avg_net))} per $20 ticket over ${D.ideal[k].rounds} rounds)</span></div>` : ""}
+      ${D.ideal[k] ? `<div class="meta"><span>Best size so far <b>K${D.ideal[k].size}</b> (underlined; ${idealTxt(D.ideal[k])})</span></div>` : ""}
       ${res(k, cs)}
     </article>`}).join("");
   heatmap();
@@ -210,8 +212,8 @@ $("h1").textContent = `Keno lab · Round ${N}`;
 $("status").textContent = S ? "Scored" : "Frozen · test pending";
 $("scored").textContent = S ? 40 : 0;
 $("presult").innerHTML = S
-  ? `Round ${N}: ${PP} at K${PS||D.primary} finished <b>${money(S[PP].sizes[PS||D.primary].replay.net)}</b> on a $20 ticket with winnings replayed (average across K4-K10 <b>${money(Math.round(S[PP].rr))}</b>; group average ${money(Math.round(D.rr_mean))}). Went in on a roll: ${D.roll}. Now on a roll: <b>${D.next_roll}</b>.`
-  : PS ? `The blend is built from the policy weights (${D.roll} leads). K${PS} is its best size so far (average ${money(Math.round(D.ideal[PP].avg_net))} per $20 ticket over ${D.ideal[PP].rounds} rounds). That comes from luck in earlier rounds, not skill.`
+  ? `Round ${N}: ${PP} at K${PS||D.primary} finished <b>${money(S[PP].sizes[PS||D.primary].replay.net)}</b> on a $20 ticket with winnings replayed. Cutoff wins across K4-K10: <b>${S[PP].big}</b> (group average ${D.big_mean.toFixed(1)}). Went in on a roll: ${D.roll}. Now on a roll: <b>${D.next_roll}</b>.`
+  : PS ? `The blend is built from the policy weights (${D.roll} leads). K${PS} is its best size so far (${idealTxt(D.ideal[PP])}). That comes from luck in earlier rounds, not skill.`
   : `On a roll: <b>${D.roll}</b>. That comes from luck in earlier rounds, not skill.`;
 rollNow = S ? D.next_roll : D.roll;
 $("sha").textContent = D.sha;

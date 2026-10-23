@@ -4,7 +4,7 @@
 usage: python lab/score.py R001
 Reads rounds/<R>/frozen.json, draws.csv, keno_qld_paytable.json, ledger/weights.json.
 Writes rounds/<R>/scores.json, updates ledger/weights.json and ledger/sizes.json, appends
-ledger/leaderboard.csv. The reward is the average replay net across K4-K10 (see replay.py).
+ledger/leaderboard.csv. The reward is how many K4-K10 tickets reached the take-win cutoff (see replay.py).
 """
 import csv, json, math, os, sys
 from datetime import datetime, timedelta, timezone
@@ -25,7 +25,7 @@ def parse(s):
 
 def averaged_weights(rid, current):
     """Softmax of each policy's mean advantage over the last WINDOW scored rounds (this one
-    included). Every round's advantages are recomputed from its replay reward, so the whole
+    included). Every round's advantages are recomputed from its replays under the current reward, so the whole
     window is judged the same way."""
     pay = paytable()
     rounds = []
@@ -107,7 +107,7 @@ def main(rid):
         for n, r in results.items():
             r.setdefault("advantage", ""); r.setdefault("weight_after", "")
             k10 = r["sizes"][10]
-            cw.writerow([rid, n, k10["hits"], k10["hit_rate"], r["reward"], round(r["reward"] / 20 * 100, 1),
+            cw.writerow([rid, n, k10["hits"], k10["hit_rate"], r["reward"], round(r["reward"] / len(r["sizes"]) * 100, 1),
                          sum(s["complete_hits"] for s in r["sizes"].values()),
                          min([s["first_complete"] for s in r["sizes"].values() if s["first_complete"] is not None],
                              default=""), r["advantage"], r["weight_after"]])
@@ -137,12 +137,12 @@ def main(rid):
 
     if ht:
         print("  Heads/Tails:", ht["counts"], {n: (b["side"], b["net"]) for n, b in ht["bets"].items()})
-    print(f"{rid}: games {first}-{last}, reward = average replay net across K4-K10, "
-          f"group mean ${mean:+.2f}, sd {sd:.2f}, on a roll: {leader}")
+    print(f"{rid}: games {first}-{last}, reward = cutoff wins across K4-K10, "
+          f"group mean {mean:.2f}, sd {sd:.2f}, on a roll: {leader}")
     for n, r in sorted(results.items(), key=lambda kv: -kv[1]["reward"]):
         pk = frozen["primary_ticket_size"]
         s6, s10 = r["sizes"][pk], r["sizes"][10]
-        print(f"  {n:24s} reward ${r['reward']:+7.2f}  K{pk} ${s6['returned']:>5} back ({s6['roi_pct']:+.0f}%)  "
+        print(f"  {n:24s} cutoff wins {r['reward']}  replay avg ${sum(v['replay']['net'] for v in r['sizes'].values())/len(r['sizes']):+6.2f}  K{pk} ${s6['returned']:>5} back ({s6['roi_pct']:+.0f}%)  "
               f"K10 {s10['hits']}/{10*n_test} = {s10['hit_rate']:.1%}  "
               f"complete {[ (k, s['complete_hits']) for k, s in r['sizes'].items() if s['complete_hits']]}  "
               + (f"best K{pk} catch {s6['best_catch']}  adv {r['advantage']:+.2f}  w {r['weight_before'] or 0:.3f}->{r['weight_after']:.3f}"

@@ -5,7 +5,7 @@ usage: python lab/dashboard.py R003 OUT_HTML
 """
 import csv, json, math, os, sys
 
-from replay import replay
+from replay import chance, replay
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -47,8 +47,11 @@ def round_data(rid):
         data["next_roll"], data["mean"] = s["on_a_roll"], s["group_mean_reward"]
         for v in data["scores"].values():      # average replay result across K4-K10 (the reward)
             v["rr"] = sum(x["replay"]["net"] for x in v["sizes"].values()) / len(v["sizes"])
+            v["big"] = sum(x["replay"]["end"].startswith("big win") for x in v["sizes"].values())
         group = [v["rr"] for p, v in data["scores"].items() if p != "Weighted blend"]
         data["rr_mean"] = sum(group) / len(group)
+        bg = [v["big"] for p, v in data["scores"].items() if p != "Weighted blend"]
+        data["big_mean"] = sum(bg) / len(bg)
         # catch table: how often each catch landed across every ticket this round, per size
         data["catches"] = {k: [0] * (int(k) + 1) for k in s["results"][next(iter(s["results"]))]["sizes"]}
         for r in s["results"].values():
@@ -75,7 +78,7 @@ def main(rid, out_path):
                      if before and before["scores"] else {})
     tpl = open(os.path.join(ROOT, "lab", "dashboard.tpl.html")).read()
     open(out_path, "w").write(tpl.replace("__DATA__", json.dumps(rounds))
-                              .replace("__ODDS__", json.dumps({"odds": odds, "pay": pay, "sizes": sizes})))
+                              .replace("__ODDS__", json.dumps({"odds": odds, "pay": pay, "sizes": sizes, "chance": {k: round(v, 4) for k, v in chance().items()}})))
 
 
 if __name__ == "__main__":

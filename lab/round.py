@@ -125,12 +125,13 @@ def persistence(X, s):
 
 
 def ideal_sizes():
-    """Each policy's best ticket size so far (highest average replay net over the last 10 scored
+    """Each policy's best ticket size so far (most take-win cutoff hits over the last 10 scored
     rounds), from ledger/sizes.json. Recorded at freeze so the recommended size is frozen too."""
     p = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "ledger", "sizes.json")
     if not os.path.exists(p):
         return {}
-    return {k: {"size": v["ideal"], "avg_net": v["avg_net"][str(v["ideal"])], "rounds": v["rounds"]}
+    return {k: {"size": v["ideal"], "avg_net": v["avg_net"][str(v["ideal"])], "rounds": v["rounds"],
+                **({"big": v["big"][str(v["ideal"])], "x_chance": v["x_chance"][str(v["ideal"])]} if "big" in v else {})}
             for k, v in json.load(open(p))["policies"].items()}
 
 
@@ -206,8 +207,8 @@ def main(path, last_game, round_id, out_path):
         "primary_ticket_size": PRIMARY,
         "nested_sizes": SIZES,
         "policies": {k: v[:10] for k, v in policies.items()},
-        "verdict_rule": (f"Reward is the K{PRIMARY} return per $1 (pre-declared); K4-K10 returns reported for "
-                         "reference. K10 hit rate is labelled against the exact luck band: over 40 "
+        "verdict_rule": ("Reward is how many K4-K10 replay tickets reach the take-win cutoff (a single prize "
+                         "over $20); replay dollars reported for reference. K10 hit rate is labelled against the exact luck band: over 40 "
                          "games, 95% of random K10 tickets land between 21% and 29%. The band is a "
                          "label only, never a gate. With 7 policies, one landing outside the band by "
                          "chance is common, so only repeats across rounds count."),

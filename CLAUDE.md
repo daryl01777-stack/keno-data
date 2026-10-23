@@ -54,12 +54,16 @@ policy is expected to beat chance. Report results honestly; never imply an edge.
    replayed at $1 a game until it busts, a single game pays more than $20 (4/4, 5/5, 5/6+, 6/7+,
    6/8+, 7/9+, 7/10+), or times out at the end
    of the 40-game window. Net = final bank - $20.
-5. GRPO update. Reward (from 22 Oct, Daryl's call) is the average replay net across K4-K10, in
-   dollars. Advantage = (reward - group mean) / group sd. When weights are computed, every round in
+5. GRPO update. Reward (from R008 scoring, Daryl's call on 23 Oct) is the number of K4-K10 replay
+   tickets that reached the take-win cutoff (a single prize over $20) in the round, 0-7: consistency
+   over single big prizes. (22 Oct to R007 it was the average replay net in dollars.) Advantage = (reward - group mean) / group sd. When weights are computed, every round in
    the 10-round window is re-judged under this reward from its stored per-game catches.
    (Leaderboard `reward` up to R006 holds the old per-$1 K6 return; from R007 it is the replay reward.)
-   `ledger/sizes.json` holds each policy's average replay net by size over the last 10 rounds and its
-   best ("ideal") size; round.py freezes those as `ideal_sizes`, and the dashboard shows the
+   `ledger/sizes.json` holds, per policy and size over the last 10 rounds, cutoff wins (`big`), the
+   rate against chance (`x_chance`; chance from `replay.chance()`, exact: K4 8.8%, K5 1.8%, K6 8.4%,
+   K7 2.4%, K8 6.7%, K9 1.8%, K10 4.9% a round) and the average replay net, plus the best ("ideal")
+   size: most cutoff wins, ties to the higher average net then the smaller ticket (R008 froze the
+   older dollar-based ideal sizes); round.py freezes those as `ideal_sizes`, and the dashboard shows the
    weights' pick: the on-a-roll policy's ticket at its ideal size.
    Weights (from R004 scoring on): each policy's weight is exp(its mean advantage over the last
    10 scored rounds, this one included), renormalised to sum to 1. So chance results fade instead
@@ -80,8 +84,9 @@ Use the in-chat dashboard layout from round 1:
 - category chips (All / Anomaly / Signal / Baseline / Blend); a K4-K10 size selector on the primary
   card and inside each policy card, coloured by replay outcome (green big win, red bust, yellow timed out)
 - one card per policy, ordered by current weight (weight after scoring on scored rounds); unweighted cards (blend, new policies) last
-- results heatmap (replaced the catch table on 23 Oct): policies x K4-K10, average replay net per $20
-  ticket over scored rounds, green/red shading, best size underlined, tap a cell for per-round results
+- cutoff-wins heatmap (replaced the catch table on 23 Oct): policies x K4-K10, how many times each
+  ticket reached the take-win cutoff over scored rounds, a chance-per-round row, best size underlined,
+  tap a cell for per-round results
 - test status checklist and the fingerprint
 
 Build the page with `python lab/dashboard.py R00N out.html` (works before and after scoring; it
