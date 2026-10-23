@@ -8,6 +8,8 @@ import csv, hashlib, json, os, sys
 from datetime import datetime, timedelta, timezone
 import numpy as np
 
+import shadow
+
 N_TRAIN, N_RECENT, SIMS = 100, 20, 2000
 P = 0.25                          # chance a given number is drawn in a game
 SIZES = list(range(4, 11))        # nested tickets K4..K10 (paytable covers K4-K10)
@@ -215,6 +217,7 @@ def main(path, last_game, round_id, out_path):
         "window_vs_chance": nullc,
         "ideal_sizes": ideal_sizes(),
         "flagged": flagged,
+        "shadow": shadow.pick(matrix(games[:idx + 1])),   # Retro pick, outside GRPO (from R010)
     }
     json.dump(rec, open(out_path, "w"), indent=1)
     print(json.dumps({"window_vs_chance": nullc, "flagged": flagged,
