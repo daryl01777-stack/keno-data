@@ -87,12 +87,11 @@ td,th{padding:4px 6px;white-space:nowrap;border-bottom:1px solid var(--line);tex
   </section>
 
   <section class="primary">
-    <div class="row"><div><div class="tag">Primary prediction · Anomaly composite</div><h2 id="ptitle"></h2></div>
+    <div class="row"><div><div class="tag" id="ptag">Primary prediction</div><h2 id="ptitle"></h2></div>
       <button id="copy" type="button">Copy numbers</button></div>
     <div class="balls" id="pballs"></div>
     <div class="group" id="sizes" role="group" aria-label="Ticket size"><span class="lbl" style="align-self:center">Size</span></div>
     <p class="note" id="presult"></p>
-    <p class="note" id="wpick" hidden></p>
   </section>
 
   <section class="controls">
@@ -124,7 +123,7 @@ const IDS = Object.keys(ALL).sort();
 let D, N, S, ORDER, maxW, rollNow;
 const CAT = {"Anomaly composite":"Anomaly","Hot (most drawn)":"Signal","Surge (last 20 games)":"Signal","Pair cluster":"Signal","Overdue (longest gap)":"Signal","Random A":"Baseline","Random B":"Baseline","Weighted blend":"Blend","Persistence":"Signal"};
 const ALLP = ["Anomaly composite","Hot (most drawn)","Surge (last 20 games)","Pair cluster","Overdue (longest gap)","Persistence","Random A","Random B","Weighted blend"];
-let cat = "All", size = 6, CS = {};
+let cat = "All", size = 6, CS = {}, PP = "Anomaly composite", PS = 0;
 document.getElementById("cards").addEventListener("click", e => {
   const b = e.target.closest("button[data-k]"); if (!b) return;
   CS[b.dataset.k] = +b.dataset.s; render();
@@ -161,8 +160,8 @@ const cls = x => x>0 ? "up" : x<0 ? "down" : "";
 const bne = s => { const m = s.match(/(\d\d):(\d\d)/); const h = (+m[1] + 10) % 24, mm = m[2]; return `${h % 12 || 12}:${mm} ${h < 12 ? "am" : "pm"}`; };
 const bneDate = s => { const d = new Date(Date.parse(s) + 10*3600e3); return d.getUTCDate() + " " + ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][d.getUTCMonth()]; };
 function render(){
-  const p = D.policies["Anomaly composite"].slice(0,size);
-  $("ptitle").textContent = `K${size} ticket`;
+  const p = D.policies[PP].slice(0,size);
+  $("ptitle").textContent = `K${size} ticket${PS && size===PS ? " (ideal size)" : ""}`;
   $("pballs").innerHTML = balls(p, true);
   $("cards").innerHTML = ORDER.filter(k=>cat==="All"||CAT[k]===cat).map(k=>{
     const w = D.weights[k], pr = D.prev[k], cs = CS[k] || D.primary;
@@ -183,7 +182,7 @@ function render(){
   document.querySelectorAll("#sizes button").forEach(b=>b.setAttribute("aria-pressed", +b.dataset.v===size));
 }
 $("copy").onclick = async () => {
-  const txt = D.policies["Anomaly composite"].slice(0,size).join(" ");
+  const txt = D.policies[PP].slice(0,size).join(" ");
   try { await navigator.clipboard.writeText(txt); $("copy").textContent="Copied"; }
   catch { const r=document.createRange(); r.selectNodeContents($("pballs")); getSelection().removeAllRanges(); getSelection().addRange(r); $("copy").textContent="Selected"; }
   setTimeout(()=>$("copy").textContent="Copy numbers",1500);
@@ -191,7 +190,9 @@ $("copy").onclick = async () => {
 for(let s=4;s<=10;s++){const b=document.createElement("button");b.type="button";b.textContent="K"+s;b.dataset.v=s;b.onclick=()=>{size=s;render()};$("sizes").append(b)}
 IDS.forEach(r=>{const b=document.createElement("button");b.type="button";b.textContent=+r.slice(1);b.dataset.v=r;b.onclick=()=>{try{history.replaceState(null,"","#"+r)}catch{};show(r)};$("rounds").append(b)});
 function show(rid){
-D = ALL[rid]; N = +D.round.slice(1); S = D.scores; size = D.primary; CS = {};
+D = ALL[rid]; N = +D.round.slice(1); S = D.scores; CS = {};
+PS = D.ideal[D.roll] ? D.ideal[D.roll].size : 0; PP = PS ? D.roll : "Anomaly composite"; size = PS || D.primary;
+$("ptag").textContent = PS ? `Primary prediction · weights' pick: ${PP}` : "Primary prediction · Anomaly composite";
 $("legend").hidden = !S;
 ORDER = ALLP.filter(k=>D.policies[k]);
 maxW = Math.max(...Object.values(D.weights));
@@ -202,12 +203,10 @@ $("h1").textContent = `Keno lab · Round ${N}`;
 $("status").textContent = S ? "Scored" : "Frozen · test pending";
 $("scored").textContent = S ? 40 : 0;
 $("presult").innerHTML = S
-  ? `Round ${N}: Anomaly composite's average replay result across K4-K10 was <b>${money(Math.round(S["Anomaly composite"].rr))}</b> per $20 ticket (group average ${money(Math.round(D.rr_mean))}). Went in on a roll: ${D.roll}. Now on a roll: <b>${D.next_roll}</b>.`
+  ? `Round ${N}: ${PP} at K${PS||D.primary} finished <b>${money(S[PP].sizes[PS||D.primary].replay.net)}</b> on a $20 ticket with winnings replayed (average across K4-K10 <b>${money(Math.round(S[PP].rr))}</b>; group average ${money(Math.round(D.rr_mean))}). Went in on a roll: ${D.roll}. Now on a roll: <b>${D.next_roll}</b>.`
+  : PS ? `${PP} has the highest weight, and K${PS} is its best size so far (average ${money(Math.round(D.ideal[PP].avg_net))} per $20 ticket over ${D.ideal[PP].rounds} rounds). That comes from luck in earlier rounds, not skill.`
   : `On a roll: <b>${D.roll}</b>. That comes from luck in earlier rounds, not skill.`;
 rollNow = S ? D.next_roll : D.roll;
-const pick = D.ideal[D.roll];
-$("wpick").hidden = !pick;
-if (pick) $("wpick").innerHTML = `Weights' pick: <b>${D.roll}</b> at its best size so far, <b>K${pick.size}</b>: ${D.policies[D.roll].slice(0,pick.size).join(" ")}`;
 $("sha").textContent = D.sha;
 
 $("cats").innerHTML = "";

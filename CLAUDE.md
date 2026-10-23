@@ -74,7 +74,9 @@ policy is expected to beat chance. Report results honestly; never imply an edge.
 Use the in-chat dashboard layout from round 1:
 - header with the round number and status pill
 - stat tiles: training games, ticket variants, test games, scored games
-- primary prediction card with numbered tiles and a copy button
+- primary prediction card with numbered tiles and a copy button (from R008, Daryl's call on 23 Oct: the weights' pick, i.e. the on-a-roll
+  policy at its frozen ideal size; rounds without ideal_sizes, R001-R007, show Anomaly composite;
+  each policy card rings its ideal size in white)
 - category chips (All / Anomaly / Signal / Baseline / Blend); a K4-K10 size selector on the primary
   card and inside each policy card, coloured by replay outcome (green big win, red bust, yellow timed out)
 - one card per policy
