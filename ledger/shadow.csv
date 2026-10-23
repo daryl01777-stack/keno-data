@@ -1,2 +1,3 @@
 round,policy,rule,k10_hits,k10_hit_rate,reward,random_a_reward,random_b_reward,big_sizes
 R009,Retro pick,Cold (100),102,0.255,1,0,0,K4
+R010,Retro pick,Cold (100),99,0.2475,0,1,0,
