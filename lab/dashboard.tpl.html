@@ -133,14 +133,14 @@ const $ = id => document.getElementById(id);
 const balls = (nums, ranked) => nums.map((n,i)=>`<div class="ball">${ranked?`<i>${i+1}</i>`:""}${n}</div>`).join("");
 const cents = x => x >= 1 ? "$" + x.toFixed(2) : Math.round(x*100) + "c";
 function res(k, size){ if(!S) return `<div class="meta"><span>Round ${N} result: <b>pending</b></span></div>`; const s = S[k], t = s.sizes[size], rp = t.replay;
-  const pays = t.pays.filter(([g]) => (g - D.test[0] + 1000) % 1000 < rp.games);
+  const pays = t.pays.map(([g,h,w]) => [(g - D.test[0] + 1000) % 1000 + 1, h, w]).filter(([n]) => n <= rp.games);
   return `<div class="result"><div class="tag">Round ${N} result</div>
     ${s.adv===""?"":`<div class="meta"><span>Weight now <b>${(s.w*100).toFixed(1)}%</b></span></div>`}
     <div class="tag">K${size} ticket, $1 a game</div>
     <div class="meta"><span>$20 ticket, 20 games <b class="${cls(t.net20)}">${money(t.net20)}</b></span><span>With winnings replayed <b class="${cls(rp.net)}">${money(rp.net)}</b></span>
-    <span>Ended: <b>${rp.end}</b> after ${rp.games} games (game ${rp.last_game})</span></div>
+    <span>Ended: <b>${rp.end}</b> after ${rp.games} games</span></div>
     <div class="meta"><span>Paying games in those ${rp.games} <b>${pays.length}</b></span></div>
-    <div class="pays">${pays.map(([g,h,w])=>`<span>Game ${g}: ${h}/${size} <b>$${w}</b></span>`).join("") || "<span>None</span>"}</div></div>`; }
+    <div class="pays">${pays.map(([g,h,w])=>`<span>#${g}: ${h}/${size} <b>$${w}</b></span>`).join("") || "<span>None</span>"}</div></div>`; }
 function catchTable(){
   $("catchpanel").hidden = !S;
   if (!S) return;
