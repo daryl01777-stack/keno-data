@@ -83,6 +83,16 @@ are fine; anything else waits for the review after R017.
    K10 hit rate). `lab/score.py` does steps 4-6 apart from the commit.
 6. Commit the scores to `rounds/R00N/scores.json`.
 
+## Retro pick shadow (from R009, Daryl, 23 Oct)
+A shadow policy that automates the retrospective: at freeze, `lab/shadow.py` runs 12 simple rules
+over every completed 100+40 game window before the round and takes the ticket of the rule with the
+most cutoff hits (ties: higher K10 catches, then library order), plus that rule's ideal size. It is
+outside the GRPO group, the weights and the blend, so the R008-R017 freeze is untouched.
+From R010 round.py writes it under `shadow` in frozen.json. R009 was added after its freeze (built
+from games up to 308 only, before any test result was seen) in `rounds/R009/shadow.json` and
+`shadow.sha256`. Score with `python lab/shadow.py R00N` after score.py; it writes
+`rounds/R00N/shadow_scores.json` and appends `ledger/shadow.csv` with Random A/B for comparison.
+
 ## Reporting
 Use the in-chat dashboard layout from round 1:
 - header with the round number and status pill
