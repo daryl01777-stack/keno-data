@@ -70,6 +70,7 @@ ul.check li::before{content:"○ ";color:var(--muted)}ul.check li.done::before{c
 table{border-collapse:collapse;font-size:13px;width:100%;font-variant-numeric:tabular-nums}
 td,th{padding:4px 6px;white-space:nowrap;border-bottom:1px solid var(--line);text-align:right}td:first-child,th:first-child{text-align:left}
 .scroll{overflow-x:auto}
+.heat td,.heat th{padding:4px 3px}.heat td.hc{text-align:center;cursor:pointer;color:var(--fg);font-weight:600}.heat th{text-align:center}.heat th:first-child{text-align:left}
 </style>
 
 <div class="wrap">
@@ -101,10 +102,11 @@ td,th{padding:4px 6px;white-space:nowrap;border-bottom:1px solid var(--line);tex
 
   <section class="cards" id="cards"></section>
 
-  <section class="panel" id="catchpanel" hidden>
-    <h2 id="catchtitle">Catch table</h2>
-    <p class="note" id="catchnote"></p>
-    <div class="scroll"><table id="catches"></table></div>
+  <section class="panel" id="heatpanel" hidden>
+    <h2>Results by policy and size</h2>
+    <p class="note" id="heatnote"></p>
+    <div class="scroll"><table id="heat" class="heat"></table></div>
+    <p class="note" id="heatdetail">Tap a cell to see the round-by-round results behind it.</p>
   </section>
 
   <section class="panel">
@@ -140,19 +142,23 @@ function res(k, size){ if(!S) return `<div class="meta"><span>Round ${N} result:
     <span>Ended: <b>${rp.end}</b> after ${rp.games} games</span></div>
     <div class="meta"><span>Paying games in those ${rp.games} <b>${pays.length}</b></span></div>
     <div class="pays">${pays.map(([g,h,w])=>`<span>#${g}: ${h}/${size} <b>$${w}</b></span>`).join("") || "<span>None</span>"}</div></div>`; }
-function catchTable(){
-  $("catchpanel").hidden = !S;
-  if (!S) return;
-  const k = String(size), p = CH.odds[k], pay = CH.pay[k] || {};
-  const upto = IDS.filter(r => ALL[r].catches && r <= D.round);
-  const sum = rs => { const c = new Array(size+1).fill(0); rs.forEach(r => ALL[r].catches[k].forEach((x,i)=>c[i]+=x)); return c; };
-  const here = D.catches[k], all = sum(upto);
-  const nHere = here.reduce((a,b)=>a+b,0), nAll = all.reduce((a,b)=>a+b,0);
-  const ex = (n,i) => { const e = n*p[i]; return e >= 10 ? e.toFixed(0) : e >= 1 ? e.toFixed(1) : e.toFixed(2); };
-  $("catchtitle").textContent = `Catch table · K${size}`;
-  $("catchnote").textContent = `How often each catch landed across every ${"K"+size} ticket, next to what pure chance gives for the same number of ticket-games. Round ${N}: ${nHere} ticket-games. Rounds ${+upto[0].slice(1)}-${N}: ${nAll}.`;
-  $("catches").innerHTML = `<tr><th>Catch</th><th>Prize</th><th>Round ${N}</th><th>Chance</th><th>All rounds</th><th>Chance</th></tr>` +
-    here.map((_,i)=>i).reverse().map(i => `<tr><td>${i}/${size}</td><td>${pay[i] ? "$"+pay[i] : "–"}</td><td><b>${here[i]}</b></td><td>${ex(nHere,i)}</td><td><b>${all[i]}</b></td><td>${ex(nAll,i)}</td></tr>`).join("");
+function heatmap(){
+  const upto = IDS.filter(r => ALL[r].scores && r <= D.round);
+  $("heatpanel").hidden = !upto.length;
+  if (!upto.length) return;
+  const sizes = [4,5,6,7,8,9,10], cell = {};
+  ORDER.forEach(k => { cell[k] = {}; sizes.forEach(z => {
+    const runs = upto.filter(r => ALL[r].scores[k]).map(r => [r, ALL[r].scores[k].sizes[z].replay.net]);
+    cell[k][z] = runs.length ? {avg: runs.reduce((a,x)=>a+x[1],0)/runs.length, runs} : null; }); });
+  const max = Math.max(1, ...ORDER.flatMap(k => sizes.map(z => cell[k][z] ? Math.abs(cell[k][z].avg) : 0)));
+  const best = k => { const v = sizes.filter(z => cell[k][z]); if (!v.length) return 0; const m = v.reduce((a,z)=>cell[k][z].avg > cell[k][a].avg ? z : a); return v.filter(z => cell[k][z].avg === cell[k][m].avg).length === 1 ? m : 0; };
+  const shade = v => `background:color-mix(in srgb, var(${v>=0?"--good":"--bad"}) ${Math.round(8 + 62*Math.min(1,Math.abs(v)/max))}%, transparent)`;
+  $("heatnote").textContent = `Average result per $20 ticket with winnings replayed, rounds ${+upto[0].slice(1)}-${+upto[upto.length-1].slice(1)}. Green made money, red lost it; darker is bigger. Each row's best size is underlined. Random A and B show what luck alone does.`;
+  $("heat").innerHTML = `<tr><th>Policy</th>${sizes.map(z=>`<th>K${z}</th>`).join("")}<th>Rds</th></tr>` +
+    ORDER.map(k => { const bz = best(k); return `<tr><td>${k.replace(/ \(.*\)/,"")}</td>${sizes.map(z => { const c = cell[k][z];
+      return c ? `<td class="hc${z===bz?" best":""}" style="${shade(c.avg)}" data-k="${k}" data-z="${z}">${money(Math.round(c.avg))}</td>` : "<td>–</td>"; }).join("")}<td>${cell[k][4] ? cell[k][4].runs.length : 0}</td></tr>`; }).join("");
+  $("heat").onclick = e => { const td = e.target.closest("td[data-k]"); if (!td) return; const c = cell[td.dataset.k][td.dataset.z];
+    $("heatdetail").innerHTML = `<b>${td.dataset.k} · K${td.dataset.z}</b>: ` + c.runs.map(([r,v]) => `round ${+r.slice(1)} <b class="${cls(v)}">${money(v)}</b>`).join(", "); };
 }
 const money = x => (x>0?"+":x<0?"−":"") + "$" + Math.abs(x).toLocaleString();
 const cls = x => x>0 ? "up" : x<0 ? "down" : "";
@@ -177,7 +183,7 @@ function render(){
       ${D.ideal[k] ? `<div class="meta"><span>Best size so far <b>K${D.ideal[k].size}</b> (underlined; average ${money(Math.round(D.ideal[k].avg_net))} per $20 ticket over ${D.ideal[k].rounds} rounds)</span></div>` : ""}
       ${res(k, cs)}
     </article>`}).join("");
-  catchTable();
+  heatmap();
   document.querySelectorAll("#cats button").forEach(b=>b.setAttribute("aria-pressed", b.dataset.v===cat));
   document.querySelectorAll("#sizes button").forEach(b=>{b.setAttribute("aria-pressed", +b.dataset.v===size); b.classList.toggle("best", +b.dataset.v===PS);});
 }

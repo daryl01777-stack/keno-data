@@ -80,6 +80,8 @@ Use the in-chat dashboard layout from round 1:
 - category chips (All / Anomaly / Signal / Baseline / Blend); a K4-K10 size selector on the primary
   card and inside each policy card, coloured by replay outcome (green big win, red bust, yellow timed out)
 - one card per policy, ordered by current weight (weight after scoring on scored rounds); unweighted cards (blend, new policies) last
+- results heatmap (replaced the catch table on 23 Oct): policies x K4-K10, average replay net per $20
+  ticket over scored rounds, green/red shading, best size underlined, tap a cell for per-round results
 - test status checklist and the fingerprint
 
 Build the page with `python lab/dashboard.py R00N out.html` (works before and after scoring; it
