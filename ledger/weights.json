@@ -1,7 +1,7 @@
 {
  "after_round": "R008",
- "rule": "softmax of mean advantage over the last 10 scored rounds",
- "reward": "average replay net across K4-K10 ($20 ticket for 20 games, winnings replayed until bust, a single prize over $20, or game 40)",
+ "rule": "softmax of mean advantage over the last 10 scored rounds (rounds a policy missed count as 0)",
+ "reward": "cutoff wins: how many K4-K10 replay tickets got a single prize over $20 in the round (0-7)",
  "weights": {
   "Anomaly composite": 0.106064,
   "Hot (most drawn)": 0.127249,
