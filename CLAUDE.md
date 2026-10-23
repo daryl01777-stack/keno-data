@@ -75,7 +75,8 @@ Use the in-chat dashboard layout from round 1:
 - header with the round number and status pill
 - stat tiles: training games, ticket variants, test games, scored games
 - primary prediction card with numbered tiles and a copy button
-- category chips (All / Anomaly / Signal / Baseline) and a K4-K10 size selector
+- category chips (All / Anomaly / Signal / Baseline / Blend); a K4-K10 size selector on the primary
+  card and inside each policy card, coloured by replay outcome (green big win, red bust, yellow timed out)
 - one card per policy
 - test status checklist and the fingerprint
 

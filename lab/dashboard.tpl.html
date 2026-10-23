@@ -6,16 +6,19 @@
 :root{
   --bg:#f3f5f8; --surface:#ffffff; --fg:#17202b; --muted:#5b6675; --line:#d9dfe7;
   --accent:#c2410c; --accent-soft:#fde7dc; --ball:#e8edf3; --good:#15803d; --warn:#a16207;
+  --bad:#b91c1c; --good-soft:#dcfce7; --bad-soft:#fee2e2; --warn-soft:#fef3c7;
   --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
   --body:"Atkinson Hyperlegible",ui-sans-serif,system-ui,sans-serif;
   --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --bg:#0f141b; --surface:#18202a; --fg:#e7ecf2; --muted:#9aa6b5; --line:#2a3542;
-  --accent:#fb8a4c; --accent-soft:#3a2216; --ball:#232d3a; --good:#4ade80; --warn:#facc15; color-scheme:dark}}
+  --accent:#fb8a4c; --accent-soft:#3a2216; --ball:#232d3a; --good:#4ade80; --warn:#facc15;
+  --bad:#f87171; --good-soft:#14321f; --bad-soft:#3a1515; --warn-soft:#3a2f10; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#0f141b; --surface:#18202a; --fg:#e7ecf2; --muted:#9aa6b5; --line:#2a3542;
-  --accent:#fb8a4c; --accent-soft:#3a2216; --ball:#232d3a; --good:#4ade80; --warn:#facc15; color-scheme:dark}
+  --accent:#fb8a4c; --accent-soft:#3a2216; --ball:#232d3a; --good:#4ade80; --warn:#facc15;
+  --bad:#f87171; --good-soft:#14321f; --bad-soft:#3a1515; --warn-soft:#3a2f10; color-scheme:dark}
 body{background:var(--bg);color:var(--fg);font:15px/1.5 var(--body)}
 .wrap{max-width:880px;margin:0 auto;padding-block:24px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:20px}
 header{display:flex;flex-wrap:wrap;align-items:center;gap:12px}
@@ -50,6 +53,12 @@ button[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:va
 .bar{height:6px;border-radius:3px;background:var(--ball);overflow:hidden}.bar div{height:100%;background:var(--accent)}
 .pays{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}.pays b{color:var(--fg)}
 .up{color:var(--good)!important}.down{color:var(--warn)!important}
+.sz{font:700 12px var(--body);padding:5px 9px;border-radius:7px;border:1px solid var(--line);background:var(--surface);color:var(--fg)}
+.sz.win{background:var(--good-soft);border-color:var(--good);color:var(--good)}
+.sz.bust{background:var(--bad-soft);border-color:var(--bad);color:var(--bad)}
+.sz.timeout{background:var(--warn-soft);border-color:var(--warn);color:var(--warn)}
+.sz[aria-pressed="true"]{outline:2px solid var(--fg);outline-offset:1px}
+.legend{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:13px}.legend .sz{padding:1px 6px;font-size:11px}
 .result{border-top:1px solid var(--line);padding-top:10px;display:grid;gap:6px}.out{color:var(--warn);font-weight:700}
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;display:grid;gap:10px}
 ul.check{list-style:none;margin:0;padding:0;display:grid;gap:6px}
@@ -80,13 +89,14 @@ td,th{padding:4px 6px;white-space:nowrap;border-bottom:1px solid var(--line);tex
     <div class="row"><div><div class="tag">Primary prediction · Anomaly composite</div><h2 id="ptitle"></h2></div>
       <button id="copy" type="button">Copy numbers</button></div>
     <div class="balls" id="pballs"></div>
+    <div class="group" id="sizes" role="group" aria-label="Ticket size"><span class="lbl" style="align-self:center">Size</span></div>
     <p class="note" id="presult"></p>
     <p class="note" id="wpick" hidden></p>
   </section>
 
   <section class="controls">
     <div class="group" id="cats" role="group" aria-label="Category"></div>
-    <div class="group" id="sizes" role="group" aria-label="Ticket size"><span class="lbl" style="align-self:center">Size</span></div>
+    <p class="note legend" id="legend"><span class="sz win">K</span> big win <span class="sz bust">K</span> bust <span class="sz timeout">K</span> timed out</p>
   </section>
 
   <section class="cards" id="cards"></section>
@@ -113,11 +123,15 @@ const IDS = Object.keys(ALL).sort();
 let D, N, S, ORDER, maxW, rollNow;
 const CAT = {"Anomaly composite":"Anomaly","Hot (most drawn)":"Signal","Surge (last 20 games)":"Signal","Pair cluster":"Signal","Overdue (longest gap)":"Signal","Random A":"Baseline","Random B":"Baseline","Weighted blend":"Blend","Persistence":"Signal"};
 const ALLP = ["Anomaly composite","Hot (most drawn)","Surge (last 20 games)","Pair cluster","Overdue (longest gap)","Persistence","Random A","Random B","Weighted blend"];
-let cat = "All", size = 6;
+let cat = "All", size = 6, CS = {};
+document.getElementById("cards").addEventListener("click", e => {
+  const b = e.target.closest("button[data-k]"); if (!b) return;
+  CS[b.dataset.k] = +b.dataset.s; render();
+});
 const $ = id => document.getElementById(id);
 const balls = (nums, ranked) => nums.map((n,i)=>`<div class="ball">${ranked?`<i>${i+1}</i>`:""}${n}</div>`).join("");
 const cents = x => x >= 1 ? "$" + x.toFixed(2) : Math.round(x*100) + "c";
-function res(k){ if(!S) return `<div class="meta"><span>Round ${N} result: <b>pending</b></span></div>`; const s = S[k], t = s.sizes[size], all = Object.values(s.sizes).reduce((a,x)=>a+x.replay.net,0), rp = t.replay;
+function res(k, size){ if(!S) return `<div class="meta"><span>Round ${N} result: <b>pending</b></span></div>`; const s = S[k], t = s.sizes[size], all = Object.values(s.sizes).reduce((a,x)=>a+x.replay.net,0), rp = t.replay;
   const comp = s.complete.length ? s.complete.map(([n,g])=>`K${n} in game ${g}`).join(", ") : "none";
   return `<div class="result"><div class="tag">Round ${N} result</div>
     <div class="meta"><span>Average replay result, K4-K10 <b class="${cls(s.rr)}">${money(Math.round(s.rr))}</b></span><span>K10 hits <b>${s.k10hits}/400 (${(s.k10*100).toFixed(1)}%)</b></span>
@@ -155,15 +169,18 @@ function render(){
   $("ptitle").textContent = `K${size} ticket`;
   $("pballs").innerHTML = balls(p, true);
   $("cards").innerHTML = ORDER.filter(k=>cat==="All"||CAT[k]===cat).map(k=>{
-    const w = D.weights[k], pr = D.prev[k];
+    const w = D.weights[k], pr = D.prev[k], cs = CS[k] || D.primary;
+    const ends = S && S[k] ? Object.fromEntries(Object.entries(S[k].sizes).map(([z,x])=>[z, x.replay.end])) : {};
+    const tone = e => !e ? "" : e.startsWith("big win") ? "win" : e === "bust" ? "bust" : "timeout";
     return `<article class="card">
       <div class="row"><div><div class="tag">${CAT[k]}</div><h2>${k}</h2></div>${k===rollNow?`<span class="roll">${S?'On a roll next':'On a roll'}</span>`:''}</div>
-      <div class="balls">${balls(D.policies[k].slice(0,size).slice().sort((a,b)=>a-b))}</div>
+      <div class="group" role="group" aria-label="${k} ticket size">${[4,5,6,7,8,9,10].map(z=>`<button type="button" class="sz ${tone(ends[z])}" data-k="${k}" data-s="${z}" aria-pressed="${z===cs}" title="${ends[z] || ""}">K${z}</button>`).join("")}</div>
+      <div class="balls">${balls(D.policies[k].slice(0,cs).slice().sort((a,b)=>a-b))}</div>
       ${w===undefined ? `<div class="meta"><span>${k==="Weighted blend" ? "Built from the policy weights; not weighted itself" : "New this round; gets its first weight when scored"}</span></div>` :
       `<div class="meta"><span>Weight <b>${(w*100).toFixed(1)}%</b></span>${pr?`<span>R${N-1} average replay <b class="${cls(pr.rr)}">${money(Math.round(pr.rr))}</b></span><span>R${N-1} K10 hits <b>${(pr.k10*100).toFixed(1)}%</b></span>`:""}</div>
       <div class="bar" aria-hidden="true"><div style="width:${(w/maxW*100).toFixed(0)}%"></div></div>`}
       ${D.ideal[k] ? `<div class="meta"><span>Best size so far <b>K${D.ideal[k].size}</b> (average ${money(Math.round(D.ideal[k].avg_net))} per $20 ticket over ${D.ideal[k].rounds} rounds)</span></div>` : ""}
-      ${res(k)}
+      ${res(k, cs)}
     </article>`}).join("");
   catchTable();
   document.querySelectorAll("#cats button").forEach(b=>b.setAttribute("aria-pressed", b.dataset.v===cat));
@@ -178,7 +195,8 @@ $("copy").onclick = async () => {
 for(let s=4;s<=10;s++){const b=document.createElement("button");b.type="button";b.textContent="K"+s;b.dataset.v=s;b.onclick=()=>{size=s;render()};$("sizes").append(b)}
 IDS.forEach(r=>{const b=document.createElement("button");b.type="button";b.textContent=+r.slice(1);b.dataset.v=r;b.onclick=()=>{try{history.replaceState(null,"","#"+r)}catch{};show(r)};$("rounds").append(b)});
 function show(rid){
-D = ALL[rid]; N = +D.round.slice(1); S = D.scores; size = D.primary;
+D = ALL[rid]; N = +D.round.slice(1); S = D.scores; size = D.primary; CS = {};
+$("legend").hidden = !S;
 ORDER = ALLP.filter(k=>D.policies[k]);
 maxW = Math.max(...Object.values(D.weights));
 if (!["All", ...ORDER.map(k=>CAT[k])].includes(cat)) cat = "All";
