@@ -32,7 +32,7 @@ def round_data(rid):
         data["policies"] = dict(d["policies"], **sh["policies"])
         data["ideal"] = dict(data["ideal"], **{SHADOW: {"size": sh["ideal_size"], "rule": sh["rule"]}})
         data["shadow"] = {"rule": sh["rule"], "late": bool(sh.get("added_after_freeze")),
-                          "frozen": sh["frozen_utc"],
+                          "frozen": sh.get("frozen_utc", d["frozen_utc"]),
                           "sha": open(os.path.join(rdir, "shadow.sha256")).read().strip() if os.path.exists(shp) else None}
     sp = os.path.join(rdir, "scores.json")
     if os.path.exists(sp):
