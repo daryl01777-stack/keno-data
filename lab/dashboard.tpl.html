@@ -191,8 +191,8 @@ for(let s=4;s<=10;s++){const b=document.createElement("button");b.type="button";
 IDS.forEach(r=>{const b=document.createElement("button");b.type="button";b.textContent=+r.slice(1);b.dataset.v=r;b.onclick=()=>{try{history.replaceState(null,"","#"+r)}catch{};show(r)};$("rounds").append(b)});
 function show(rid){
 D = ALL[rid]; N = +D.round.slice(1); S = D.scores; CS = {};
-PS = D.ideal[D.roll] ? D.ideal[D.roll].size : 0; PP = PS ? D.roll : "Anomaly composite"; size = PS || D.primary;
-$("ptag").textContent = PS ? `Primary prediction · weights' pick: ${PP}` : "Primary prediction · Anomaly composite";
+const B = "Weighted blend"; PS = D.ideal[B] ? D.ideal[B].size : 0; PP = PS ? B : "Anomaly composite"; size = PS || D.primary;
+$("ptag").textContent = PS ? `Primary prediction · ${PP}` : "Primary prediction · Anomaly composite";
 $("legend").hidden = !S;
 ORDER = ALLP.filter(k=>D.policies[k]);
 maxW = Math.max(...Object.values(D.weights));
@@ -204,7 +204,7 @@ $("status").textContent = S ? "Scored" : "Frozen · test pending";
 $("scored").textContent = S ? 40 : 0;
 $("presult").innerHTML = S
   ? `Round ${N}: ${PP} at K${PS||D.primary} finished <b>${money(S[PP].sizes[PS||D.primary].replay.net)}</b> on a $20 ticket with winnings replayed (average across K4-K10 <b>${money(Math.round(S[PP].rr))}</b>; group average ${money(Math.round(D.rr_mean))}). Went in on a roll: ${D.roll}. Now on a roll: <b>${D.next_roll}</b>.`
-  : PS ? `${PP} has the highest weight, and K${PS} is its best size so far (average ${money(Math.round(D.ideal[PP].avg_net))} per $20 ticket over ${D.ideal[PP].rounds} rounds). That comes from luck in earlier rounds, not skill.`
+  : PS ? `The blend is built from the policy weights (${D.roll} leads). K${PS} is its best size so far (average ${money(Math.round(D.ideal[PP].avg_net))} per $20 ticket over ${D.ideal[PP].rounds} rounds). That comes from luck in earlier rounds, not skill.`
   : `On a roll: <b>${D.roll}</b>. That comes from luck in earlier rounds, not skill.`;
 rollNow = S ? D.next_roll : D.roll;
 $("sha").textContent = D.sha;
