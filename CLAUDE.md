@@ -76,7 +76,7 @@ Use the in-chat dashboard layout from round 1:
 - stat tiles: training games, ticket variants, test games, scored games
 - primary prediction card with numbered tiles and a copy button (from R008, Daryl's call on 23 Oct: the Weighted blend at its frozen ideal
   size; rounds without ideal_sizes, R001-R007, show Anomaly composite;
-  each policy card rings its ideal size in white)
+  the ideal size is underlined and the selected size is drawn slightly larger)
 - category chips (All / Anomaly / Signal / Baseline / Blend); a K4-K10 size selector on the primary
   card and inside each policy card, coloured by replay outcome (green big win, red bust, yellow timed out)
 - one card per policy

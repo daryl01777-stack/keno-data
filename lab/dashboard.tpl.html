@@ -57,8 +57,8 @@ button[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:va
 .sz.win{background:var(--good-soft);border-color:var(--good);color:var(--good)}
 .sz.bust{background:var(--bad-soft);border-color:var(--bad);color:var(--bad)}
 .sz.timeout{background:var(--warn-soft);border-color:var(--warn);color:var(--warn)}
-.best{box-shadow:0 0 0 2px #fff,0 0 0 3px var(--line)}
-.sz[aria-pressed="true"]{text-decoration:underline 3px;text-underline-offset:4px}
+.best{text-decoration:underline 3px;text-underline-offset:4px}
+.sz[aria-pressed="true"],#sizes button[aria-pressed="true"]{transform:scale(1.18);box-shadow:0 2px 6px rgba(0,0,0,.35);position:relative;z-index:1}
 .legend{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:13px}.legend .sz{padding:1px 6px;font-size:11px}
 .result{border-top:1px solid var(--line);padding-top:10px;display:grid;gap:6px}.out{color:var(--warn);font-weight:700}
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;display:grid;gap:10px}
@@ -169,17 +169,17 @@ function render(){
     const tone = e => !e ? "" : e.startsWith("big win") ? "win" : e === "bust" ? "bust" : "timeout";
     return `<article class="card">
       <div class="row"><div><div class="tag">${CAT[k]}</div><h2>${k}</h2></div>${k===rollNow?`<span class="roll">${S?'On a roll next':'On a roll'}</span>`:''}</div>
-      <div class="group" role="group" aria-label="${k} ticket size">${[4,5,6,7,8,9,10].map(z=>`<button type="button" class="sz ${tone(ends[z])}${D.ideal[k]&&D.ideal[k].size===z?" best":""}" data-k="${k}" data-s="${z}" aria-pressed="${z===cs}">K${z}${D.ideal[k]&&D.ideal[k].size===z?"★":""}</button>`).join("")}</div>
+      <div class="group" role="group" aria-label="${k} ticket size">${[4,5,6,7,8,9,10].map(z=>`<button type="button" class="sz ${tone(ends[z])}${D.ideal[k]&&D.ideal[k].size===z?" best":""}" data-k="${k}" data-s="${z}" aria-pressed="${z===cs}">K${z}</button>`).join("")}</div>
       <div class="balls">${balls(D.policies[k].slice(0,cs).slice().sort((a,b)=>a-b))}</div>
       ${w===undefined ? `<div class="meta"><span>${k==="Weighted blend" ? "Built from the policy weights; not weighted itself" : "New this round; gets its first weight when scored"}</span></div>` :
       `<div class="meta"><span>Weight <b>${(w*100).toFixed(1)}%</b></span></div>
       <div class="bar" aria-hidden="true"><div style="width:${(w/maxW*100).toFixed(0)}%"></div></div>`}
-      ${D.ideal[k] ? `<div class="meta"><span>Best size so far <b>K${D.ideal[k].size}</b> (★ white box; average ${money(Math.round(D.ideal[k].avg_net))} per $20 ticket over ${D.ideal[k].rounds} rounds)</span></div>` : ""}
+      ${D.ideal[k] ? `<div class="meta"><span>Best size so far <b>K${D.ideal[k].size}</b> (underlined; average ${money(Math.round(D.ideal[k].avg_net))} per $20 ticket over ${D.ideal[k].rounds} rounds)</span></div>` : ""}
       ${res(k, cs)}
     </article>`}).join("");
   catchTable();
   document.querySelectorAll("#cats button").forEach(b=>b.setAttribute("aria-pressed", b.dataset.v===cat));
-  document.querySelectorAll("#sizes button").forEach(b=>{b.setAttribute("aria-pressed", +b.dataset.v===size); b.textContent = "K"+b.dataset.v+(+b.dataset.v===PS?"★":""); b.classList.toggle("best", +b.dataset.v===PS);});
+  document.querySelectorAll("#sizes button").forEach(b=>{b.setAttribute("aria-pressed", +b.dataset.v===size); b.classList.toggle("best", +b.dataset.v===PS);});
 }
 $("copy").onclick = async () => {
   const txt = D.policies[PP].slice(0,size).join(" ");
