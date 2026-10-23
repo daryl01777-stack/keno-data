@@ -34,10 +34,11 @@ policy is expected to beat chance. Report results honestly; never imply an edge.
    is independent. Pick order is the ticket ranking, so K4 is the first 4 picks. (R005-R007 used an
    additive vote over all 7 policies.) The blend is scored and shown, but stays out of the GRPO
    update because it is built from the weights.
-   From R006 it also sets three Heads or Tails bets ($1 a game for all 40 test games):
+   R006-R007 also set three Heads or Tails bets (dropped from R008 at Daryl's request; score.py
+   still scores them for rounds that have them) ($1 a game for all 40 test games):
    H/T trend (whichever of heads or tails won more training games), H/T contrarian (the other
    side) and Always evens. Payouts: heads or tails $2, evens $4 per $1 (`keno_qld_paytable.json`).
-   They are scored and shown in their own panel, outside the GRPO update.
+   They were outside the GRPO update and are no longer shown on the dashboard.
 3. Freeze: add `frozen_utc`, `test_games` and the expected close times, write canonical
    JSON (`sort_keys`, compact separators), and post its sha256 in chat before the test
    window opens. Commit it to `rounds/R00N/frozen.json` and `frozen.sha256`.

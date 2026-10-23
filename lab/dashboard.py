@@ -24,7 +24,7 @@ def round_data(rid):
             "roll": d.get("on_a_roll") or "none yet (first round)",
             "prev": prev, "scan": d["window_vs_chance"],
             "sha": open(os.path.join(rdir, "frozen.sha256")).read().strip(), "scores": None,
-            "ht": d.get("heads_tails"), "ht_scores": None, "ideal": d.get("ideal_sizes", {})}
+            "ideal": d.get("ideal_sizes", {})}
     sp = os.path.join(rdir, "scores.json")
     if os.path.exists(sp):
         s = json.load(open(sp))
@@ -45,7 +45,10 @@ def round_data(rid):
                               "sizes": {k: ticket(int(k), x) for k, x in r["sizes"].items()}}
                           for p, r in s["results"].items()}
         data["next_roll"], data["mean"] = s["on_a_roll"], s["group_mean_reward"]
-        data["ht_scores"] = s.get("heads_tails")
+        for v in data["scores"].values():      # average replay result across K4-K10 (the reward)
+            v["rr"] = sum(x["replay"]["net"] for x in v["sizes"].values()) / len(v["sizes"])
+        group = [v["rr"] for p, v in data["scores"].items() if p != "Weighted blend"]
+        data["rr_mean"] = sum(group) / len(group)
         # catch table: how often each catch landed across every ticket this round, per size
         data["catches"] = {k: [0] * (int(k) + 1) for k in s["results"][next(iter(s["results"]))]["sizes"]}
         for r in s["results"].values():
@@ -66,6 +69,10 @@ def main(rid, out_path):
     pay = json.load(open(os.path.join(ROOT, "keno_qld_paytable.json")))["payouts"]
     sp = os.path.join(ROOT, "ledger", "sizes.json")
     sizes = json.load(open(sp)) if os.path.exists(sp) else None
+    for rid_, d in rounds.items():           # previous round's result, judged the same way
+        before = rounds.get(f"R{int(rid_[1:]) - 1:03d}")
+        d["prev"] = ({p: {"rr": v["rr"], "k10": v["k10"]} for p, v in before["scores"].items()}
+                     if before and before["scores"] else {})
     tpl = open(os.path.join(ROOT, "lab", "dashboard.tpl.html")).read()
     open(out_path, "w").write(tpl.replace("__DATA__", json.dumps(rounds))
                               .replace("__ODDS__", json.dumps({"odds": odds, "pay": pay, "sizes": sizes})))
