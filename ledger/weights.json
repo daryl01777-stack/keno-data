@@ -1,15 +1,16 @@
 {
- "after_round": "R007",
+ "after_round": "R008",
  "rule": "softmax of mean advantage over the last 10 scored rounds",
  "reward": "average replay net across K4-K10 ($20 ticket for 20 games, winnings replayed until bust, a single prize over $20, or game 40)",
  "weights": {
-  "Anomaly composite": 0.086768,
-  "Hot (most drawn)": 0.114176,
-  "Overdue (longest gap)": 0.510452,
-  "Pair cluster": 0.054441,
-  "Random A": 0.066191,
-  "Random B": 0.089728,
-  "Surge (last 20 games)": 0.078244
+  "Anomaly composite": 0.106064,
+  "Hot (most drawn)": 0.127249,
+  "Overdue (longest gap)": 0.296148,
+  "Pair cluster": 0.068777,
+  "Persistence": 0.113536,
+  "Random A": 0.0907,
+  "Random B": 0.099812,
+  "Surge (last 20 games)": 0.097714
  },
  "on_a_roll": "Overdue (longest gap)"
 }
