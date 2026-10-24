@@ -3,3 +3,4 @@ R009,Retro pick,Cold (100),102,0.255,1,0,0,K4
 R010,Retro pick,Cold (100),99,0.2475,0,1,0,
 R011,Retro pick,Neighbours of last game,98,0.245,0,0,2,
 R012,Retro pick,Pairs with last game,94,0.235,0,0,0,
+R013,Retro pick,Pairs with last game,105,0.2625,0,1,1,
