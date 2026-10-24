@@ -5,3 +5,4 @@ R011,Retro pick,Neighbours of last game,98,0.245,0,0,2,
 R012,Retro pick,Pairs with last game,94,0.235,0,0,0,
 R013,Retro pick,Pairs with last game,105,0.2625,0,1,1,
 R014,Retro pick,Just drawn (last game),104,0.26,0,0,0,
+R015,Retro pick,Not in last game,111,0.2775,2,2,0,K4 K6
