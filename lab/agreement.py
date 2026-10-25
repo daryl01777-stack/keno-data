@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Agreement: a shadow ticket of the numbers the weighted signal policies agree on (from R018, Daryl, 25 Oct).
 
-At freeze, each non-random policy (Anomaly composite, Hot, Surge, Pair cluster, Overdue, Persistence)
-gives its top 10 rank points, 10 for #1 down to 1 for #10. Each policy's points are multiplied by its
-weight in ledger/weights.json, renormalised over those six, and summed per number. The ticket is the
+At freeze, each signal policy (Hot, Surge, Pair cluster, Overdue, Persistence; not Anomaly composite,
+which is already built from the others, and not the random controls) gives its top 10 rank points, 10 for #1 down to 1 for #10. Each policy's points are multiplied by its
+weight in ledger/weights.json, renormalised over those five, and summed per number. The ticket is the
 numbers in descending score (ties to the lower number), nested K4-K10 like the other policies. Its
 ideal size comes from its own scored rounds (last 10; most cutoff wins, then average net, then the
 smaller ticket), K4 until it has any. It sits outside the GRPO group, the weights and the blend;
@@ -19,7 +19,7 @@ from replay import WINDOW, big, paytable, reward
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LABEL = "Agreement"
-VOTERS = ("Anomaly composite", "Hot (most drawn)", "Surge (last 20 games)", "Pair cluster",
+VOTERS = ("Hot (most drawn)", "Surge (last 20 games)", "Pair cluster",
           "Overdue (longest gap)", "Persistence")
 
 

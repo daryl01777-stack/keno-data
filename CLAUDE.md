@@ -104,9 +104,9 @@ under the main one) and scores it from shadow_scores.json; it is left out of the
 ## Agreement shadow (from R018, Daryl, 25 Oct)
 A second shadow ticket, outside the GRPO group, the weights and the blend (added alongside the
 R018-R027 freeze, which it does not touch). At freeze `lab/agreement.py` (called by round.py, stored
-under `agreement` in frozen.json) gives each non-random policy's top 10 rank points (10 for #1 down to
-1 for #10), multiplies them by the policy's weight renormalised over Anomaly composite, Hot, Surge,
-Pair cluster, Overdue and Persistence, and ranks numbers by the sum (ties to the lower number), nested
+under `agreement` in frozen.json) gives each signal policy's top 10 rank points (10 for #1 down to
+1 for #10), multiplies them by the policy's weight renormalised over Hot, Surge, Pair cluster,
+Overdue and Persistence (not Anomaly composite, which already mixes the others, as in the blend), and ranks numbers by the sum (ties to the lower number), nested
 K4-K10. Agreement only, no strength term. Ideal size: from its own last 10 scored rounds (most cutoff
 wins, then average net, then smaller), K4 until it has one. Score with `python lab/agreement.py R0NN`
 after score.py; it writes `rounds/R0NN/agreement_scores.json` and appends `ledger/agreement.csv`.
