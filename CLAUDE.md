@@ -47,7 +47,12 @@ on the branch `pre-r018-restructure` (commit 0d807e0) so it can be restored.
    `ledger/strength_null.json`, 20,000 seeded random histories, rebuild with `python lab/strength.py
    build`), floored at 0; times the policy's weight in `ledger/weights.json` renormalised over the 13,
    summed per number; ticket in descending score (ties to the lower number), nested K4-K10. Daryl chose
-   strength over rank points before the R018 freeze. Per-number scores are not shown (Daryl). It is
+   strength over rank points before the R018 freeze. Per-number scores are not shown (Daryl).
+   From R019 (Daryl, 25 Oct) look-alike balancing: each policy's weight is divided by 1 + its
+   above-chance top-10 overlap with every other policy (`ledger/agreement_overlap.json`, built once
+   from 106 windows to game 472 with `python lab/agreement.py overlap 472`), then renormalised, so the
+   hot-number family (Hot, Pairs with last game, Pair cluster, Not in last game, Persistence, Surge)
+   no longer outvotes the rest (its share fell from about 42% to 25%). R018's frozen ticket is unchanged. It is
    scored and shown, but stays out of the GRPO update because it is built from the weights. Its ideal
    size comes from `ledger/sizes.json` like the others, K4 until it has scored rounds.
    Up to R017: Anomaly composite (z-score mix of the signals), and from R005 a Weighted blend (from R008
