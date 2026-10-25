@@ -9,6 +9,7 @@ from datetime import datetime, timedelta, timezone
 import numpy as np
 
 import shadow
+import agreement
 
 N_TRAIN, N_RECENT, SIMS = 100, 20, 2000
 P = 0.25                          # chance a given number is drawn in a game
@@ -209,8 +210,8 @@ def main(path, last_game, round_id, out_path):
         "primary_ticket_size": PRIMARY,
         "nested_sizes": SIZES,
         "policies": {k: v[:10] for k, v in policies.items()},
-        "verdict_rule": ("Reward is how many K4-K10 replay tickets reach the take-win cutoff (a single prize "
-                         "over $20); replay dollars reported for reference. K10 hit rate is labelled against the exact luck band: over 40 "
+        "verdict_rule": ("Reward is 1 if any K4-K10 replay ticket reaches the take-win cutoff (a single prize "
+                         "over $20) in the round, else 0; replay dollars reported for reference. K10 hit rate is labelled against the exact luck band: over 40 "
                          "games, 95% of random K10 tickets land between 21% and 29%. The band is a "
                          "label only, never a gate. With 7 policies, one landing outside the band by "
                          "chance is common, so only repeats across rounds count."),
@@ -218,6 +219,7 @@ def main(path, last_game, round_id, out_path):
         "ideal_sizes": ideal_sizes(),
         "flagged": flagged,
         "shadow": shadow.pick(matrix(games[:idx + 1])),   # Retro pick, outside GRPO (from R010)
+        "agreement": agreement.pick(policies, weights, round_id),   # Agreement, outside GRPO (from R018)
     }
     json.dump(rec, open(out_path, "w"), indent=1)
     print(json.dumps({"window_vs_chance": nullc, "flagged": flagged,

@@ -123,8 +123,8 @@ const ALL = __DATA__;
 const CH = __ODDS__;
 const IDS = Object.keys(ALL).sort();
 let D, N, S, ORDER, maxW, rollNow;
-const CAT = {"Anomaly composite":"Anomaly","Hot (most drawn)":"Signal","Surge (last 20 games)":"Signal","Pair cluster":"Signal","Overdue (longest gap)":"Signal","Random A":"Baseline","Random B":"Baseline","Weighted blend":"Blend","Persistence":"Signal","Retro pick":"Shadow"};
-const ALLP = ["Anomaly composite","Hot (most drawn)","Surge (last 20 games)","Pair cluster","Overdue (longest gap)","Persistence","Random A","Random B","Weighted blend","Retro pick"];
+const CAT = {"Anomaly composite":"Anomaly","Hot (most drawn)":"Signal","Surge (last 20 games)":"Signal","Pair cluster":"Signal","Overdue (longest gap)":"Signal","Random A":"Baseline","Random B":"Baseline","Weighted blend":"Blend","Persistence":"Signal","Retro pick":"Shadow","Agreement":"Shadow"};
+const ALLP = ["Anomaly composite","Hot (most drawn)","Surge (last 20 games)","Pair cluster","Overdue (longest gap)","Persistence","Random A","Random B","Weighted blend","Retro pick","Agreement"];
 let cat = "All", size = 6, CS = {}, PP = "Anomaly composite", PS = 0;
 document.getElementById("cards").addEventListener("click", e => {
   const b = e.target.closest("button[data-k]"); if (!b) return;
@@ -161,7 +161,7 @@ function heatmap(){
   $("heat").onclick = e => { const td = e.target.closest("td[data-k]"); if (!td) return; const c = cell[td.dataset.k][td.dataset.z];
     $("heatdetail").innerHTML = `<b>${td.dataset.k} · K${td.dataset.z}</b>: ` + c.runs.map(([r,x]) => `round ${+r.slice(1)} ${x.end.startsWith("big win") ? `<b class="up">${x.end}</b>` : x.end} <b class="${cls(x.net)}">${money(x.net)}</b>`).join(", "); };
 }
-const idealTxt = o => o.rule ? `best size for that rule in past windows` : o.big !== undefined ? `${o.big} cutoff win${o.big===1?"":"s"} in ${o.rounds} rounds` : `average ${money(Math.round(o.avg_net))} per $20 ticket over ${o.rounds} rounds`;
+const idealTxt = o => o.own !== undefined ? (o.own ? `best size over its ${o.own} scored round${o.own===1?"":"s"}` : `K4 until it has scored rounds`) : o.rule ? `best size for that rule in past windows` : o.big !== undefined ? `${o.big} cutoff win${o.big===1?"":"s"} in ${o.rounds} rounds` : `average ${money(Math.round(o.avg_net))} per $20 ticket over ${o.rounds} rounds`;
 const money = x => (x>0?"+":x<0?"−":"") + "$" + Math.abs(x).toLocaleString();
 const cls = x => x>0 ? "up" : x<0 ? "down" : "";
 
@@ -179,7 +179,7 @@ function render(){
       <div class="row"><div><div class="tag">${CAT[k]}</div><h2>${k}</h2></div>${k===rollNow?`<span class="roll">${S?'On a roll next':'On a roll'}</span>`:''}</div>
       <div class="group" role="group" aria-label="${k} ticket size">${[4,5,6,7,8,9,10].map(z=>`<button type="button" class="sz ${tone(ends[z])}${D.ideal[k]&&D.ideal[k].size===z?" best":""}" data-k="${k}" data-s="${z}" aria-pressed="${z===cs}">K${z}</button>`).join("")}</div>
       <div class="balls">${balls(D.policies[k].slice(0,cs), true)}</div>
-      ${w===undefined ? `<div class="meta"><span>${k==="Weighted blend" ? "Built from the policy weights; not weighted itself" : k==="Retro pick" ? `Shadow pick: outside the weights and the blend. Rule this round: <b>${D.shadow.rule}</b>, the rule that hit the cutoff most often in past windows.${D.shadow.late ? ` Added after the freeze (${bne(D.shadow.frozen.slice(11))}), built only from games up to ${D.train[1]}.` : ""}` : "New this round; gets its first weight when scored"}</span></div>` :
+      ${w===undefined ? `<div class="meta"><span>${k==="Weighted blend" ? "Built from the policy weights; not weighted itself" : k==="Agreement" ? "Shadow pick: outside the weights and the blend. The numbers the six non-random policies agree on most, each policy's top 10 counted by rank and weighted by its current weight." : k==="Retro pick" ? `Shadow pick: outside the weights and the blend. Rule this round: <b>${D.shadow.rule}</b>, the rule that hit the cutoff most often in past windows.${D.shadow.late ? ` Added after the freeze (${bne(D.shadow.frozen.slice(11))}), built only from games up to ${D.train[1]}.` : ""}` : "New this round; gets its first weight when scored"}</span></div>` :
       `<div class="meta"><span>Weight <b>${(w*100).toFixed(1)}%</b></span></div>
       <div class="bar" aria-hidden="true"><div style="width:${(w/maxW*100).toFixed(0)}%"></div></div>`}
       ${D.ideal[k] ? `<div class="meta"><span>Best size so far <b>K${D.ideal[k].size}</b> (underlined; ${idealTxt(D.ideal[k])})</span></div>` : ""}
@@ -219,7 +219,7 @@ rollNow = S ? D.next_roll : D.roll;
 $("sha").textContent = D.sha + (D.shadow && D.shadow.sha ? `\nRetro pick (shadow.json, added later): ${D.shadow.sha}` : "");
 
 $("cats").innerHTML = "";
-["All","Anomaly","Signal","Baseline"].concat(D.policies["Weighted blend"]?["Blend"]:[]).concat(D.policies["Retro pick"]?["Shadow"]:[]).forEach(c=>{const b=document.createElement("button");b.type="button";b.textContent=c;b.dataset.v=c;b.onclick=()=>{cat=c;render()};$("cats").append(b)});
+["All","Anomaly","Signal","Baseline"].concat(D.policies["Weighted blend"]?["Blend"]:[]).concat(D.policies["Retro pick"]||D.policies["Agreement"]?["Shadow"]:[]).forEach(c=>{const b=document.createElement("button");b.type="button";b.textContent=c;b.dataset.v=c;b.onclick=()=>{cat=c;render()};$("cats").append(b)});
 $("checklist").innerHTML = [
   [`Round ${N-1} scored and weights updated`,1],
   [`Round ${N} frozen ${bne(D.frozen.slice(11))}, fingerprint posted`,1],
