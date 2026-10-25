@@ -36,10 +36,6 @@ def round_data(rid):
         data["shadow"] = {"rule": sh["rule"], "late": bool(sh.get("added_after_freeze")),
                           "frozen": sh.get("frozen_utc", d["frozen_utc"]),
                           "sha": open(os.path.join(rdir, "shadow.sha256")).read().strip() if os.path.exists(shp) else None}
-    ag = d.get("agreement")                      # Agreement: shadow ticket outside the weights and blend (from R018)
-    if ag:
-        data["policies"] = dict(data["policies"], **ag["policies"])
-        data["ideal"] = dict(data["ideal"], **{AGREE: {"size": ag["ideal_size"], "own": ag["ideal_rounds"]}})
     sp = os.path.join(rdir, "scores.json")
     if os.path.exists(sp):
         s = json.load(open(sp))
@@ -64,11 +60,6 @@ def round_data(rid):
             x = json.load(open(ssp))
             data["scores"][SHADOW] = {"k10": x["k10_hit_rate"], "adv": "", "w": "", "k10hits": x["k10_hits"],
                                       "complete": [], "sizes": {k: ticket(int(k), v) for k, v in x["sizes"].items()}}
-        asp = os.path.join(rdir, "agreement_scores.json")
-        if ag and os.path.exists(asp):
-            x = json.load(open(asp))
-            data["scores"][AGREE] = {"k10": x["k10_hit_rate"], "adv": "", "w": "", "k10hits": x["k10_hits"],
-                                     "complete": [], "sizes": {k: ticket(int(k), v) for k, v in x["sizes"].items()}}
         data["next_roll"], data["mean"] = s["on_a_roll"], s["group_mean_reward"]
         for v in data["scores"].values():      # average replay result across K4-K10 (the reward)
             v["rr"] = sum(x["replay"]["net"] for x in v["sizes"].values()) / len(v["sizes"])

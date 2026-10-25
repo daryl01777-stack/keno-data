@@ -3,15 +3,22 @@
  "rule": "softmax of mean advantage over the last 10 scored rounds (rounds a policy missed count as 0)",
  "reward": "rounds with a cutoff win: 1 if any K4-K10 replay ticket got a single prize over $20 in the round, else 0",
  "weights": {
-  "Anomaly composite": 0.085601,
-  "Hot (most drawn)": 0.107685,
-  "Overdue (longest gap)": 0.209318,
-  "Pair cluster": 0.106903,
-  "Persistence": 0.109838,
-  "Random A": 0.150683,
-  "Random B": 0.106903,
-  "Surge (last 20 games)": 0.12307
+  "Hot (most drawn)": 0.05729,
+  "Overdue (longest gap)": 0.11136,
+  "Pair cluster": 0.056874,
+  "Persistence": 0.058436,
+  "Random A": 0.080165,
+  "Random B": 0.056874,
+  "Surge (last 20 games)": 0.065475,
+  "Cold (100)": 0.064191,
+  "Hot last 10": 0.064191,
+  "Not in last game": 0.064191,
+  "Hot last 3": 0.064191,
+  "Rising (2nd half)": 0.064191,
+  "Just drawn (last game)": 0.064191,
+  "Pairs with last game": 0.064191,
+  "Neighbours of last game": 0.064191
  },
  "on_a_roll": "Overdue (longest gap)",
- "note": "Recomputed after R017 under the round-count reward (Daryl, 25 Oct); R008-R017 re-judged from stored catches."
+ "note": "Recomputed after R017 for the R018 policy set (12 rules + Pair cluster + Random A/B; Anomaly composite dropped). New policies count R008-R017 as zero advantage. Daryl, 25 Oct."
 }

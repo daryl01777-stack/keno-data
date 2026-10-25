@@ -15,7 +15,9 @@ N_TRAIN, N_RECENT, SIMS = 100, 20, 2000
 P = 0.25                          # chance a given number is drawn in a game
 SIZES = list(range(4, 11))        # nested tickets K4..K10 (paytable covers K4-K10)
 PRIMARY = 4                       # pre-declared ticket size for the reward (K6 up to R006)
-BLEND = "Weighted blend"          # scored, but outside the GRPO group
+AGREE = agreement.LABEL           # primary ticket from R018: scored, but outside the GRPO group
+NEW_RULES = ("Cold (100)", "Hot last 10", "Not in last game", "Hot last 3", "Rising (2nd half)",
+             "Just drawn (last game)", "Pairs with last game", "Neighbours of last game")
 
 
 def load(path):
@@ -154,36 +156,30 @@ def main(path, last_game, round_id, out_path):
     X = matrix(train)
     s = stats(X)
 
-    top3 = np.sort(s["z_pair"], axis=1)[:, -3:].mean(1)
-    composite = s["z_freq"] + 0.5 * s["z_rec"] + 0.5 * top3
+    # From R018 (Daryl, 25 Oct) the policies are the 12 Retro rules plus Pair cluster. Hot, Overdue,
+    # Surge and Persistence keep their own builders (and weight history); the other eight rules come
+    # from shadow.rules(). Anomaly composite, the Sainte-Lague blend and the Retro pick shadow were
+    # dropped (restore point: branch pre-r018-restructure).
+    rules = shadow.rules(X.astype(int))
     policies = {
         "Hot (most drawn)": ranking(s["freq"], s["rec"]),
         "Overdue (longest gap)": ranking(s["gap"], -s["freq"]),
         "Surge (last 20 games)": ranking(s["z_rec"], s["freq"]),
         "Pair cluster": pair_cluster(s),
-        "Anomaly composite": ranking(composite, s["freq"]),
         "Persistence": persistence(X, s),
+        **{r: shadow.top10(rules[r]) for r in NEW_RULES},
     }
     for label in ("Random A", "Random B"):
         pick, seed = seeded_random(label, data_hash)
         policies[label] = pick
 
-    # Weighted blend: policies take turns by seat allocation (Sainte-Lague, divisors 1, 3, 5...),
-    # so each gets a share of the 10 slots in proportion to its weight. On its turn a policy adds
-    # its best-ranked number not already taken; overlap is not additive. Anomaly composite is left
-    # out because it is already built from the other signals, and the random controls are left out
-    # because they are controls. Scored but kept out of GRPO.
+    # Agreement (primary ticket from R018): every non-random policy's top 10 gets rank points 10..1,
+    # times its current weight renormalised over those policies, summed per number. Scored but kept
+    # out of GRPO because it is built from the weights.
     weights = json.load(open(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                                           "ledger", "weights.json")))["weights"]
-    voters = {k: w for k, w in weights.items()
-              if k not in ("Anomaly composite", "Random A", "Random B")}
-    seats = {k: 0 for k in voters}
-    blend = []
-    while len(blend) < 10:
-        k = max(voters, key=lambda k: (voters[k] / (2 * seats[k] + 1), voters[k]))
-        blend.append(next(n for n in policies[k] if n not in blend))
-        seats[k] += 1
-    policies[BLEND] = blend
+    agree = agreement.pick(policies, weights, round_id)
+    policies[AGREE] = agree["policies"][AGREE]
 
     obs = summary(s)
     nullc = null_compare(obs, SIMS, np.random.default_rng(12345))
@@ -216,10 +212,10 @@ def main(path, last_game, round_id, out_path):
                          "label only, never a gate. With 7 policies, one landing outside the band by "
                          "chance is common, so only repeats across rounds count."),
         "window_vs_chance": nullc,
-        "ideal_sizes": ideal_sizes(),
+        "ideal_sizes": {**ideal_sizes(), **({} if AGREE in ideal_sizes() else
+                        {AGREE: {"size": 4, "rounds": 0, "note": "K4 until the Agreement has scored rounds"}})},
+        "agreement_weights": agree["weights_used"],
         "flagged": flagged,
-        "shadow": shadow.pick(matrix(games[:idx + 1])),   # Retro pick, outside GRPO (from R010)
-        "agreement": agreement.pick(policies, weights, round_id),   # Agreement, outside GRPO (from R018)
     }
     json.dump(rec, open(out_path, "w"), indent=1)
     print(json.dumps({"window_vs_chance": nullc, "flagged": flagged,

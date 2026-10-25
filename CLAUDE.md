@@ -19,32 +19,38 @@ policy is expected to beat chance. Report results honestly; never imply an edge.
   K7-K10 about 64-65c per $1. K7-K10 top prizes are growing jackpots, so the table is a floor.
 
 ## Round protocol
-Rules frozen for R018-R027 (Daryl, 25 Oct, after the R017 review): no changes to the reward, weights
-rule, policies, blend, test window, replay rule or Retro pick until R027 is scored. Bug fixes and
+Rules frozen for R018-R027 (Daryl, 25 Oct, after the R017 review and the restructure below): no
+changes to the reward, weights rule, policies, Agreement ticket, test window or replay rule until R027
+is scored. Bug fixes and
 dashboard display changes are fine; anything else waits for the review after R027. (R008-R017 was the
 first frozen block; its review found no policy beat chance and changed only the reward and Retro
-pick's windows.)
+pick's windows.) The same day Daryl approved a restructure from R018: the policies became the 12 Retro
+rules plus Pair cluster (with Random A/B), the Agreement ticket became the primary pick, and Anomaly
+composite, the Sainte-Lague blend and the Retro pick shadow were dropped. The setup before that is kept
+on the branch `pre-r018-restructure` (commit 0d807e0) so it can be restored.
 
 1. Training window: the latest 100 completed games.
 2. `python lab/round.py <merged csv> <last training game> R00N out.json` runs the anomaly
-   scan (10 checks against 2,000 random 100-game windows) and builds 7 policies:
-   Anomaly composite (primary), Hot, Surge, Pair cluster, Overdue, Random A, Random B, and from R008
-   Persistence (numbers drawn 7+ times in each 25-game quarter, i.e. above average every quarter;
-   steadiest first, then most drawn; it shares about half its top 10 with Hot).
-   Each policy keeps a ranked top 10, nested as tickets K4-K10. K4 is the primary size from R007 (K6 up to R006).
-   It also builds a Weighted blend (from R005). From R008 the blend is a seat allocation: Hot,
-   Surge, Pair cluster, Overdue and Persistence once it has a weight (not Anomaly composite, which already mixes the other signals,
-   and not Random A/B, which are controls) take turns by
-   Sainte-Lague (weight / 1, 3, 5...), using their weights in `ledger/weights.json`; on its turn a
-   policy adds its best-ranked number not already taken, so overlap is not additive and each policy
-   is independent. Pick order is the ticket ranking, so K4 is the first 4 picks. (R005-R007 used an
-   additive vote over all 7 policies.) The blend is scored and shown, but stays out of the GRPO
-   update because it is built from the weights.
-   R006-R007 also set three Heads or Tails bets (dropped from R008 at Daryl's request; score.py
-   still scores them for rounds that have them) ($1 a game for all 40 test games):
-   H/T trend (whichever of heads or tails won more training games), H/T contrarian (the other
-   side) and Always evens. Payouts: heads or tails $2, evens $4 per $1 (`keno_qld_paytable.json`).
-   They were outside the GRPO update and are no longer shown on the dashboard.
+   scan (10 checks against 2,000 random 100-game windows; information only from R018) and builds the
+   policies. From R018 (Daryl, 25 Oct): 13 weighted policies plus two random controls.
+   - Hot (most drawn), Overdue (longest gap), Surge (last 20 games), Persistence (numbers drawn 7+
+     times in each 25-game quarter; steadiest first, then most drawn) and Pair cluster keep their own
+     builders and weight history.
+   - Eight more rules come from `shadow.rules()`: Cold (100), Hot last 10, Not in last game, Hot last 3,
+     Rising (2nd half), Just drawn (last game), Pairs with last game, Neighbours of last game. They
+     count R008-R017 as zero advantage under the newcomer rule.
+   - Random A and Random B are the luck controls and keep their weight as the benchmark.
+   Each policy keeps a ranked top 10, nested as tickets K4-K10. K4 is the primary size from R007.
+   It also builds the Agreement ticket (`lab/agreement.py`), the primary pick from R018: every
+   non-random policy's top 10 gets rank points 10 down to 1, times its weight in `ledger/weights.json`
+   renormalised over those 13, summed per number; ticket in descending score (ties to the lower number),
+   nested K4-K10. Agreement only, no strength term; per-number scores are not shown (Daryl). It is
+   scored and shown, but stays out of the GRPO update because it is built from the weights. Its ideal
+   size comes from `ledger/sizes.json` like the others, K4 until it has scored rounds.
+   Up to R017: Anomaly composite (z-score mix of the signals), and from R005 a Weighted blend (from R008
+   a Sainte-Lague seat allocation over Hot, Surge, Pair cluster, Overdue and Persistence; R005-R007 an
+   additive vote). R006-R007 also set three Heads or Tails bets (H/T trend, H/T contrarian, Always
+   evens; score.py still scores them for rounds that have them).
 3. Freeze: add `frozen_utc`, `test_games` and the expected close times, write canonical
    JSON (`sort_keys`, compact separators), and post its sha256 in chat before the test
    window opens. Commit it to `rounds/R00N/frozen.json` and `frozen.sha256`.
@@ -55,7 +61,7 @@ pick's windows.)
 4. Scoring with `python lab/score.py R00N`, once the test games are in draws.csv. For each policy:
    K10 hits and hit rate, the replay result for every size (see below), the reward, return for
    K4-K10, complete hits, and
-   the first game with a complete hit. Every policy except the blend is in the GRPO group; a policy
+   the first game with a complete hit. Every policy except the blend (Agreement from R018) is in the GRPO group; a policy
    added later counts the window rounds it missed as zero advantage (from 23 Oct, after R008
    scoring; before that it was averaged over only the rounds it had played). No random-ticket simulation: use the exact
    luck band instead. For K10 over 40 games, 95% of tickets land between 21% and 29%.
@@ -86,43 +92,22 @@ pick's windows.)
    K10 hit rate). `lab/score.py` does steps 4-6 apart from the commit.
 6. Commit the scores to `rounds/R00N/scores.json`.
 
-## Retro pick shadow (from R009, Daryl, 23 Oct)
-A shadow policy that automates the retrospective: at freeze, `lab/shadow.py` runs 12 simple rules
-over every completed 100+40 game window before the round and takes the ticket of the rule with the
-most windows with a cutoff hit (the round reward; ties: higher K10 catches, then library order), plus
-that rule's ideal size (most cutoff hits by size). From R018 the windows are anchored at the oldest game
-in draws.csv and step forward 40 games, so past windows stay fixed as history grows (before, they were
-re-cut from the latest game every freeze and the chosen rule kept flipping). It is outside the GRPO
-group, the weights and the blend.
-From R010 round.py writes it under `shadow` in frozen.json. R009 was added after its freeze (built
-from games up to 308 only, before any test result was seen) in `rounds/R009/shadow.json` and
-`shadow.sha256`. Score with `python lab/shadow.py R00N` after score.py; it writes
-`rounds/R00N/shadow_scores.json` and appends `ledger/shadow.csv` with Random A/B for comparison.
-The dashboard shows it as a "Shadow" card (own chip, no weight, last in order, its own fingerprint
-under the main one) and scores it from shadow_scores.json; it is left out of the group averages.
-
-## Agreement shadow (from R018, Daryl, 25 Oct)
-A second shadow ticket, outside the GRPO group, the weights and the blend (added alongside the
-R018-R027 freeze, which it does not touch). At freeze `lab/agreement.py` (called by round.py, stored
-under `agreement` in frozen.json) gives each signal policy's top 10 rank points (10 for #1 down to
-1 for #10), multiplies them by the policy's weight renormalised over Hot, Surge, Pair cluster,
-Overdue and Persistence (not Anomaly composite, which already mixes the others, as in the blend), and ranks numbers by the sum (ties to the lower number), nested
-K4-K10. Agreement only, no strength term. Ideal size: from its own last 10 scored rounds (most cutoff
-wins, then average net, then smaller), K4 until it has one. Score with `python lab/agreement.py R0NN`
-after score.py; it writes `rounds/R0NN/agreement_scores.json` and appends `ledger/agreement.csv`.
-The dashboard shows it as a second Shadow card. Daryl does not want per-number scores shown.
-Transition and late-spike shadows were floated but not approved.
+## Retro pick shadow (R009-R017)
+A shadow ticket from whichever of the 12 rules did best over past 100+40 windows (`lab/shadow.py`),
+outside the weights. From R018 its rules became live policies, so it is no longer built. Past rounds
+keep it: R009 in `rounds/R009/shadow.json`, R010-R017 under `shadow` in frozen.json, scores in
+`shadow_scores.json` and `ledger/shadow.csv`. The dashboard still shows it on those rounds.
 
 ## Reporting
 Use the in-chat dashboard layout from round 1:
 - header with the round number and status pill
 - stat tiles: training games, ticket variants, test games, scored games
-- primary prediction card with numbered tiles and a copy button (from R008, Daryl's call on 23 Oct: the Weighted blend at its frozen ideal
-  size; rounds without ideal_sizes, R001-R007, show Anomaly composite;
+- primary prediction card with numbered tiles and a copy button (from R018 the Agreement ticket at its
+  frozen ideal size; R008-R017 the Weighted blend at its ideal size; R001-R007 Anomaly composite;
   the ideal size is underlined and the selected size is drawn slightly larger)
-- category chips (All / Anomaly / Signal / Baseline / Blend); a K4-K10 size selector on the primary
+- category chips (All / Signal / Baseline / Agreement from R018; Anomaly, Blend and Shadow on older rounds); a K4-K10 size selector on the primary
   card and inside each policy card, coloured by replay outcome (green big win, red bust, yellow timed out)
-- one card per policy, ordered by current weight (weight after scoring on scored rounds); unweighted cards (blend, new policies) last
+- one card per policy, ordered by current weight (weight after scoring on scored rounds); unweighted cards (Agreement or blend, shadows) last
 - cutoff-wins heatmap (replaced the catch table on 23 Oct): policies x K4-K10, how many times each
   ticket reached the take-win cutoff over scored rounds, a chance-per-round row, best size underlined,
   tap a cell for per-round results

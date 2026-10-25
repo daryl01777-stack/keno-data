@@ -14,6 +14,7 @@ from replay import WINDOW, paytable, replay, reward, round_replays, scored_round
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SIZES = range(4, 11)
 
+OUTSIDE = ("Weighted blend", "Agreement")    # built from the weights: scored, but outside GRPO
 
 def path(*p):
     return os.path.join(ROOT, *p)
@@ -34,7 +35,7 @@ def averaged_weights(rid, current):
         if r == rid:
             continue
         reps = round_replays(json.load(open(path("rounds", r, "scores.json"))), pay)
-        rew = {p: reward(v) for p, v in reps.items() if p != "Weighted blend"}
+        rew = {p: reward(v) for p, v in reps.items() if p not in OUTSIDE}
         m = sum(rew.values()) / len(rew)
         sd = math.sqrt(sum((x - m) ** 2 for x in rew.values()) / len(rew))
         rounds.append({p: (x - m) / sd if sd > 0 else 0.0 for p, x in rew.items()})
@@ -87,7 +88,7 @@ def main(rid):
         results[name] = res
 
     w = json.load(open(path("ledger", "weights.json")))
-    group = [n for n in results if n != "Weighted blend"]       # GRPO group: every policy but the blend
+    group = [n for n in results if n not in OUTSIDE]       # GRPO group: every policy but the blend / Agreement
     rewards = {n: results[n]["reward"] for n in group}
     mean = sum(rewards.values()) / len(rewards)
     sd = math.sqrt(sum((x - mean) ** 2 for x in rewards.values()) / len(rewards))
