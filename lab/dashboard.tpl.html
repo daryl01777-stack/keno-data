@@ -213,7 +213,7 @@ $("status").textContent = S ? "Scored" : "Frozen · test pending";
 $("scored").textContent = S ? 40 : 0;
 $("presult").innerHTML = S
   ? `Round ${N}: ${PP} at K${PS||D.primary} finished <b>${money(S[PP].sizes[PS||D.primary].replay.net)}</b> on a $20 ticket with winnings replayed. Cutoff wins across K4-K10: <b>${S[PP].big}</b> (group average ${D.big_mean.toFixed(1)}). Went in on a roll: ${D.roll}. Now on a roll: <b>${D.next_roll}</b>.`
-  : PS ? `The blend is built from the policy weights (${D.roll} leads). K${PS} is its best size so far (${idealTxt(D.ideal[PP])}). That comes from luck in earlier rounds, not skill.`
+  : PS ? `The blend is built from the policy weights (${["Hot (most drawn)","Surge (last 20 games)","Pair cluster","Overdue (longest gap)","Persistence"].filter(k=>D.weights[k]!==undefined).sort((a,b)=>D.weights[b]-D.weights[a])[0]} leads). K${PS} is its best size so far (${idealTxt(D.ideal[PP])}). That comes from luck in earlier rounds, not skill.`
   : `On a roll: <b>${D.roll}</b>. That comes from luck in earlier rounds, not skill.`;
 rollNow = S ? D.next_roll : D.roll;
 $("sha").textContent = D.sha + (D.shadow && D.shadow.sha ? `\nRetro pick (shadow.json, added later): ${D.shadow.sha}` : "");
