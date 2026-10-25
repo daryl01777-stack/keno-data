@@ -41,10 +41,13 @@ on the branch `pre-r018-restructure` (commit 0d807e0) so it can be restored.
      count R008-R017 as zero advantage under the newcomer rule.
    - Random A and Random B are the luck controls and keep their weight as the benchmark.
    Each policy keeps a ranked top 10, nested as tickets K4-K10. K4 is the primary size from R007.
-   It also builds the Agreement ticket (`lab/agreement.py`), the primary pick from R018: every
-   non-random policy's top 10 gets rank points 10 down to 1, times its weight in `ledger/weights.json`
-   renormalised over those 13, summed per number; ticket in descending score (ties to the lower number),
-   nested K4-K10. Agreement only, no strength term; per-number scores are not shown (Daryl). It is
+   It also builds the Agreement ticket (`lab/agreement.py`), the primary pick from R018: for every
+   non-random policy, each number in its top 10 gets a signal strength, -log10 of the chance that a
+   random 100-game history gives that policy's raw score or more (`lab/strength.py`; chance table in
+   `ledger/strength_null.json`, 20,000 seeded random histories, rebuild with `python lab/strength.py
+   build`), floored at 0; times the policy's weight in `ledger/weights.json` renormalised over the 13,
+   summed per number; ticket in descending score (ties to the lower number), nested K4-K10. Daryl chose
+   strength over rank points before the R018 freeze. Per-number scores are not shown (Daryl). It is
    scored and shown, but stays out of the GRPO update because it is built from the weights. Its ideal
    size comes from `ledger/sizes.json` like the others, K4 until it has scored rounds.
    Up to R017: Anomaly composite (z-score mix of the signals), and from R005 a Weighted blend (from R008
@@ -105,7 +108,9 @@ Use the in-chat dashboard layout from round 1:
 - primary prediction card with numbered tiles and a copy button (from R018 the Agreement ticket at its
   frozen ideal size; R008-R017 the Weighted blend at its ideal size; R001-R007 Anomaly composite;
   the ideal size is underlined and the selected size is drawn slightly larger)
-- category chips (All / Signal / Baseline / Agreement from R018; Anomaly, Blend and Shadow on older rounds); a K4-K10 size selector on the primary
+- category chips (All / Signal / Baseline / Agreement). Anomaly composite, Weighted blend and Retro pick are
+  hidden on every round from 25 Oct (Daryl; data kept in the repo), except that older rounds' primary card
+  still shows the ticket that was the pick then; a K4-K10 size selector on the primary
   card and inside each policy card, coloured by replay outcome (green big win, red bust, yellow timed out)
 - one card per policy, ordered by current weight (weight after scoring on scored rounds); unweighted cards (Agreement or blend, shadows) last
 - cutoff-wins heatmap (replaced the catch table on 23 Oct): policies x K4-K10, how many times each

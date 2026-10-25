@@ -178,7 +178,7 @@ def main(path, last_game, round_id, out_path):
     # out of GRPO because it is built from the weights.
     weights = json.load(open(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                                           "ledger", "weights.json")))["weights"]
-    agree = agreement.pick(policies, weights, round_id)
+    agree = agreement.pick(policies, weights, X)
     policies[AGREE] = agree["policies"][AGREE]
 
     obs = summary(s)
