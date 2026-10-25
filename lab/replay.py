@@ -58,10 +58,11 @@ def big(r):
 
 
 def reward(reps):
-    """Policy reward: how many of its K4-K10 tickets reached the take-win cutoff (a single prize
-    over $20) this round, 0-7. A count, not dollars, so one huge prize weighs no more than any other
-    big win and steady cutoff hits are what score."""
-    return sum(big(r) for r in reps.values())
+    """Policy reward: 1 if any of its K4-K10 tickets reached the take-win cutoff (a single prize
+    over $20) this round, else 0 (from R018 scoring, Daryl, 25 Oct). The sizes are nested, so one hot
+    draw used to count up to 7 times; scoring the round once rewards steady rounds over one lucky one.
+    (R008-R017 scored the count of tickets, 0-7.)"""
+    return int(any(big(r) for r in reps.values()))
 
 
 def chance(pay=None):

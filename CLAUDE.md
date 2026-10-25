@@ -19,9 +19,11 @@ policy is expected to beat chance. Report results honestly; never imply an edge.
   K7-K10 about 64-65c per $1. K7-K10 top prizes are growing jackpots, so the table is a floor.
 
 ## Round protocol
-Rules frozen for R008-R017 (Daryl, 23 Oct): no changes to the reward, weights rule, policies,
-blend, test window or replay rule until R017 is scored. Bug fixes and dashboard display changes
-are fine; anything else waits for the review after R017.
+Rules frozen for R018-R027 (Daryl, 25 Oct, after the R017 review): no changes to the reward, weights
+rule, policies, blend, test window, replay rule or Retro pick until R027 is scored. Bug fixes and
+dashboard display changes are fine; anything else waits for the review after R027. (R008-R017 was the
+first frozen block; its review found no policy beat chance and changed only the reward and Retro
+pick's windows.)
 
 1. Training window: the latest 100 completed games.
 2. `python lab/round.py <merged csv> <last training game> R00N out.json` runs the anomaly
@@ -62,9 +64,10 @@ are fine; anything else waits for the review after R017.
    replayed at $1 a game until it busts, a single game pays more than $20 (4/4, 5/5, 5/6+, 6/7+,
    6/8+, 7/9+, 7/10+), or times out at the end
    of the 40-game window. Net = final bank - $20.
-5. GRPO update. Reward (from R008 scoring, Daryl's call on 23 Oct) is the number of K4-K10 replay
-   tickets that reached the take-win cutoff (a single prize over $20) in the round, 0-7: consistency
-   over single big prizes. (22 Oct to R007 it was the average replay net in dollars.) Advantage = (reward - group mean) / group sd. When weights are computed, every round in
+5. GRPO update. Reward (from R018, Daryl's call on 25 Oct) is 1 if any of the policy's K4-K10 replay
+   tickets reached the take-win cutoff (a single prize over $20) in the round, else 0: rounds with a
+   win, so one hot draw lifting several nested sizes counts once. Weights after R017 were recomputed
+   under it. (R008-R017 scored the count of tickets, 0-7, and the leaderboard keeps those values.) (22 Oct to R007 it was the average replay net in dollars.) Advantage = (reward - group mean) / group sd. When weights are computed, every round in
    the 10-round window is re-judged under this reward from its stored per-game catches.
    (Leaderboard `reward` up to R006 holds the old per-$1 K6 return; from R007 it is the replay reward.
    `reward_roi_pct` holds ROI up to R007 and is left blank from R008, since a count has no ROI.)
@@ -86,8 +89,11 @@ are fine; anything else waits for the review after R017.
 ## Retro pick shadow (from R009, Daryl, 23 Oct)
 A shadow policy that automates the retrospective: at freeze, `lab/shadow.py` runs 12 simple rules
 over every completed 100+40 game window before the round and takes the ticket of the rule with the
-most cutoff hits (ties: higher K10 catches, then library order), plus that rule's ideal size. It is
-outside the GRPO group, the weights and the blend, so the R008-R017 freeze is untouched.
+most windows with a cutoff hit (the round reward; ties: higher K10 catches, then library order), plus
+that rule's ideal size (most cutoff hits by size). From R018 the windows are anchored at the oldest game
+in draws.csv and step forward 40 games, so past windows stay fixed as history grows (before, they were
+re-cut from the latest game every freeze and the chosen rule kept flipping). It is outside the GRPO
+group, the weights and the blend.
 From R010 round.py writes it under `shadow` in frozen.json. R009 was added after its freeze (built
 from games up to 308 only, before any test result was seen) in `rounds/R009/shadow.json` and
 `shadow.sha256`. Score with `python lab/shadow.py R00N` after score.py; it writes

@@ -4,7 +4,7 @@
 usage: python lab/score.py R001
 Reads rounds/<R>/frozen.json, draws.csv, keno_qld_paytable.json, ledger/weights.json.
 Writes rounds/<R>/scores.json, updates ledger/weights.json and ledger/sizes.json, appends
-ledger/leaderboard.csv. The reward is how many K4-K10 tickets reached the take-win cutoff (see replay.py).
+ledger/leaderboard.csv. The reward is 1 if any K4-K10 ticket reached the take-win cutoff, else 0 (see replay.py).
 """
 import csv, json, math, os, sys
 from datetime import datetime, timedelta, timezone
@@ -101,7 +101,7 @@ def main(rid):
     leader = max(new, key=lambda n: (new[n], results[n]['k10_hit_rate']))
     w.update({"after_round": rid, "weights": new, "on_a_roll": leader,
               "rule": "softmax of mean advantage over the last 10 scored rounds (rounds a policy missed count as 0)",
-              "reward": "cutoff wins: how many K4-K10 replay tickets got a single prize over $20 in the round (0-7)"})
+              "reward": "rounds with a cutoff win: 1 if any K4-K10 replay ticket got a single prize over $20 in the round, else 0"})
     json.dump(w, open(path("ledger", "weights.json"), "w"), indent=1)
 
     with open(path("ledger", "leaderboard.csv"), "a", newline="") as f:
@@ -139,12 +139,12 @@ def main(rid):
 
     if ht:
         print("  Heads/Tails:", ht["counts"], {n: (b["side"], b["net"]) for n, b in ht["bets"].items()})
-    print(f"{rid}: games {first}-{last}, reward = cutoff wins across K4-K10, "
+    print(f"{rid}: games {first}-{last}, reward = 1 if any K4-K10 ticket hit the cutoff, "
           f"group mean {mean:.2f}, sd {sd:.2f}, on a roll: {leader}")
     for n, r in sorted(results.items(), key=lambda kv: -kv[1]["reward"]):
         pk = frozen["primary_ticket_size"]
         s6, s10 = r["sizes"][pk], r["sizes"][10]
-        print(f"  {n:24s} cutoff wins {r['reward']}  replay avg ${sum(v['replay']['net'] for v in r['sizes'].values())/len(r['sizes']):+6.2f}  K{pk} ${s6['returned']:>5} back ({s6['roi_pct']:+.0f}%)  "
+        print(f"  {n:24s} cutoff round {r['reward']}  replay avg ${sum(v['replay']['net'] for v in r['sizes'].values())/len(r['sizes']):+6.2f}  K{pk} ${s6['returned']:>5} back ({s6['roi_pct']:+.0f}%)  "
               f"K10 {s10['hits']}/{10*n_test} = {s10['hit_rate']:.1%}  "
               f"complete {[ (k, s['complete_hits']) for k, s in r['sizes'].items() if s['complete_hits']]}  "
               + (f"best K{pk} catch {s6['best_catch']}  adv {r['advantage']:+.2f}  w {r['weight_before'] or 0:.3f}->{r['weight_after']:.3f}"

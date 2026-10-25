@@ -2,8 +2,9 @@
 """Retro pick: a shadow policy that automates the retrospective (from R010, Daryl, 23 Oct).
 
 At freeze, a library of simple rules is run over every completed 100+40 game window before the
-round (non-overlapping, stepping back 40 games from the last training game). The rule with the most
-take-win cutoff hits across those windows (ties: higher K10 catches per game, then library order)
+round (non-overlapping, stepping forward 40 games from the oldest game in draws.csv, so windows stay
+put as history grows; from R018, before that they stepped back from the last training game and were
+re-cut every freeze). The rule with the most windows with a take-win cutoff hit (replay.reward) (ties: higher K10 catches per game, then library order)
 picks the round's ticket from the training window. round.py stores the result under "shadow" in
 frozen.json, so the fingerprint covers it. It sits outside the GRPO group, the weights and the
 blend; score.py ignores it.
@@ -74,7 +75,7 @@ def pick(X):
     pay = paytable()
     X = np.asarray(X, dtype=int)
     n = len(X)
-    starts = [e - TEST - TRAIN for e in range(n, TRAIN + TEST - 1, -TEST)][::-1]
+    starts = list(range(0, n - TRAIN - TEST + 1, TEST))   # anchored at the oldest game
     names = list(rules(X[-TRAIN:]))
     cut = {r: 0 for r in names}
     k10 = {r: 0.0 for r in names}
