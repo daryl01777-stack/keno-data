@@ -118,7 +118,7 @@ Use the in-chat dashboard layout from round 1:
   still shows the ticket that was the pick then; a K4-K10 size selector on the primary
   card and inside each policy card, coloured by replay outcome (green big win, red bust, yellow timed out)
 - one card per policy, ordered by current weight (weight after scoring on scored rounds); unweighted cards (Agreement or blend, shadows) last
-- cutoff-wins heatmap (replaced the catch table on 23 Oct): policies x K4-K10, how many times each
+- cutoff-wins heatmap (replaced the catch table on 23 Oct): policies x K4-K10, the share of rounds played (as a %, from 27 Oct) in which each
   ticket reached the take-win cutoff over scored rounds, a chance-per-round row, best size underlined,
   tap a cell for per-round results
 - test status checklist and the fingerprint

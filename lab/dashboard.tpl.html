@@ -153,16 +153,18 @@ function heatmap(){
   ORDER.forEach(k => { cell[k] = {}; sizes.forEach(z => {
     const runs = upto.filter(r => ALL[r].scores[k]).map(r => [r, ALL[r].scores[k].sizes[z].replay]);
     cell[k][z] = runs.length ? {hits: runs.filter(([,x]) => x.end.startsWith("big win")).length, runs} : null; }); });
-  const max = Math.max(1, ...ORDER.flatMap(k => sizes.map(z => cell[k][z] ? cell[k][z].hits : 0)));
+  const rate = c => c.hits / c.runs.length;
+  const max = Math.max(0.01, ...ORDER.flatMap(k => sizes.map(z => cell[k][z] ? rate(cell[k][z]) : 0)));
   const best = k => D.ideal[k] ? D.ideal[k].size : 0;
   const shade = h => h ? `background:color-mix(in srgb, var(--good) ${Math.round(15 + 55*h/max)}%, transparent)` : "";
-  $("heatnote").textContent = `How many times each ticket reached the take-win cutoff (a single prize over $20), rounds ${+upto[0].slice(1)}-${+upto[upto.length-1].slice(1)}. Darker green is more often. The bottom row is how often a random ticket of that size gets there in a round. Each row's best size is underlined. Random A and B show what luck alone does.`;
+  const pct = x => `${Math.round(x*100)}%`;
+  $("heatnote").textContent = `Share of rounds played in which each ticket reached the take-win cutoff (a single prize over $20), rounds ${+upto[0].slice(1)}-${+upto[upto.length-1].slice(1)}. Policies added later have played fewer rounds (Rds column), so percentages compare them fairly; with only a few rounds a percentage still swings a lot. Darker green is more often. The bottom row is how often a random ticket of that size gets there in a round. Each row's best size is underlined. Random A and B show what luck alone does.`;
   $("heat").innerHTML = `<tr><th>Policy</th>${sizes.map(z=>`<th>K${z}</th>`).join("")}<th>Rds</th></tr>` +
     ORDER.map(k => { const bz = best(k); return `<tr><td>${k.replace(/ \(.*\)/,"")}</td>${sizes.map(z => { const c = cell[k][z];
-      return c ? `<td class="hc${z===bz?" best":""}" style="${shade(c.hits)}" data-k="${k}" data-z="${z}">${c.hits}</td>` : "<td>–</td>"; }).join("")}<td>${cell[k][4] ? cell[k][4].runs.length : 0}</td></tr>`; }).join("") +
+      return c ? `<td class="hc${z===bz?" best":""}" style="${shade(rate(c))}" data-k="${k}" data-z="${z}" title="${c.hits} of ${c.runs.length} rounds">${pct(rate(c))}</td>` : "<td>–</td>"; }).join("")}<td>${cell[k][4] ? cell[k][4].runs.length : 0}</td></tr>`; }).join("") +
     `<tr><td>Chance per round</td>${sizes.map(z=>`<td>${Math.round(CH.chance[z]*100)}%</td>`).join("")}<td></td></tr>`;
   $("heat").onclick = e => { const td = e.target.closest("td[data-k]"); if (!td) return; const c = cell[td.dataset.k][td.dataset.z];
-    $("heatdetail").innerHTML = `<b>${td.dataset.k} · K${td.dataset.z}</b>: ` + c.runs.map(([r,x]) => `round ${+r.slice(1)} ${x.end.startsWith("big win") ? `<b class="up">${x.end}</b>` : x.end} <b class="${cls(x.net)}">${money(x.net)}</b>`).join(", "); };
+    $("heatdetail").innerHTML = `<b>${td.dataset.k} · K${td.dataset.z}</b>, ${c.hits} of ${c.runs.length} rounds: ` + c.runs.map(([r,x]) => `round ${+r.slice(1)} ${x.end.startsWith("big win") ? `<b class="up">${x.end}</b>` : x.end} <b class="${cls(x.net)}">${money(x.net)}</b>`).join(", "); };
 }
 const idealTxt = o => o.note ? o.note : o.rule ? `best size for that rule in past windows` : o.big !== undefined ? `${o.big} cutoff win${o.big===1?"":"s"} in ${o.rounds} rounds` : `average ${money(Math.round(o.avg_net))} per $20 ticket over ${o.rounds} rounds`;
 const money = x => (x>0?"+":x<0?"−":"") + "$" + Math.abs(x).toLocaleString();
