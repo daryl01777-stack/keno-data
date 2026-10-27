@@ -162,7 +162,7 @@ function heatmap(){
   $("heat").innerHTML = `<tr><th>Policy</th>${sizes.map(z=>`<th>K${z}</th>`).join("")}<th>Rds</th></tr>` +
     ORDER.map(k => { const bz = best(k); return `<tr><td>${k.replace(/ \(.*\)/,"")}</td>${sizes.map(z => { const c = cell[k][z];
       return c ? `<td class="hc${z===bz?" best":""}" style="${shade(rate(c))}" data-k="${k}" data-z="${z}" title="${c.hits} of ${c.runs.length} rounds">${pct(rate(c))}</td>` : "<td>–</td>"; }).join("")}<td>${cell[k][4] ? cell[k][4].runs.length : 0}</td></tr>`; }).join("") +
-    `<tr><td>Chance per round</td>${sizes.map(z=>`<td>${Math.round(CH.chance[z]*100)}</td>`).join("")}<td></td></tr>`;
+    `<tr><td>Chance per round</td>${sizes.map(z=>`<td>${Math.round(CH.chance[z]*100)}%</td>`).join("")}<td></td></tr>`;
   $("heat").onclick = e => { const td = e.target.closest("td[data-k]"); if (!td) return; const c = cell[td.dataset.k][td.dataset.z];
     $("heatdetail").innerHTML = `<b>${td.dataset.k} · K${td.dataset.z}</b>, ${c.hits} of ${c.runs.length} rounds: ` + c.runs.map(([r,x]) => `round ${+r.slice(1)} ${x.end.startsWith("big win") ? `<b class="up">${x.end}</b>` : x.end} <b class="${cls(x.net)}">${money(x.net)}</b>`).join(", "); };
 }
