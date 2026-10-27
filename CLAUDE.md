@@ -19,10 +19,10 @@ policy is expected to beat chance. Report results honestly; never imply an edge.
   K7-K10 about 64-65c per $1. K7-K10 top prizes are growing jackpots, so the table is a floor.
 
 ## Round protocol
-Rules frozen for R018-R027 (Daryl, 25 Oct, after the R017 review and the restructure below): no
-changes to the reward, weights rule, policies, Agreement ticket, test window or replay rule until R027
-is scored. Bug fixes and
-dashboard display changes are fine; anything else waits for the review after R027. (R008-R017 was the
+Rules frozen for R028-R037 (Daryl, 27 Oct, after the R027 review, unchanged from R018-R027): no
+changes to the reward, weights rule, policies, Agreement ticket, test window or replay rule until R037
+is scored. (R018-R027 review: no policy beat chance; Agreement K4 won 2 of 10 rounds, +$66.) Bug fixes and
+dashboard display changes are fine; anything else waits for the review after R037. (R008-R017 was the
 first frozen block; its review found no policy beat chance and changed only the reward and Retro
 pick's windows.) The same day Daryl approved a restructure from R018: the policies became the 12 Retro
 rules plus Pair cluster (with Random A/B), the Agreement ticket became the primary pick, and Anomaly
