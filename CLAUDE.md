@@ -22,7 +22,11 @@ policy is expected to beat chance. Report results honestly; never imply an edge.
 Rules frozen for R028-R037 (Daryl, 27 Oct, after the R027 review, unchanged from R018-R027): no
 changes to the reward, weights rule, policies, Agreement ticket, test window or replay rule until R037
 is scored. (R018-R027 review: no policy beat chance; Agreement K4 won 2 of 10 rounds, +$66.) Bug fixes and
-dashboard display changes are fine; anything else waits for the review after R037. (R008-R017 was the
+dashboard display changes are fine; anything else waits for the review after R037. Pencilled in for that review (Daryl, 28 Oct): replace the softmax
+weights with points counted from R018, every policy starting on 100: +5 for a round with a cutoff win, +1 if
+no cutoff win but a ticket timed out (did not bust), -1 if every ticket busted; weight = points / total.
+Replayed over R018-R030, Agreement K4 would have had 2 wins and +$8 (actual 2 wins, +$10). Apply from R038 unless
+the review changes it. (R008-R017 was the
 first frozen block; its review found no policy beat chance and changed only the reward and Retro
 pick's windows.) The same day Daryl approved a restructure from R018: the policies became the 12 Retro
 rules plus Pair cluster (with Random A/B), the Agreement ticket became the primary pick, and Anomaly
