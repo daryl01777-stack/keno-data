@@ -146,7 +146,8 @@ function res(k, size){ if(!S) return `<div class="meta"><span>Round ${N} result:
     <div class="meta"><span>Paying games in those ${rp.games} <b>${pays.length}</b></span></div>
     <div class="pays">${pays.map(([g,h,w])=>`<span>#${g}: ${h}/${size} <b>$${w}</b></span>`).join("") || "<span>None</span>"}</div></div>`; }
 function heatmap(){
-  const upto = IDS.filter(r => ALL[r].scores && r <= D.round);
+  // from R018 only (Daryl, 28 Oct): the current 13 policies all start there, so every row covers the same rounds
+  const upto = IDS.filter(r => ALL[r].scores && r <= D.round && (r >= "R018" || D.round < "R018"));
   $("heatpanel").hidden = !upto.length;
   if (!upto.length) return;
   const sizes = [4,5,6,7,8,9,10], cell = {};
@@ -158,7 +159,7 @@ function heatmap(){
   const best = k => D.ideal[k] ? D.ideal[k].size : 0;
   const shade = h => h ? `background:color-mix(in srgb, var(--good) ${Math.round(15 + 55*h/max)}%, transparent)` : "";
   const pct = x => `${Math.round(x*100)}`;
-  $("heatnote").textContent = `Percentage of rounds played in which each ticket reached the take-win cutoff (a single prize over $20), rounds ${+upto[0].slice(1)}-${+upto[upto.length-1].slice(1)}. Policies added later have played fewer rounds (Rds column), so percentages compare them fairly; with only a few rounds a percentage still swings a lot. Darker green is more often. The bottom row is how often a random ticket of that size gets there in a round. Each row's best size is underlined. Random A and B show what luck alone does.`;
+  $("heatnote").textContent = `Percentage of rounds played in which each ticket reached the take-win cutoff (a single prize over $20), rounds ${+upto[0].slice(1)}-${+upto[upto.length-1].slice(1)}. Counted from round 18, when the current policies started, so every row covers the same rounds; with this few rounds a percentage still swings a lot. Darker green is more often. The bottom row is how often a random ticket of that size gets there in a round. Each row's best size is underlined. Random A and B show what luck alone does.`;
   $("heat").innerHTML = `<tr><th>Policy</th>${sizes.map(z=>`<th>K${z}</th>`).join("")}<th>Rds</th></tr>` +
     ORDER.map(k => { const bz = best(k); return `<tr><td>${k.replace(/ \(.*\)/,"")}</td>${sizes.map(z => { const c = cell[k][z];
       return c ? `<td class="hc${z===bz?" best":""}" style="${shade(rate(c))}" data-k="${k}" data-z="${z}" title="${c.hits} of ${c.runs.length} rounds">${pct(rate(c))}</td>` : "<td>–</td>"; }).join("")}<td>${cell[k][4] ? cell[k][4].runs.length : 0}</td></tr>`; }).join("") +
