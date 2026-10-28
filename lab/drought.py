@@ -44,10 +44,10 @@ def result(r, t):
     if s is None:
         return None
     import round as rd
-    draws = {x["game"]: set(x["draw"]) for x in rd.load(os.path.join(ROOT, "draws.csv")) if x["closed"] > load(r, "frozen.json")["frozen_utc"]}
     first = s["test_games"][0]
-    games = [(first + i) % 1000 for i in range(40)]
-    hits = [len(set(t) & draws[g]) for g in games]
+    after = [x for x in rd.load(os.path.join(ROOT, "draws.csv")) if x["closed"] > load(r, "frozen.json")["frozen_utc"]]
+    i = next(i for i, x in enumerate(after) if x["game"] == first)     # game numbers wrap at 1000, so take the
+    hits = [len(set(t) & set(x["draw"])) for x in after[i:i + 40]]      # 40 games in a row from the first one
     pay = rp.paytable()[4]
     return rp.replay(4, hits, [pay.get(h, 0) for h in hits], first)
 
