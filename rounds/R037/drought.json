@@ -1,0 +1,16 @@
+{
+ "round": "R037",
+ "policies": [
+  "Overdue (longest gap)",
+  "Persistence",
+  "Just drawn (last game)",
+  "Neighbours of last game"
+ ],
+ "ticket": [
+  33,
+  2,
+  52,
+  5
+ ],
+ "frozen_utc": "2026-10-29T20:31:36Z"
+}
