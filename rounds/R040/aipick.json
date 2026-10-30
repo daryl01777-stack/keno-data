@@ -1,0 +1,12 @@
+{
+ "round": "R040",
+ "ticket": [
+  45,
+  3,
+  28,
+  24
+ ],
+ "frozen_utc": "2026-10-30T07:50:02Z",
+ "why": "Momentum pick: numbers heavy over the full 100 games AND running hot in the last 20. 45 (38 in 100, 9 in last 20, top-2 for five policies), 3 (most drawn, 39, and in the last game), 28 (34 in 100, 9 in last 20, just drawn), 24 (9 in last 20, top for Surge, Hot last 10 and Hot last 3). The script's group was 45 3 29 4; I swapped 29 and 4 out because both have gone quiet lately (2 and 5 in the last 20).",
+ "method": "started from aipick.py build (45 3 29 4), then hand-swapped for recent momentum"
+}
