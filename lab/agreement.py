@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Agreement: the primary ticket from R018 (Daryl, 25 Oct), the numbers the weighted policies agree on.
+"""Agreement: the primary ticket from R018 (Daryl, 25 Oct). From R040 the top-half design (pick_top_half);
+R018-R039 the consensus design described here (pick_consensus), the numbers the weighted policies agree on.
 
 At freeze, every non-random policy (the 12 rules plus Pair cluster) scores each number in its top 10
 by signal strength: -log10 of the chance a random 100-game history gives that policy's raw score or
@@ -72,7 +73,72 @@ def divisors(overlap):
 
 
 def pick(policies, weights, X):
-    """policies: {name: ranked top 10}; weights: ledger/weights.json weights; X: training window."""
+    """The Agreement ticket. From R040 the top-half design; R018-R039 the consensus design below."""
+    return pick_top_half(policies, weights, X)
+
+
+def _consensus(policies, w, r, voters):
+    """{number: summed weight x strength} and {number: votes} over `voters`, weights renormalised."""
+    from strength import strength
+    total = sum(w[p] for p in voters)
+    score, votes = {}, {}
+    for p in voters:
+        for n in policies[p][:10]:
+            score[n] = score.get(n, 0.0) + strength(p, float(r[p][n - 1])) * w[p] / total
+            votes[n] = votes.get(n, 0) + 1
+    return score, votes
+
+
+def _number_key(n, score, votes, X):
+    """Ordering for numbers: higher consensus score, then more votes, more draws in the 100 games, drawn
+    more recently, more draws in the last 20, then the last 10; lower number only if all of those tie."""
+    import numpy as np
+    col = np.asarray(X)[:, n - 1]
+    seen = int(col[::-1].argmax()) if col.any() else len(col)
+    return (-round(score.get(n, 0.0), 9), -votes.get(n, 0), -int(col.sum()), seen,
+            -int(col[-20:].sum()), -int(col[-10:].sum()), n)
+
+
+def pick_top_half(policies, weights, X):
+    """Top-half design (Daryl, 30 Oct, from R040). Only the top half of the 13 policies by weight (13 -> 6,
+    rounded down; Random A/B never count) take part. The #1 policy gives its #1 and #2 numbers, the #2 and
+    #3 policies their #1 each (a number already on the ticket passes to that policy's next one): that is the
+    K4. K5-K10 are filled by the consensus design below run over the top 6 only (look-alike balanced).
+    Weight ties go to the tied policy whose #1 number has the most consensus among the tied policies and
+    every policy above them; equal consensus scores are broken by _number_key, never arbitrarily."""
+    from strength import raw
+    r = raw(X)
+    pol = [p for p in policies if p not in CONTROLS and p != LABEL]
+    missing = [p for p in pol if p not in weights]
+    assert not missing, f"no weight for {missing}: recompute ledger/weights.json first"
+    wb = {p: weights[p] for p in pol}
+    if os.path.exists(OVERLAP):
+        d = divisors(json.load(open(OVERLAP))["overlap"])
+        wb = {p: x / d.get(p, 1.0) for p, x in wb.items()}
+    rank = []
+    for v in sorted({weights[p] for p in pol}, reverse=True):
+        tied = [p for p in pol if weights[p] == v]
+        if len(tied) > 1:
+            score, votes = _consensus(policies, wb, r, [p for p in pol if weights[p] >= v])
+            tied.sort(key=lambda p: _number_key(policies[p][0], score, votes, X))
+        rank += tied
+    top = rank[:len(rank) // 2]
+    ticket = []
+    for p in (top[0], top[0], top[1], top[2]):
+        ticket.append(next(n for n in policies[p] if n not in ticket))
+    score, votes = _consensus(policies, wb, r, top)
+    for n in sorted(score, key=lambda n: _number_key(n, score, votes, X)):
+        if len(ticket) == 10:
+            break
+        if n not in ticket:
+            ticket.append(n)
+    total = sum(wb[p] for p in top)
+    return {"policies": {LABEL: ticket}, "weights_used": {p: round(wb[p] / total, 6) for p in top},
+            "top_half": top, "seats": {top[0]: ticket[:2], top[1]: ticket[2:3], top[2]: ticket[3:4]}}
+
+
+def pick_consensus(policies, weights, X):
+    """R018-R039 Agreement. policies: {name: ranked top 10}; weights: ledger/weights.json weights; X: training window."""
     from strength import raw, strength
     r = raw(X)
     w = {p: weights[p] for p in policies if p not in CONTROLS and p != LABEL and p in weights}

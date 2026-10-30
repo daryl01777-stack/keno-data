@@ -215,6 +215,7 @@ def main(path, last_game, round_id, out_path):
         "ideal_sizes": {**ideal_sizes(), **({} if AGREE in ideal_sizes() else
                         {AGREE: {"size": 4, "rounds": 0, "note": "K4 until the Agreement has scored rounds"}})},
         "agreement_weights": agree["weights_used"],
+        **({"agreement_top_half": agree["top_half"], "agreement_seats": agree["seats"]} if "top_half" in agree else {}),
         "flagged": flagged,
     }
     json.dump(rec, open(out_path, "w"), indent=1)

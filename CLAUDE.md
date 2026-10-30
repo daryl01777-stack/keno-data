@@ -19,9 +19,20 @@ policy is expected to beat chance. Report results honestly; never imply an edge.
   K7-K10 about 64-65c per $1. K7-K10 top prizes are growing jackpots, so the table is a floor.
 
 ## Round protocol
-Rules frozen for R039-R048 (Daryl, 30 Oct, after the R037 review): no changes to the reward, weights
-rule, policies, Agreement ticket, test window or replay rule until R048 is scored. Bug fixes and dashboard
-display changes are fine; anything else waits for the review after R048. (R028-R037 review,
+Rules frozen for R040-R049 (Daryl, 30 Oct): no changes to the reward, weights rule, policies, Agreement
+ticket, test window or replay rule until R049 is scored. (The R039-R048 lock set after the R037 review was
+reopened once, on 30 Oct, for the Agreement change below, so the 10-round block restarts at R040.)
+Agreement from R040 is the top-half design (Daryl, 30 Oct; `agreement.pick_top_half`): only the top 6 of the
+13 policies by weight take part (half, rounded down; Random A/B never). The #1 policy gives its #1 and #2
+numbers, the #2 and #3 policies their #1 each (a number already on the ticket passes to that policy's next):
+that is the K4. K5-K10 are filled by the consensus design run over the top 6 only (look-alike balanced).
+Weight ties go to the tied policy whose #1 number has the most consensus strength among the tied policies
+and every policy above them. Equal consensus scores are broken by more votes, more draws in the 100 training
+games, drawn more recently, more draws in the last 20, then the last 10 (lower number only as a last resort;
+it never decided a ticket in the R019-R039 replay). Replayed over R019-R038: K4 2 wins, -$119 (consensus
+design 2 wins, -$127); with random policy picks the same design did as well 57% of the time. R018-R039 keep
+the consensus design (`agreement.pick_consensus`), described below. Bug fixes and dashboard
+display changes are fine; anything else waits for the review after R049. (R028-R037 review,
 https://claude.ai/artifact/MzJmJ5UYXdcCvNMkWkpayZ: nothing beat chance; Agreement K4 0 wins in 10, -$193;
 R018-R037 2 wins in 20, -$127. R018-R027 review: Agreement K4 won 2 of 10, +$66.) The only change from the
 R037 review is the points weights (Daryl, 30 Oct; `score.points_weights`): every policy starts on 100 at R018

@@ -27,7 +27,7 @@ def round_data(rid):
             "roll": d.get("on_a_roll") or "none yet (first round)",
             "prev": prev, "scan": d["window_vs_chance"],
             "sha": open(os.path.join(rdir, "frozen.sha256")).read().strip(), "scores": None,
-            "ideal": d.get("ideal_sizes", {})}
+            "ideal": d.get("ideal_sizes", {}), "seats": d.get("agreement_seats", {})}
     shp = os.path.join(rdir, "shadow.json")       # Retro pick: shadow ticket outside the weights and blend
     sh = json.load(open(shp)) if os.path.exists(shp) else d.get("shadow")
     if sh:
