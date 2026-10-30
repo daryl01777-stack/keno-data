@@ -40,11 +40,13 @@ and each scored round adds +5 for a cutoff win, +1 if no cutoff win but a ticket
 if every ticket busted; weight = points / total. weights.json was recomputed after R037 from R018-R037, so the
 starting points carry those 20 rounds, and score.py uses the rule from R038 scoring on (R038 itself was frozen
 under the old softmax weights; the R037 leaderboard rows keep the softmax values). Replayed over R018-R037,
-Agreement K4 came to -$125 under points against -$127 under softmax. AI pick (Daryl, 30 Oct; `lab/aipick.py`): a side K4 from R040, the best 4-number group from every
-policy's top 5 scored on signal, togetherness in the training games and policy-family balance. At every
-freeze run `python lab/aipick.py build R0NN` (after drought.py) and commit `rounds/R0NN/aipick.json` with the
-freeze; report it with each score (`python lab/aipick.py report`). Daryl wants it treated as Claude's best
-effort pick each round, with caveats kept to a minimum. Also kept (Daryl, 28 Oct): the Drought
+Agreement K4 came to -$125 under points against -$127 under softmax. AI pick (Daryl, 30 Oct): a side K4 from R040 that is Claude's own pick each round, not a fixed rule.
+Each pick is its own event: start from `python lab/aipick.py build R0NN` (best 4-number group from every
+policy's top 5 on signal, togetherness and policy-family balance) if useful, but change it freely when
+something new or a novel idea looks better. Before the test window opens, write the final ticket and a short
+"why" into `rounds/R0NN/aipick.json` (keys `ticket`, `why`, plus `method` if the script was used) and commit
+it with the freeze. Report it with each score (`python lab/aipick.py report` reads the ticket). Daryl wants
+Claude to get into it and have fun; keep caveats to a minimum, but never claim an edge. Also kept (Daryl, 28 Oct): the Drought
 ticket (`lab/drought.py`), a side K4 from
 the 4 policies longest without a K4 cutoff win, each one's best number. Outside the weights, Agreement and the
 dashboard. At every freeze from R032 run `python lab/drought.py build R0NN` and commit `rounds/R0NN/drought.json`
