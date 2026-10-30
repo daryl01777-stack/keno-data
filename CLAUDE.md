@@ -19,20 +19,18 @@ policy is expected to beat chance. Report results honestly; never imply an edge.
   K7-K10 about 64-65c per $1. K7-K10 top prizes are growing jackpots, so the table is a floor.
 
 ## Round protocol
-Rules frozen for R028-R037 (Daryl, 27 Oct, after the R027 review, unchanged from R018-R027): no
-changes to the reward, weights rule, policies, Agreement ticket, test window or replay rule until R037
-is scored. (R018-R027 review: no policy beat chance; Agreement K4 won 2 of 10 rounds, +$66.) Bug fixes and
-dashboard display changes are fine; anything else waits for the review after R037. From R038 (pencilled in by Daryl on 28 Oct, applied after R037 scoring on 30 Oct; `score.points_weights`): replace the softmax
-weights with points counted from R018, every policy starting on 100: +5 for a round with a cutoff win, +1 if
-no cutoff win but a ticket timed out (did not bust), -1 if every ticket busted; weight = points / total.
-<<<<<<< HEAD
-Replayed over R018-R030, Agreement K4 would have had 2 wins and +$8 (actual 2 wins, +$10). On 30 Oct Daryl said not to switch yet;
-R038 was frozen under the old softmax rule while the R028-R037 review is done (the points code is in commit d2ae735,
-reverted in 0dd5ef6). Also tracked for that review (Daryl, 28 Oct): the Drought ticket (`lab/drought.py`), a side K4 from
-=======
-Replayed over R018-R030, Agreement K4 would have had 2 wins and +$8 (actual 2 wins, +$10). weights.json after R037 was recomputed
-under it; the R037 leaderboard rows keep the old softmax weights. Also tracked for that review (Daryl, 28 Oct): the Drought ticket (`lab/drought.py`), a side K4 from
->>>>>>> parent of 0dd5ef6 (Undo the switch to points weights (Daryl: not yet))
+Rules frozen for R039-R048 (Daryl, 30 Oct, after the R037 review): no changes to the reward, weights
+rule, policies, Agreement ticket, test window or replay rule until R048 is scored. Bug fixes and dashboard
+display changes are fine; anything else waits for the review after R048. (R028-R037 review,
+https://claude.ai/artifact/MzJmJ5UYXdcCvNMkWkpayZ: nothing beat chance; Agreement K4 0 wins in 10, -$193;
+R018-R037 2 wins in 20, -$127. R018-R027 review: Agreement K4 won 2 of 10, +$66.) The only change from the
+R037 review is the points weights (Daryl, 30 Oct; `score.points_weights`): every policy starts on 100 at R018
+and each scored round adds +5 for a cutoff win, +1 if no cutoff win but a ticket timed out (did not bust), -1
+if every ticket busted; weight = points / total. weights.json was recomputed after R037 from R018-R037, so the
+starting points carry those 20 rounds, and score.py uses the rule from R038 scoring on (R038 itself was frozen
+under the old softmax weights; the R037 leaderboard rows keep the softmax values). Replayed over R018-R037,
+Agreement K4 came to -$125 under points against -$127 under softmax. Also kept (Daryl, 28 Oct): the Drought
+ticket (`lab/drought.py`), a side K4 from
 the 4 policies longest without a K4 cutoff win, each one's best number. Outside the weights, Agreement and the
 dashboard. At every freeze from R032 run `python lab/drought.py build R0NN` and commit `rounds/R0NN/drought.json`
 with the freeze; `python lab/drought.py report` gives the results (R018-R031 hindsight: 3 wins, +$124). (R008-R017 was the
