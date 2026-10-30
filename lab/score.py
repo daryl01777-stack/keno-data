@@ -15,6 +15,8 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SIZES = range(4, 11)
 
 OUTSIDE = ("Weighted blend", "Agreement")    # built from the weights: scored, but outside GRPO
+RULE_POINTS = ("points since R018: start 100, +5 for a round with a cutoff win, +1 if no win but a ticket timed out, "
+               "-1 if every ticket busted; weight = points / total")
 
 def path(*p):
     return os.path.join(ROOT, *p)
@@ -22,6 +24,36 @@ def path(*p):
 
 def parse(s):
     return datetime.fromisoformat(s.replace("Z", "+00:00"))
+
+
+POINTS_FROM, POINTS_START = "R038", "R018"   # points weights (Daryl, 28 Oct, applied after the R037 review)
+START, WIN, SURVIVE, BUST = 100, 5, 1, -1
+
+
+def round_points(reps):
+    """+5 if any K4-K10 replay ticket reached the take-win cutoff, +1 if none did but one timed out
+    (did not bust), -1 if every ticket busted."""
+    if any(r["end"].startswith("big win") for r in reps.values()):
+        return WIN
+    return SURVIVE if any(r["end"] == "timed out" for r in reps.values()) else BUST
+
+
+def points_weights(upto, current=None):
+    """Every policy starts on 100 points at POINTS_START and adds round_points for each scored round up to
+    `upto` (plus `current`, this round's {policy: replays}, when given); weight = points / total.
+    Returns (weights, points)."""
+    pay = paytable()
+    pts = {}
+    for r in scored_rounds():
+        if POINTS_START <= r <= upto and not (current and r == upto):
+            for p, v in round_replays(json.load(open(path("rounds", r, "scores.json"))), pay).items():
+                if p not in OUTSIDE:
+                    pts[p] = pts.get(p, START) + round_points(v)
+    for p, v in (current or {}).items():
+        if p not in OUTSIDE:
+            pts[p] = pts.get(p, START) + round_points(v)
+    total = sum(pts.values())
+    return {p: round(x / total, 6) for p, x in pts.items()}, pts
 
 
 def averaged_weights(rid, current):
@@ -94,14 +126,19 @@ def main(rid):
     sd = math.sqrt(sum((x - mean) ** 2 for x in rewards.values()) / len(rewards))
     for n in group:
         results[n]["advantage"] = round((rewards[n] - mean) / sd if sd > 0 else 0.0, 3)
-    new = averaged_weights(rid, {n: results[n]["advantage"] for n in group})
+    if rid >= POINTS_FROM:
+        new, pts = points_weights(rid, {n: {k: v["replay"] for k, v in results[n]["sizes"].items()} for n in group})
+        for n in group:
+            results[n]["points"] = pts[n]
+    else:
+        new = averaged_weights(rid, {n: results[n]["advantage"] for n in group})
     for n in new:
         results[n]["weight_before"] = w["weights"].get(n, "")
         results[n]["weight_after"] = new[n]
     # ties on weight go to the higher K10 hit rate
     leader = max(new, key=lambda n: (new[n], results[n]['k10_hit_rate']))
     w.update({"after_round": rid, "weights": new, "on_a_roll": leader,
-              "rule": "softmax of mean advantage over the last 10 scored rounds (rounds a policy missed count as 0)",
+              "rule": RULE_POINTS if rid >= POINTS_FROM else "softmax of mean advantage over the last 10 scored rounds (rounds a policy missed count as 0)",
               "reward": "rounds with a cutoff win: 1 if any K4-K10 replay ticket got a single prize over $20 in the round, else 0"})
     json.dump(w, open(path("ledger", "weights.json"), "w"), indent=1)
 
