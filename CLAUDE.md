@@ -22,12 +22,17 @@ policy is expected to beat chance. Report results honestly; never imply an edge.
 Rules frozen for R028-R037 (Daryl, 27 Oct, after the R027 review, unchanged from R018-R027): no
 changes to the reward, weights rule, policies, Agreement ticket, test window or replay rule until R037
 is scored. (R018-R027 review: no policy beat chance; Agreement K4 won 2 of 10 rounds, +$66.) Bug fixes and
-dashboard display changes are fine; anything else waits for the review after R037. Pencilled in for that review (Daryl, 28 Oct): replace the softmax
+dashboard display changes are fine; anything else waits for the review after R037. From R038 (pencilled in by Daryl on 28 Oct, applied after R037 scoring on 30 Oct; `score.points_weights`): replace the softmax
 weights with points counted from R018, every policy starting on 100: +5 for a round with a cutoff win, +1 if
 no cutoff win but a ticket timed out (did not bust), -1 if every ticket busted; weight = points / total.
+<<<<<<< HEAD
 Replayed over R018-R030, Agreement K4 would have had 2 wins and +$8 (actual 2 wins, +$10). On 30 Oct Daryl said not to switch yet;
 R038 was frozen under the old softmax rule while the R028-R037 review is done (the points code is in commit d2ae735,
 reverted in 0dd5ef6). Also tracked for that review (Daryl, 28 Oct): the Drought ticket (`lab/drought.py`), a side K4 from
+=======
+Replayed over R018-R030, Agreement K4 would have had 2 wins and +$8 (actual 2 wins, +$10). weights.json after R037 was recomputed
+under it; the R037 leaderboard rows keep the old softmax weights. Also tracked for that review (Daryl, 28 Oct): the Drought ticket (`lab/drought.py`), a side K4 from
+>>>>>>> parent of 0dd5ef6 (Undo the switch to points weights (Daryl: not yet))
 the 4 policies longest without a K4 cutoff win, each one's best number. Outside the weights, Agreement and the
 dashboard. At every freeze from R032 run `python lab/drought.py build R0NN` and commit `rounds/R0NN/drought.json`
 with the freeze; `python lab/drought.py report` gives the results (R018-R031 hindsight: 3 wins, +$124). (R008-R017 was the
@@ -99,7 +104,7 @@ on the branch `pre-r018-restructure` (commit 0d807e0) so it can be restored.
    size: most cutoff wins, ties to the higher average net then the smaller ticket (R008 froze the
    older dollar-based ideal sizes); round.py freezes those as `ideal_sizes`, and the dashboard shows the
    weights' pick: the on-a-roll policy's ticket at its ideal size.
-   Weights (from R004 scoring on): each policy's weight is exp(its mean advantage over the last
+   Weights from R038: points (see the top of this section). Up to R037 (from R004 scoring on): each policy's weight is exp(its mean advantage over the last
    10 scored rounds, this one included), renormalised to sum to 1. So chance results fade instead
    of compounding. (R001-R003 used a multiplicative update; weights.json was recomputed from their
    advantages under this rule on 22 Oct.)
