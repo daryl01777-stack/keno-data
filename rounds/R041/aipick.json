@@ -1,0 +1,11 @@
+{
+ "round": "R041",
+ "ticket": [
+  52,
+  1,
+  65,
+  30
+ ],
+ "frozen_utc": "2026-10-30T09:40:16Z",
+ "why": "Cluster pick: 52 is the number of the moment (34 in 100, 10 in the last 20, top-2 for seven policies). Instead of stacking more hot numbers, I took the crew that lands with it: 1, 65 and 30 each came up alongside 52 twelve or thirteen times, and 52+1+65+30 have been drawn as a full set in 5 of the last 100 games. 1 and 65 are also hot lately (9 and 7 in the last 20), and 30 is Hot last 3's #1."
+}
