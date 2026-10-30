@@ -87,6 +87,13 @@ td,th{padding:4px 6px;white-space:nowrap;border-bottom:1px solid var(--line);tex
     <div class="tile"><b id="scored"></b><span>Scored games</span></div>
   </section>
 
+  <section class="primary" id="aisec" hidden>
+    <div class="row"><div><div class="tag">Primary prediction · AI pick</div><h2>Claude's K4</h2></div>
+      <button id="aicopy" type="button">Copy numbers</button></div>
+    <div class="balls" id="aiballs"></div>
+    <p class="note" id="aiwhy"></p>
+    <p class="note" id="airesult"></p>
+  </section>
   <section class="primary">
     <div class="row"><div><div class="tag" id="ptag">Primary prediction</div><h2 id="ptitle"></h2></div>
       <button id="copy" type="button">Copy numbers</button></div>
@@ -94,6 +101,7 @@ td,th{padding:4px 6px;white-space:nowrap;border-bottom:1px solid var(--line);tex
     <div class="group" id="sizes" role="group" aria-label="Ticket size"><span class="lbl" style="align-self:center">Size</span></div>
     <p class="note" id="presult"></p>
   </section>
+
 
   <section class="controls">
     <div class="group" id="cats" role="group" aria-label="Category"></div>
@@ -195,6 +203,19 @@ function render(){
   document.querySelectorAll("#cats button").forEach(b=>b.setAttribute("aria-pressed", b.dataset.v===cat));
   document.querySelectorAll("#sizes button").forEach(b=>{b.setAttribute("aria-pressed", +b.dataset.v===size); b.classList.toggle("best", +b.dataset.v===PS);});
 }
+function aiRender(){
+  const A = D.ai; $("aisec").hidden = !A; if (!A) return;
+  $("aiballs").innerHTML = A.ticket.map(n=>`<span class="ball">${n}</span>`).join("");
+  $("aiwhy").textContent = A.why || "";
+  const r = A.result;
+  $("airesult").innerHTML = r ? `Round ${N}: <b class="${cls(r.net)}">${money(r.net)}</b> on a $20 ticket with winnings replayed. Ended: <b>${r.end}</b> after ${r.games} games.` : "Frozen with the round; scored with it.";
+}
+$("aicopy").onclick = async () => {
+  const txt = D.ai ? D.ai.ticket.join(" ") : "";
+  try { await navigator.clipboard.writeText(txt); $("aicopy").textContent="Copied"; }
+  catch { const r=document.createRange(); r.selectNodeContents($("aiballs")); getSelection().removeAllRanges(); getSelection().addRange(r); $("aicopy").textContent="Selected"; }
+  setTimeout(()=>$("aicopy").textContent="Copy numbers",1500);
+};
 $("copy").onclick = async () => {
   const txt = D.policies[PP].slice(0,size).join(" ");
   try { await navigator.clipboard.writeText(txt); $("copy").textContent="Copied"; }
@@ -224,6 +245,7 @@ $("presult").innerHTML = S
   : PS ? `The blend is built from the policy weights (${["Hot (most drawn)","Surge (last 20 games)","Pair cluster","Overdue (longest gap)","Persistence"].filter(k=>D.weights[k]!==undefined).sort((a,b)=>D.weights[b]-D.weights[a])[0]} leads). K${PS} is its best size so far (${idealTxt(D.ideal[PP])}). That comes from luck in earlier rounds, not skill.`
   : `On a roll: <b>${D.roll}</b>. That comes from luck in earlier rounds, not skill.`;
 rollNow = S ? D.next_roll : D.roll;
+aiRender();
 $("sha").textContent = D.sha + (D.shadow && D.shadow.sha ? `\nRetro pick (shadow.json, added later): ${D.shadow.sha}` : "");
 
 $("cats").innerHTML = "";

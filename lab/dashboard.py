@@ -36,6 +36,12 @@ def round_data(rid):
         data["shadow"] = {"rule": sh["rule"], "late": bool(sh.get("added_after_freeze")),
                           "frozen": sh.get("frozen_utc", d["frozen_utc"]),
                           "sha": open(os.path.join(rdir, "shadow.sha256")).read().strip() if os.path.exists(shp) else None}
+    ap = os.path.join(rdir, "aipick.json")         # AI pick: Claude's own K4 each round from R040 (Daryl, 30 Oct)
+    if os.path.exists(ap):
+        import aipick
+        a = json.load(open(ap))
+        data["ai"] = {"ticket": a["ticket"], "why": a.get("why", ""),
+                      "result": aipick.result(int(rid[1:]), a["ticket"]) if os.path.exists(os.path.join(rdir, "scores.json")) else None}
     sp = os.path.join(rdir, "scores.json")
     if os.path.exists(sp):
         s = json.load(open(sp))

@@ -46,11 +46,10 @@ policy's top 5 on signal, togetherness and policy-family balance) if useful, but
 something new or a novel idea looks better. Before the test window opens, write the final ticket and a short
 "why" into `rounds/R0NN/aipick.json` (keys `ticket`, `why`, plus `method` if the script was used) and commit
 it with the freeze. Report it with each score (`python lab/aipick.py report` reads the ticket). Daryl wants
-Claude to get into it and have fun; keep caveats to a minimum, but never claim an edge. Also kept (Daryl, 28 Oct): the Drought
-ticket (`lab/drought.py`), a side K4 from
+Claude to get into it and have fun; keep caveats to a minimum, but never claim an edge. The dashboard shows it as a second primary card above Agreement's (Daryl, 30 Oct). The Drought
+ticket (`lab/drought.py`, R032-R039, dropped by Daryl on 30 Oct; forward result 1 win in 8 rounds), a side K4 from
 the 4 policies longest without a K4 cutoff win, each one's best number. Outside the weights, Agreement and the
-dashboard. At every freeze from R032 run `python lab/drought.py build R0NN` and commit `rounds/R0NN/drought.json`
-with the freeze; `python lab/drought.py report` gives the results (R018-R031 hindsight: 3 wins, +$124). (R008-R017 was the
+dashboard. It was built at R032-R039 freezes into `rounds/R0NN/drought.json`; `python lab/drought.py report` gives the results (R018-R031 hindsight: 3 wins, +$124). (R008-R017 was the
 first frozen block; its review found no policy beat chance and changed only the reward and Retro
 pick's windows.) The same day Daryl approved a restructure from R018: the policies became the 12 Retro
 rules plus Pair cluster (with Random A/B), the Agreement ticket became the primary pick, and Anomaly
