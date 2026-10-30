@@ -137,6 +137,8 @@ def main(rid):
         results[n]["weight_after"] = new[n]
     # ties on weight go to the higher K10 hit rate
     leader = max(new, key=lambda n: (new[n], results[n]['k10_hit_rate']))
+    if rid >= POINTS_FROM:
+        w["points"] = pts
     w.update({"after_round": rid, "weights": new, "on_a_roll": leader,
               "rule": RULE_POINTS if rid >= POINTS_FROM else "softmax of mean advantage over the last 10 scored rounds (rounds a policy missed count as 0)",
               "reward": "rounds with a cutoff win: 1 if any K4-K10 replay ticket got a single prize over $20 in the round, else 0"})
