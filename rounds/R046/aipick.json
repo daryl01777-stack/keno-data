@@ -1,0 +1,11 @@
+{
+ "round": "R046",
+ "ticket": [
+  5,
+  58,
+  29,
+  1
+ ],
+ "frozen_utc": "2026-11-01T05:36:41Z",
+ "why": "Cold awakening: Cold keeps winning, so take numbers that were cold over the 100 games but have woken up lately, the crossover between Cold and the hot-now policies. 5 had only 20 draws in 100 but 11 of them came in the last 20 games (the hottest number right now, #1 for Surge and Hot last 10). 58 is 22 in 100 with 9 in the last 20, 29 is 20 with 6, and 1 is 21 with 5."
+}
