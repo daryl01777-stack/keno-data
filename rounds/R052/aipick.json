@@ -1,0 +1,12 @@
+{
+ "round": "R052",
+ "ticket": [
+  16,
+  63,
+  65,
+  38
+ ],
+ "frozen_utc": "2026-11-02T09:12:05Z",
+ "idea": "Near-miss leaders: the #1 number of each of the four policies with the best 3/4 rates over the last 20 rounds",
+ "why": "Over rounds 30-49, Cold, Just drawn, Persistence and Hot caught 3 or 4 on their K4 more often than anyone else (5.5-6.1% of games against 4.6% for a random ticket). So this ticket takes each one's #1 this round: Cold 16, Just drawn 63, Persistence 65 and Hot 38. It mixes four different families (cold, last game, steady, long-run hot), and 63 also shows up in Hot's top 6, Hot last 3 and Pairs with last game."
+}
