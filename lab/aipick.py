@@ -12,6 +12,12 @@ be rebuilt at any time.
 
 usage: python lab/aipick.py build R0NN     write rounds/R0NN/aipick.json (run at freeze)
        python lab/aipick.py report          replay every scored round that has one
+       python lab/aipick.py ledger          rebuild ledger/aipick.csv, the learning ledger (run after scoring)
+
+The learning ledger (Daryl, 2 Nov) has one row per AI pick: the idea, the ticket, how it did (replay result,
+best catch, how many games caught 3+, each number's draws in the 40 test games), the policies whose K4 won
+that round and how many numbers they shared with the pick, and a lesson. The idea and lesson columns are
+written by hand and kept when the ledger is rebuilt; read the ledger before every new pick.
 """
 import itertools, json, os, sys
 import numpy as np
@@ -68,6 +74,41 @@ def ticket(r):
             "pair_avg": round(float(pair[best]), 2), "three_together": int(tri[best]), "families": int(fam[best])}
 
 
+def hits(r, t):
+    """Per-game catches of ticket t over the round's 40 test games, and every number's draw count there."""
+    f, s = load(r, "frozen.json"), load(r, "scores.json")
+    after = [x for x in rd.load(os.path.join(ROOT, "draws.csv")) if x["closed"] > f["frozen_utc"]]
+    i = next(i for i, x in enumerate(after) if x["game"] == s["test_games"][0])
+    games = after[i:i + 40]
+    return [len(set(t) & set(x["draw"])) for x in games], {n: sum(n in x["draw"] for x in games) for n in t}
+
+
+LEDGER = os.path.join(ROOT, "ledger", "aipick.csv")
+COLS = ["round", "idea", "ticket", "end", "net", "best_catch", "games_3plus", "draws_in_test", "k4_winners", "lesson"]
+
+
+def ledger():
+    import csv
+    old = {row["round"]: row for row in csv.DictReader(open(LEDGER))} if os.path.exists(LEDGER) else {}
+    rows, r = [], FIRST
+    while load(r, "scores.json") and load(r, "aipick.json"):
+        d, f, s = load(r, "aipick.json"), load(r, "frozen.json"), load(r, "scores.json")
+        t = d["ticket"]; x = result(r, t); h, cnt = hits(r, t)
+        win = []
+        for p, v in s["results"].items():
+            if p in f["policies"] and v["sizes"]["4"]["replay"]["end"].startswith("big"):
+                win.append(f"{p} {' '.join(map(str, f['policies'][p][:4]))} (shares {len(set(t) & set(f['policies'][p][:4]))})")
+        rid = d["round"]; o = old.get(rid, {})
+        rows.append({"round": rid, "idea": o.get("idea") or d.get("idea", ""), "ticket": " ".join(map(str, t)),
+                     "end": x["end"], "net": x["net"], "best_catch": max(h), "games_3plus": sum(c >= 3 for c in h),
+                     "draws_in_test": " ".join(f"{n}:{c}" for n, c in cnt.items()), "k4_winners": "; ".join(win),
+                     "lesson": o.get("lesson", "")})
+        r += 1
+    with open(LEDGER, "w", newline="") as fh:
+        w = csv.DictWriter(fh, COLS); w.writeheader(); w.writerows(rows)
+    return rows
+
+
 def result(r, t):
     f, s = load(r, "frozen.json"), load(r, "scores.json")
     if s is None:
@@ -85,6 +126,9 @@ if __name__ == "__main__":
         d = ticket(r)
         json.dump(d, open(os.path.join(ROOT, "rounds", d["round"], "aipick.json"), "w"), indent=1)
         print(d)
+    elif sys.argv[1] == "ledger":
+        for row in ledger():
+            print(row["round"], row["ticket"], row["end"], row["net"], row["best_catch"], row["games_3plus"])
     else:
         n = b = net = 0
         r = FIRST

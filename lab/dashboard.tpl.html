@@ -171,6 +171,9 @@ function heatmap(){
   $("heat").innerHTML = `<tr><th>Policy</th>${sizes.map(z=>`<th>K${z}</th>`).join("")}<th>Rds</th></tr>` +
     ORDER.map(k => { const bz = best(k); return `<tr><td>${k.replace(/ \(.*\)/,"")}</td>${sizes.map(z => { const c = cell[k][z];
       return c ? `<td class="hc${z===bz?" best":""}" style="${shade(rate(c))}" data-k="${k}" data-z="${z}" title="${c.hits} of ${c.runs.length} rounds">${pct(rate(c))}</td>` : "<td>–</td>"; }).join("")}<td>${cell[k][4] ? cell[k][4].runs.length : 0}</td></tr>`; }).join("") +
+    (() => { const runs = upto.filter(r => ALL[r].ai && ALL[r].ai.result).map(r => [r, ALL[r].ai.result]); if (!runs.length) return "";
+      const c = {hits: runs.filter(([,x]) => x.end.startsWith("big win")).length, runs}; cell["AI pick"] = {4: c};
+      return `<tr><td>AI pick</td><td class="hc best" style="${shade(rate(c))}" data-k="AI pick" data-z="4" title="${c.hits} of ${runs.length} rounds">${pct(rate(c))}</td>${sizes.slice(1).map(()=>"<td>–</td>").join("")}<td>${runs.length}</td></tr>`; })() +
     `<tr><td>Chance per round</td>${sizes.map(z=>`<td>${Math.round(CH.chance[z]*100)}%</td>`).join("")}<td></td></tr>`;
   $("heat").onclick = e => { const td = e.target.closest("td[data-k]"); if (!td) return; const c = cell[td.dataset.k][td.dataset.z];
     $("heatdetail").innerHTML = `<b>${td.dataset.k} · K${td.dataset.z}</b>, ${c.hits} of ${c.runs.length} rounds: ` + c.runs.map(([r,x]) => `round ${+r.slice(1)} ${x.end.startsWith("big win") ? `<b class="up">${x.end}</b>` : x.end} <b class="${cls(x.net)}">${money(x.net)}</b>`).join(", "); };
@@ -209,6 +212,8 @@ function aiRender(){
   $("aiwhy").textContent = A.why || "";
   const r = A.result;
   $("airesult").innerHTML = r ? `Round ${N}: <b class="${cls(r.net)}">${money(r.net)}</b> on a $20 ticket with winnings replayed. Ended: <b>${r.end}</b> after ${r.games} games.` : "Frozen with the round; scored with it.";
+  const all = IDS.filter(x => x <= D.round && ALL[x].ai && ALL[x].ai.result).map(x => ALL[x].ai.result);
+  if (all.length) $("airesult").innerHTML += ` <br>So far: <b>${all.filter(x => x.end.startsWith("big win")).length} wins in ${all.length} rounds</b>, <b class="${cls(all.reduce((a,x)=>a+x.net,0))}">${money(all.reduce((a,x)=>a+x.net,0))}</b> in total.`;
 }
 $("aicopy").onclick = async () => {
   const txt = D.ai ? D.ai.ticket.join(" ") : "";
