@@ -117,6 +117,12 @@ td,th{padding:4px 6px;white-space:nowrap;border-bottom:1px solid var(--line);tex
     <p class="note" id="heatdetail">Tap a cell to see the round-by-round results behind it.</p>
   </section>
 
+  <section class="panel" id="buildpanel" hidden>
+    <h2>AI builds</h2>
+    <p class="note" id="buildnote"></p>
+    <div class="scroll"><table id="builds" class="heat"></table></div>
+  </section>
+
   <section class="panel">
     <h2>Test status</h2>
     <ul class="check" id="checklist"></ul>
@@ -202,9 +208,18 @@ function render(){
       ${D.ideal[k] ? `<div class="meta"><span>Best size so far <b>K${D.ideal[k].size}</b> (underlined; ${idealTxt(D.ideal[k])})</span></div>` : ""}
       ${res(k, cs)}
     </article>`}).join("");
-  heatmap();
+  heatmap(); buildsRender();
   document.querySelectorAll("#cats button").forEach(b=>b.setAttribute("aria-pressed", b.dataset.v===cat));
   document.querySelectorAll("#sizes button").forEach(b=>{b.setAttribute("aria-pressed", +b.dataset.v===size); b.classList.toggle("best", +b.dataset.v===PS);});
+}
+function buildsRender(){
+  const B = D.builds; $("buildpanel").hidden = !B; if (!B) return;
+  const pts = D.build_pts_after || D.build_pts || {};
+  const names = Object.keys(B).sort((a,b) => (pts[b]||0) - (pts[a]||0) || Object.keys(B).indexOf(a) - Object.keys(B).indexOf(b));
+  const tag = o => o === "win" ? `<b class="up">win</b>` : o === "survive" ? "timed out" : o ? `<span class="down">bust</span>` : "";
+  $("buildnote").textContent = `The AI pick ideas as fixed rules, all played every round as their own points group (outside the main weights and Agreement): +5 for a round with a cutoff win on any of K4-K10, +1 if no win but a ticket lasted to game 40, -1 if every ticket busted. Points carry each build's replay over rounds 18-54; live from round 55. The leader's K4 is the AI pick.${D.build_pts_after ? " Points after this round." : " Points going into this round."}`;
+  $("builds").innerHTML = `<tr><th>Build</th><th>K4</th><th>Pts</th>${S ? "<th>Round</th><th>Wins</th>" : ""}</tr>` +
+    names.map((n,i) => { const r = B[n].res; return `<tr><td>${i===0?"<b>":""}${n}${i===0?"</b>":""}</td><td>${B[n].t.slice(0,4).join(" ")}</td><td>${pts[n]??""}</td>${S ? `<td>${r ? tag(r.outcome) : ""}</td><td>${r ? r.wins : ""}</td>` : ""}</tr>`; }).join("");
 }
 function aiRender(){
   const A = D.ai; $("aisec").hidden = !A; if (!A) return;

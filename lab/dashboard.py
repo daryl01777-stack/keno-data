@@ -42,6 +42,11 @@ def round_data(rid):
         a = json.load(open(ap))
         data["ai"] = {"ticket": a["ticket"], "why": a.get("why", ""),
                       "result": aipick.result(int(rid[1:]), a["ticket"]) if os.path.exists(os.path.join(rdir, "scores.json")) else None}
+    bp = os.path.join(rdir, "aibuilds.json")       # AI builds: the 21 AI pick ideas as fixed rules (Daryl, 5 Nov)
+    if os.path.exists(bp):
+        bl = os.path.join(ROOT, "ledger", "aibuilds.csv")
+        res = {r["build"]: r for r in csv.DictReader(open(bl)) if r["round"] == rid} if os.path.exists(bl) else {}
+        data["builds"] = {n: {"t": t, "res": res.get(n)} for n, t in json.load(open(bp))["builds"].items()}
     sp = os.path.join(rdir, "scores.json")
     if os.path.exists(sp):
         s = json.load(open(sp))
@@ -98,6 +103,20 @@ def main(rid, out_path):
         before = rounds.get(f"R{int(rid_[1:]) - 1:03d}")
         d["prev"] = ({p: {"rr": v["rr"], "k10": v["k10"]} for p, v in before["scores"].items()}
                      if before and before["scores"] else {})
+    lp = os.path.join(ROOT, "ledger", "aibuilds.json")
+    if os.path.exists(lp):                    # standings after each scored round, for the builds panel
+        led = json.load(open(lp)); bc = os.path.join(ROOT, "ledger", "aibuilds.csv")
+        rows = list(csv.DictReader(open(bc))) if os.path.exists(bc) else []
+        after = {}
+        for r in rows:
+            after.setdefault(r["round"], {})[r["build"]] = int(r["points"])
+        # carried hindsight points, before any live round
+        base = {b: led["points"][b] - sum({"win": 5, "survive": 1, "bust": -1}[r["outcome"]] for r in rows if r["build"] == b) for b in led["points"]}
+        for rid_, d in rounds.items():
+            if "builds" in d:
+                prev = [r for r in sorted(after) if r < rid_]
+                d["build_pts"] = after[prev[-1]] if prev else base
+                d["build_pts_after"] = after.get(rid_)
     tpl = open(os.path.join(ROOT, "lab", "dashboard.tpl.html")).read()
     open(out_path, "w").write(tpl.replace("__DATA__", json.dumps(rounds))
                               .replace("__ODDS__", json.dumps({"odds": odds, "pay": pay, "sizes": sizes, "chance": {k: round(v, 4) for k, v in chance().items()}})))
