@@ -1,0 +1,25 @@
+{
+ "round": "R056",
+ "ticket": [
+  34,
+  74,
+  53,
+  78
+ ],
+ "frozen_utc": "2026-11-05T18:52:19Z",
+ "idea": "Build group leader: Streakers",
+ "method": "aibuilds.py leader (Streakers, 136 points)",
+ "signals": {
+  "favour": [
+   "Hot last 3",
+   "Hot last 10",
+   "Not in last game",
+   "Rising",
+   "Just drawn"
+  ],
+  "against": [
+   "Overdue"
+  ]
+ },
+ "why": "Streakers leads the 23-build group on 136 points (tied with Short-clock crew, ahead on rounds won). Signals this round lean towards Hot last 3, Hot last 10, Not in last game, Rising, Just drawn and against Overdue."
+}
