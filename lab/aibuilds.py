@@ -12,6 +12,9 @@ usage: python lab/aibuilds.py build R0NN      write rounds/R0NN/aibuilds.json (r
        python lab/aibuilds.py hindsight A B   replay every build over rounds A-B (no files written)
        python lab/aibuilds.py init A B        start ledger/aibuilds.json with points carried from rounds A-B
 
+Builds added later (Last-3 skip and Signal board from R056, built on the 5 Nov signals) join on the group's
+median points, because their hindsight replay would be in-sample.
+
 Starting points (Daryl, 5 Nov, as for the main points weights): every build starts on 100 at R018 and carries
 its R018-R054 hindsight points into R055. The top-weighted build's K4 is the AI pick from R055 (ties to more
 rounds won, then more K4 wins, then the build listed first).
@@ -39,7 +42,7 @@ class Ctx:
         self.X = aipick.window(self.f)                       # 100 x 80, oldest first
         self.pol = {p: v for p, v in self.f["policies"].items() if p in SIGNAL}
         X = self.X
-        self.c100 = X.sum(0); self.c20 = X[-20:].sum(0); self.c10 = X[-10:].sum(0)
+        self.c100 = X.sum(0); self.c20 = X[-20:].sum(0); self.c10 = X[-10:].sum(0); self.c3 = X[-3:].sum(0)
         self.h1 = X[:50].sum(0); self.h2 = X[50:].sum(0)
         self.last = set(np.flatnonzero(X[-1]) + 1)
         self.gap = np.array([int(X[::-1, i].argmax()) if X[:, i].any() else 100 for i in range(80)])
@@ -233,12 +236,33 @@ def track_record(ctx):                 # each policy's top 4, weighted by its 3/
     return rank(sc, ctx)
 
 
+# ---- builds from the signals ledger (5 Nov) ----
+
+def last3_skip(ctx):                   # signal 1-3: Hot last 3 did better when its numbers were not in the last game
+    return rank(np.array([ctx.c3[n - 1] if n not in ctx.last else -1 for n in range(1, 81)], float), ctx, ("c10", "c20", "c100"))
+
+
+def signal_board(ctx):                 # policies ordered by how many recorded signals lean their way this round
+    import signals
+    net = {p: 0 for p in ctx.pol}
+    for _, p, _, _, _, lean in signals.today(ctx.r):
+        net[p] += {"better": 1, "worse": -1}.get(lean, 0)
+    order = sorted(ctx.pol, key=lambda p: (-net[p], -ctx.f["weights_at_freeze"].get(p, 0)))
+    out = []
+    for depth in range(10):
+        for p in order[:4]:
+            out.append(ctx.pol[p][depth])
+    return list(dict.fromkeys(out))[:10]
+
+
 BUILDS = {"Momentum": momentum, "Cluster": cluster, "Streakers": streakers, "All-rounders": all_rounders,
           "Proven quartet": proven_quartet, "Rising tide": rising_tide, "Cold awakening": cold_awakening,
           "Spring-loaded": spring_loaded, "Fresh off the press": fresh_press, "Short-clock crew": short_clock,
           "The other pond": other_pond, "Engine room": engine_room, "Near-miss leaders": near_miss,
           "Barbell": barbell, "Head count": head_count, "Rhythm": rhythm, "Board shape": board_shape,
-          "Winner echo": winner_echo, "Odd one out": odd_one_out, "Pair-only": pair_only, "Track record": track_record}
+          "Winner echo": winner_echo, "Odd one out": odd_one_out, "Pair-only": pair_only, "Track record": track_record,
+          "Last-3 skip": last3_skip, "Signal board": signal_board}
+LATE = {"Last-3 skip": "R056", "Signal board": "R056"}   # built from 5 Nov findings: no hindsight points (they'd be in-sample)
 
 
 def build(r):
@@ -307,6 +331,16 @@ def update(r):
     return rows, led
 
 
+def ensure(led):
+    """Builds added after the start join on the group's median points, since their hindsight would be in-sample."""
+    med = int(np.median([v for k, v in led["points"].items() if k not in LATE])) if led["points"] else START
+    for b in BUILDS:
+        if b not in led["points"]:
+            led["points"][b] = med; led.setdefault("joined", {})[b] = {"round": LATE.get(b, ""), "points": med}
+    T = sum(led["points"].values()); led["weights"] = {b: round(p / T, 6) for b, p in led["points"].items()}
+    return led
+
+
 def leader(led):
     t = led.get("tally", {})
     return max(BUILDS, key=lambda b: (led["points"][b], t.get(b, {}).get("win", 0), t.get(b, {}).get("k4", 0), -list(BUILDS).index(b)))
@@ -332,6 +366,8 @@ if __name__ == "__main__":
         json.dump(d, open(os.path.join(ROOT, "rounds", d["round"], "aibuilds.json"), "w"), indent=1)
         for k, v in d["builds"].items():
             print(f"{k:20s} {v[:4]}")
+    elif cmd == "join":
+        led = ensure(json.load(open(LEDGER))); json.dump(led, open(LEDGER, "w"), indent=1, sort_keys=True); print(led.get("joined"))
     elif cmd == "score":
         rows, led = update(int(sys.argv[2].lstrip("R")))
         for x in sorted(rows, key=lambda x: -x["points"]):
