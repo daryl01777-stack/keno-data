@@ -1,0 +1,13 @@
+{
+ "round": "R055",
+ "ticket": [
+  4,
+  64,
+  23,
+  66
+ ],
+ "frozen_utc": "2026-11-05T07:37:04Z",
+ "idea": "Build group leader: Streakers",
+ "method": "aibuilds.py leader (Streakers, 137 points)",
+ "why": "From round 55 the AI pick runs all 21 build ideas every round as their own points group, and this card shows the leader's K4. Streakers leads on 137 points, carried from replaying every build over rounds 18-54 (it would have hit the cutoff in 11 of 37 rounds)."
+}
