@@ -6,5 +6,17 @@
   26
  ],
  "idea": "Holistic",
- "why": "Claude holistic pick: 74, 44 and 60 are the numbers the 23 builds lean on most (74 in 14 build K4s, 44 in 12, 60 in 8) and sit high in Surge, Just drawn, Hot and Persistence, four of the top-weighted policies. 26 comes from Not in last game, whose signal leans its way this round, and is also on Hot and in 5 build K4s. Signals favour Surge, Just drawn, Hot last 3, Hot last 10, Not in last game and Rising; against Overdue, so none of its numbers."
+ "why": "Claude holistic pick: 74, 44 and 60 are the numbers the 23 builds lean on most (74 in 14 build K4s, 44 in 12, 60 in 8) and sit high in Surge, Just drawn, Hot and Persistence, four of the top-weighted policies. 26 comes from Not in last game, whose signal leans its way this round, and is also on Hot and in 5 build K4s. Signals favour Surge, Just drawn, Hot last 3, Hot last 10, Not in last game and Rising; against Overdue, so none of its numbers.",
+ "result": {
+  "end": "bust",
+  "net": -20,
+  "best": 3,
+  "games_3plus": 2,
+  "draws": {
+   "74": 8,
+   "44": 8,
+   "60": 10,
+   "26": 7
+  }
+ }
 }
