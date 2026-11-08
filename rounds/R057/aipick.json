@@ -1,0 +1,20 @@
+{
+ "ticket": [
+  12,
+  64,
+  7,
+  62
+ ],
+ "idea": "Build group leader: Streakers",
+ "method": "aibuilds.leader",
+ "signals": {
+  "favour": [
+   "Hot last 3",
+   "Overdue",
+   "Hot last 10",
+   "Just drawn"
+  ],
+  "against": []
+ },
+ "why": "Streakers leads the 23 builds on 141 points; its K4 is Hot last 10's top 4 (12 64 7 62). Signals lean most toward Hot last 3 (4 of its signals), then Overdue, Hot last 10 and Just drawn; Rising and Surge each have one leaning against."
+}
