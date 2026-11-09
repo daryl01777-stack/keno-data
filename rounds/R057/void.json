@@ -1,0 +1,12 @@
+{
+ "round": "R057",
+ "void": true,
+ "decided_by": "Daryl, 9 Nov 2026 2:03 pm Brisbane",
+ "reason": "Keno's results feed went down after game 160 and games 161-174 were never available, so the round was voided. Only 26 of the 40 test games (135-160) were seen; nothing from this round is scored or counted in weights, builds, signals or ledgers.",
+ "partial_k4_over_games_135_160": {
+  "AI pick 12 64 7 62": "4/4 at game 143 (test game 9)",
+  "Holistic 37 3 7 60": "best 3, two 3+ games",
+  "Agreement 41 73 12 37": "best 2",
+  "other K4 4/4s": "Persistence, Momentum and Proven quartet at game 143; Random B at game 147; Surge at game 156"
+ }
+}

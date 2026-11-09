@@ -38,6 +38,17 @@ def load(r, name):
     return json.load(open(p)) if os.path.exists(p) else None
 
 
+def scored(start):
+    """Round numbers from start with scores.json and aipick.json, stepping over void rounds (rounds/R0NN/void.json)."""
+    r = start
+    while load(r, "frozen.json"):
+        if not load(r, "void.json"):
+            if not (load(r, "scores.json") and load(r, "aipick.json")):
+                return
+            yield r
+        r += 1
+
+
 def window(f):
     a, b = f["training_closed_utc"]
     return rd.matrix([x for x in rd.load(os.path.join(ROOT, "draws.csv")) if a <= x["closed"] <= b]).astype(int)
@@ -90,8 +101,8 @@ COLS = ["round", "idea", "ticket", "end", "net", "best_catch", "games_3plus", "d
 def ledger():
     import csv
     old = {row["round"]: row for row in csv.DictReader(open(LEDGER))} if os.path.exists(LEDGER) else {}
-    rows, r = [], FIRST
-    while load(r, "scores.json") and load(r, "aipick.json"):
+    rows = []
+    for r in scored(FIRST):
         d, f, s = load(r, "aipick.json"), load(r, "frozen.json"), load(r, "scores.json")
         t = d["ticket"]; x = result(r, t); h, cnt = hits(r, t)
         win = []
@@ -103,7 +114,6 @@ def ledger():
                      "end": x["end"], "net": x["net"], "best_catch": max(h), "games_3plus": sum(c >= 3 for c in h),
                      "draws_in_test": " ".join(f"{n}:{c}" for n, c in cnt.items()), "k4_winners": "; ".join(win),
                      "lesson": o.get("lesson", "")})
-        r += 1
     with open(LEDGER, "w", newline="") as fh:
         w = csv.DictWriter(fh, COLS); w.writeheader(); w.writerows(rows)
     return rows
@@ -131,10 +141,8 @@ if __name__ == "__main__":
             print(row["round"], row["ticket"], row["end"], row["net"], row["best_catch"], row["games_3plus"])
     else:
         n = b = net = 0
-        r = FIRST
-        while load(r, "scores.json") and load(r, "aipick.json"):
+        for r in scored(FIRST):
             d = load(r, "aipick.json"); x = result(r, d["ticket"])
             n += 1; b += rp.big(x); net += x["net"]
             print(d["round"], d["ticket"], x["end"], x["net"])
-            r += 1
         print(f"{n} rounds, {b} wins, ${net:+d}")

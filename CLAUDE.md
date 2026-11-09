@@ -126,6 +126,10 @@ on the branch `pre-r018-restructure` (commit 0d807e0) so it can be restored.
    the highest weight is flagged "On a roll" for the next round (ties go to the higher
    K10 hit rate). `lab/score.py` does steps 4-6 apart from the commit.
 6. Commit the scores to `rounds/R00N/scores.json`.
+7. Void rounds (Daryl, 9 Nov): if the test games never become available, write `rounds/R0NN/void.json`
+   (`reason`, plus any partial results for chat only) instead of scores. Nothing in a void round is scored or counted
+   (weights, builds, signals, AI ledger); the scripts step over it and the dashboard shows it as Void. R057 is void
+   (Keno's feed went down after game 160).
 
 ## Retro pick shadow (R009-R017)
 A shadow ticket from whichever of the 12 rules did best over past 100+40 windows (`lab/shadow.py`),

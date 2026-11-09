@@ -226,7 +226,7 @@ function aiRender(){
   $("aiballs").innerHTML = A.ticket.map(n=>`<span class="ball">${n}</span>`).join("");
   $("aiwhy").textContent = A.why || "";
   const r = A.result;
-  $("airesult").innerHTML = r ? `Round ${N}: <b class="${cls(r.net)}">${money(r.net)}</b> on a $20 ticket with winnings replayed. Ended: <b>${r.end}</b> after ${r.games} games.` : "Frozen with the round; scored with it.";
+  $("airesult").innerHTML = r ? `Round ${N}: <b class="${cls(r.net)}">${money(r.net)}</b> on a $20 ticket with winnings replayed. Ended: <b>${r.end}</b> after ${r.games} games.` : (D.void ? "Round void, not scored." : "Frozen with the round; scored with it.");
   const all = IDS.filter(x => x <= D.round && ALL[x].ai && ALL[x].ai.result).map(x => ALL[x].ai.result);
   if (all.length) $("airesult").innerHTML += ` <br>So far: <b>${all.filter(x => x.end.startsWith("big win")).length} wins in ${all.length} rounds</b>, <b class="${cls(all.reduce((a,x)=>a+x.net,0))}">${money(all.reduce((a,x)=>a+x.net,0))}</b> in total.`;
 }
@@ -256,7 +256,8 @@ if (!["All", ...ORDER.map(k=>CAT[k])].includes(cat)) cat = "All";
 document.querySelectorAll("#rounds button").forEach(b=>b.setAttribute("aria-pressed", b.dataset.v===rid));
 $("subline").textContent = `Frozen ${bneDate(D.frozen)}, ${bne(D.frozen.slice(11))} Brisbane time. Trained on games ${D.train[0]}-${D.train[1]}, tested on games ${D.test[0]}-${D.test[1]} (expected ${bne(D.close[0])} to ${bne(D.close[1])}).`;
 $("h1").textContent = `Keno lab · Round ${N}`;
-$("status").textContent = S ? "Scored" : "Frozen · test pending";
+$("status").textContent = S ? "Scored" : D.void ? "Void" : "Frozen · test pending";
+if (D.void) $("subline").textContent += " Void: " + D.void;
 $("scored").textContent = S ? 40 : 0;
 $("presult").innerHTML = S
   ? `Round ${N}: ${PP} at K${PS||D.primary} finished <b>${money(S[PP].sizes[PS||D.primary].replay.net)}</b> on a $20 ticket with winnings replayed. Cutoff wins across K4-K10: <b>${S[PP].big}</b> (group average ${D.big_mean.toFixed(1)}). Went in on a roll: ${D.roll}. Now on a roll: <b>${D.next_roll}</b>.`

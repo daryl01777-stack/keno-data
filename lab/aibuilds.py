@@ -198,7 +198,10 @@ def board_shape(ctx):                  # the hottest row or column of the 8 x 10
 
 
 def winner_echo(ctx):                  # the numbers on last round's winning tickets
-    s, f = aipick.load(ctx.r - 1, "scores.json"), aipick.load(ctx.r - 1, "frozen.json")
+    q = ctx.r - 1
+    while aipick.load(q, "void.json"):             # a void round has no winners; use the last scored round
+        q -= 1
+    s, f = aipick.load(q, "scores.json"), aipick.load(q, "frozen.json")
     tally = Counter()
     if s and f:
         for p, v in s["results"].items():

@@ -83,9 +83,12 @@ def update():
         start = int(s["forward_from"].lstrip("R"))
         x, y = [], []
         r = start
-        while aipick.load(r, "scores.json"):
-            cache.setdefault(r, features(r))
-            x.append(cache[r][s["policy"]][s["feature"]]); y.append(outcome(r, s["policy"]))
+        while aipick.load(r, "frozen.json"):
+            if not aipick.load(r, "void.json"):          # void rounds (never scored) are stepped over
+                if not aipick.load(r, "scores.json"):
+                    break
+                cache.setdefault(r, features(r))
+                x.append(cache[r][s["policy"]][s["feature"]]); y.append(outcome(r, s["policy"]))
             r += 1
         c = corr(x, y)
         s["forward_rounds"] = len(x)

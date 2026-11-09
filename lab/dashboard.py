@@ -47,6 +47,9 @@ def round_data(rid):
         bl = os.path.join(ROOT, "ledger", "aibuilds.csv")
         res = {r["build"]: r for r in csv.DictReader(open(bl)) if r["round"] == rid} if os.path.exists(bl) else {}
         data["builds"] = {n: {"t": t, "res": res.get(n)} for n, t in json.load(open(bp))["builds"].items()}
+    vp = os.path.join(rdir, "void.json")           # void round: results never became available (Daryl, 9 Nov)
+    if os.path.exists(vp):
+        data["void"] = json.load(open(vp)).get("reason", "")
     sp = os.path.join(rdir, "scores.json")
     if os.path.exists(sp):
         s = json.load(open(sp))
