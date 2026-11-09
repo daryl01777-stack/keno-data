@@ -1,0 +1,25 @@
+{
+ "round": "R058",
+ "ticket": [
+  57,
+  48,
+  63,
+  67
+ ],
+ "frozen_utc": "2026-11-09T21:46:08Z",
+ "idea": "Build group leader: Streakers",
+ "method": "aibuilds.leader",
+ "signals": {
+  "favour": [
+   "Not in last game",
+   "Rising",
+   "Just drawn"
+  ],
+  "against": [
+   "Hot last 3",
+   "Surge",
+   "Hot last 10"
+  ]
+ },
+ "why": "Streakers leads the 23 builds on 141 points; its K4 is Hot last 10's top 4 (48 57 63 67, in Streakers order 57 48 63 67). Signals favour Not in last game, Rising and Just drawn this round and lean against Hot last 3, Surge and Hot last 10."
+}
