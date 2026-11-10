@@ -1,0 +1,25 @@
+{
+ "round": "R062",
+ "ticket": [
+  19,
+  10,
+  6,
+  50
+ ],
+ "frozen_utc": "2026-11-10T22:38:12Z",
+ "idea": "Holistic",
+ "signals": {
+  "favour": [
+   "Surge",
+   "Hot last 10",
+   "Hot last 3",
+   "Rising",
+   "Overdue",
+   "Just drawn"
+  ],
+  "against": [
+   "Not in last game"
+  ]
+ },
+ "why": "Surge and Hot last 10 each have three signals leaning their way, the strongest lean yet. 19 is #1 on both and in 13 build K4s; 10 is Surge #2, Just drawn #1 and in 14 build K4s; 6 is Hot last 10 #2 and Hot last 3 #2; 50 is on Surge, Rising and Just drawn, all favoured. Not in last game leans against, so 18 and 15 are left out despite being popular."
+}
