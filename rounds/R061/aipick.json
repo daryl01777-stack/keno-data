@@ -1,0 +1,26 @@
+{
+ "round": "R061",
+ "ticket": [
+  18,
+  16,
+  20,
+  1
+ ],
+ "frozen_utc": "2026-11-10T20:10:34Z",
+ "idea": "Holistic",
+ "signals": {
+  "favour": [
+   "Not in last game",
+   "Pair cluster",
+   "Surge",
+   "Rising",
+   "Overdue",
+   "Hot last 3"
+  ],
+  "against": [
+   "Just drawn",
+   "Hot last 10"
+  ]
+ },
+ "why": "First holistic AI pick. Not in last game and Pair cluster have two signals each leaning their way, so their tops lead: 16 (#1 Not in last game, #1 Hot), 1 (#1 Pair cluster, #2 Not in last game) and 20 (on both, plus Surge and Hot). 18 is Surge's #1 (on a roll, signals lean its way), #2 on Hot and in 12 of 23 build K4s. 15 left out because Hot last 10 leans against."
+}
