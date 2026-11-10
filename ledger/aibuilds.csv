@@ -112,3 +112,26 @@ R060,Pair-only,bust,92,bust,-20,
 R060,Track record,bust,106,bust,-20,
 R060,Last-3 skip,bust,115,bust,-20,
 R060,Signal board,bust,121,bust,-20,
+R061,Momentum,survive,127,bust,-20,
+R061,Cluster,survive,115,timed out,-13,
+R061,Streakers,win,143,bust,-20,K6 K8 K10
+R061,All-rounders,win,133,bust,-20,K6
+R061,Proven quartet,survive,121,bust,-20,
+R061,Rising tide,bust,125,bust,-20,
+R061,Cold awakening,bust,109,bust,-20,
+R061,Spring-loaded,win,101,big win 4/4,124,K4 K5 K6 K7 K8 K10
+R061,Fresh off the press,win,135,big win 4/4,111,K4 K8 K9 K10
+R061,Short-clock crew,survive,135,bust,-20,
+R061,The other pond,win,129,big win 4/4,119,K4 K5 K6
+R061,Engine room,win,121,timed out,-11,K6
+R061,Near-miss leaders,win,133,timed out,-11,K6 K7 K8
+R061,Barbell,win,127,big win 4/4,120,K4 K5 K6 K8
+R061,Head count,win,119,big win 4/4,120,K4 K6 K7 K8
+R061,Rhythm,survive,123,bust,-20,
+R061,Board shape,win,119,big win 4/4,114,K4 K6
+R061,Winner echo,bust,123,bust,-20,
+R061,Odd one out,bust,125,bust,-20,
+R061,Pair-only,win,97,big win 4/4,115,K4 K5 K6
+R061,Track record,survive,107,timed out,-16,
+R061,Last-3 skip,bust,114,bust,-20,
+R061,Signal board,win,126,timed out,-17,K10
