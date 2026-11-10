@@ -1,0 +1,24 @@
+{
+ "round": "R059",
+ "ticket": [
+  3,
+  76,
+  5,
+  45
+ ],
+ "frozen_utc": "2026-11-10T04:53:59Z",
+ "idea": "Build group leader: Streakers",
+ "method": "aibuilds.leader",
+ "signals": {
+  "favour": [
+   "Surge",
+   "Pair cluster",
+   "Just drawn"
+  ],
+  "against": [
+   "Hot last 3",
+   "Rising"
+  ]
+ },
+ "why": "Streakers leads the 23 builds on 140 points: 3 76 5 45. Signals favour Surge (on a roll), Pair cluster and Just drawn this round and lean against Hot last 3 and Rising."
+}
