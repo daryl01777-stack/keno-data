@@ -255,7 +255,9 @@ function aiHeat(){
   $("aiheat").onclick = e => { const td = e.target.closest("td[data-k]"); if (!td) return; const c = cell[td.dataset.k][td.dataset.z];
     $("aiheatdetail").innerHTML = `<b>${td.dataset.k} · K${td.dataset.z}</b>, ${c.hits} of ${c.runs.length} rounds: ` + c.runs.map(([r,x]) => c.ai
       ? `round ${+r.slice(1)} ${x.end.startsWith("big win") ? `<b class="up">${x.end}</b>` : x.end} <b class="${cls(x.net)}">${money(x.net)}</b>`
-      : `round ${+r.slice(1)} ${(x.wins||"").split(" ").includes("K"+c.z) ? `<b class="up">win</b>` : "no win"}`).join(", "); };
+      : (() => { const b = ALL[r].builds[td.dataset.k], y = b.rp ? b.rp[c.z] : null;
+          return y ? `round ${+r.slice(1)} ${y.end.startsWith("big win") ? `<b class="up">${y.end}</b>` : y.end} <b class="${cls(y.net)}">${money(y.net)}</b>`
+                   : `round ${+r.slice(1)} ${(x.wins||"").split(" ").includes("K"+c.z) ? `<b class="up">win</b>` : "no win"}`; })()).join(", "); };
 }
 function aiRender(){
   const A = D.ai; $("aisec").hidden = !A; if (!A) return;

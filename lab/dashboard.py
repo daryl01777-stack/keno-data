@@ -47,6 +47,15 @@ def round_data(rid):
         bl = os.path.join(ROOT, "ledger", "aibuilds.csv")
         res = {r["build"]: r for r in csv.DictReader(open(bl)) if r["round"] == rid} if os.path.exists(bl) else {}
         data["builds"] = {n: {"t": t, "res": res.get(n)} for n, t in json.load(open(bp))["builds"].items()}
+        if os.path.exists(os.path.join(rdir, "scores.json")) and res:   # per-size replay for the AI heatmap detail
+            import aipick, replay as rpl
+            pay_ = rpl.paytable(); first_ = json.load(open(os.path.join(rdir, "scores.json")))["test_games"][0]
+            for n, b in data["builds"].items():
+                b["rp"] = {}
+                for k in range(4, 11):
+                    h, _ = aipick.hits(int(rid[1:]), b["t"][:k])
+                    x = rpl.replay(k, h, [pay_[k].get(c, 0) for c in h], first_)
+                    b["rp"][k] = {"end": x["end"], "net": x["net"]}
     vp = os.path.join(rdir, "void.json")           # void round: results never became available (Daryl, 9 Nov)
     if os.path.exists(vp):
         data["void"] = json.load(open(vp)).get("reason", "")
