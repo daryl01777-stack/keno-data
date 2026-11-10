@@ -8,5 +8,17 @@
  ],
  "frozen_utc": "2026-11-10T04:53:59Z",
  "idea": "Holistic",
- "why": "48 is #1 for Just drawn and Pair cluster (both favoured by the signals), Persistence, Hot and Pairs with last game, and in 12 of 23 build K4s. 3 is in 11 build K4s and #2 for Surge, Just drawn and Hot. 76 is #1 for Surge, on a roll with signals leaning its way. 80 is Pair cluster's #2 and on Hot and Not in last game; 5 was left out because Hot last 3 and Rising lean against."
+ "why": "48 is #1 for Just drawn and Pair cluster (both favoured by the signals), Persistence, Hot and Pairs with last game, and in 12 of 23 build K4s. 3 is in 11 build K4s and #2 for Surge, Just drawn and Hot. 76 is #1 for Surge, on a roll with signals leaning its way. 80 is Pair cluster's #2 and on Hot and Not in last game; 5 was left out because Hot last 3 and Rising lean against.",
+ "result": {
+  "end": "bust",
+  "net": -20,
+  "best": 3,
+  "games_3plus": 1,
+  "draws": {
+   "48": 10,
+   "3": 11,
+   "76": 11,
+   "80": 4
+  }
+ }
 }
