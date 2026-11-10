@@ -11,29 +11,29 @@
   }
  },
  "points": {
-  "All-rounders": 131,
-  "Barbell": 123,
-  "Board shape": 109,
-  "Cluster": 115,
-  "Cold awakening": 109,
-  "Engine room": 119,
-  "Fresh off the press": 133,
-  "Head count": 117,
-  "Last-3 skip": 118,
-  "Momentum": 125,
-  "Near-miss leaders": 129,
-  "Odd one out": 129,
-  "Pair-only": 95,
-  "Proven quartet": 123,
-  "Rhythm": 121,
-  "Rising tide": 117,
-  "Short-clock crew": 135,
-  "Signal board": 118,
-  "Spring-loaded": 99,
-  "Streakers": 141,
-  "The other pond": 127,
-  "Track record": 103,
-  "Winner echo": 121
+  "All-rounders": 130,
+  "Barbell": 122,
+  "Board shape": 108,
+  "Cluster": 114,
+  "Cold awakening": 110,
+  "Engine room": 118,
+  "Fresh off the press": 132,
+  "Head count": 116,
+  "Last-3 skip": 117,
+  "Momentum": 126,
+  "Near-miss leaders": 128,
+  "Odd one out": 128,
+  "Pair-only": 94,
+  "Proven quartet": 122,
+  "Rhythm": 122,
+  "Rising tide": 122,
+  "Short-clock crew": 134,
+  "Signal board": 123,
+  "Spring-loaded": 98,
+  "Streakers": 140,
+  "The other pond": 126,
+  "Track record": 108,
+  "Winner echo": 120
  },
  "rounds": [
   "R018",
@@ -74,30 +74,31 @@
   "R053",
   "R054",
   "R055",
-  "R056"
+  "R056",
+  "R058"
  ],
  "start_round": "R018",
  "tally": {
   "All-rounders": {
-   "bust": 20,
+   "bust": 21,
    "k4": 3,
    "survive": 11,
    "win": 8
   },
   "Barbell": {
-   "bust": 22,
+   "bust": 23,
    "k4": 1,
    "survive": 10,
    "win": 7
   },
   "Board shape": {
-   "bust": 25,
+   "bust": 26,
    "k4": 3,
    "survive": 9,
    "win": 5
   },
   "Cluster": {
-   "bust": 24,
+   "bust": 25,
    "k4": 3,
    "survive": 9,
    "win": 6
@@ -105,57 +106,57 @@
   "Cold awakening": {
    "bust": 25,
    "k4": 2,
-   "survive": 9,
+   "survive": 10,
    "win": 5
   },
   "Engine room": {
-   "bust": 24,
+   "bust": 25,
    "k4": 5,
    "survive": 8,
    "win": 7
   },
   "Fresh off the press": {
-   "bust": 21,
+   "bust": 22,
    "k4": 4,
    "survive": 9,
    "win": 9
   },
   "Head count": {
-   "bust": 23,
+   "bust": 24,
    "k4": 3,
    "survive": 10,
    "win": 6
   },
   "Last-3 skip": {
-   "bust": 1,
+   "bust": 2,
    "k4": 0
   },
   "Momentum": {
    "bust": 23,
    "k4": 6,
-   "survive": 8,
+   "survive": 9,
    "win": 8
   },
   "Near-miss leaders": {
-   "bust": 23,
+   "bust": 24,
    "k4": 4,
    "survive": 7,
    "win": 9
   },
   "Odd one out": {
-   "bust": 21,
+   "bust": 22,
    "k4": 5,
    "survive": 10,
    "win": 8
   },
   "Pair-only": {
-   "bust": 26,
+   "bust": 27,
    "k4": 2,
    "survive": 11,
    "win": 2
   },
   "Proven quartet": {
-   "bust": 24,
+   "bust": 25,
    "k4": 6,
    "survive": 7,
    "win": 8
@@ -163,79 +164,80 @@
   "Rhythm": {
    "bust": 23,
    "k4": 4,
-   "survive": 9,
+   "survive": 10,
    "win": 7
   },
   "Rising tide": {
    "bust": 23,
-   "k4": 2,
+   "k4": 3,
    "survive": 10,
-   "win": 6
+   "win": 7
   },
   "Short-clock crew": {
-   "bust": 22,
+   "bust": 23,
    "k4": 6,
    "survive": 7,
    "win": 10
   },
   "Signal board": {
    "bust": 1,
-   "k4": 0
+   "k4": 1,
+   "win": 1
   },
   "Spring-loaded": {
-   "bust": 26,
+   "bust": 27,
    "k4": 2,
    "survive": 10,
    "win": 3
   },
   "Streakers": {
-   "bust": 23,
+   "bust": 24,
    "k4": 6,
    "survive": 4,
    "win": 12
   },
   "The other pond": {
-   "bust": 20,
+   "bust": 21,
    "k4": 7,
    "survive": 12,
    "win": 7
   },
   "Track record": {
    "bust": 28,
-   "k4": 1,
+   "k4": 2,
    "survive": 6,
-   "win": 5
+   "win": 6
   },
   "Winner echo": {
-   "bust": 23,
+   "bust": 24,
    "k4": 3,
    "survive": 9,
    "win": 7
   }
  },
  "weights": {
-  "All-rounders": 0.047515,
-  "Barbell": 0.044614,
-  "Board shape": 0.039536,
-  "Cluster": 0.041712,
-  "Cold awakening": 0.039536,
-  "Engine room": 0.043163,
-  "Fresh off the press": 0.048241,
-  "Head count": 0.042437,
-  "Last-3 skip": 0.0428,
-  "Momentum": 0.045339,
-  "Near-miss leaders": 0.04679,
-  "Odd one out": 0.04679,
-  "Pair-only": 0.034458,
-  "Proven quartet": 0.044614,
-  "Rhythm": 0.043888,
-  "Rising tide": 0.042437,
-  "Short-clock crew": 0.048966,
-  "Signal board": 0.0428,
-  "Spring-loaded": 0.035909,
-  "Streakers": 0.051143,
-  "The other pond": 0.046065,
-  "Track record": 0.037359,
-  "Winner echo": 0.043888
+  "All-rounders": 0.047136,
+  "Barbell": 0.044235,
+  "Board shape": 0.039159,
+  "Cluster": 0.041334,
+  "Cold awakening": 0.039884,
+  "Engine room": 0.042785,
+  "Fresh off the press": 0.047861,
+  "Head count": 0.042059,
+  "Last-3 skip": 0.042422,
+  "Momentum": 0.045685,
+  "Near-miss leaders": 0.04641,
+  "Odd one out": 0.04641,
+  "Pair-only": 0.034083,
+  "Proven quartet": 0.044235,
+  "Rhythm": 0.044235,
+  "Rising tide": 0.044235,
+  "Short-clock crew": 0.048586,
+  "Signal board": 0.044598,
+  "Spring-loaded": 0.035533,
+  "Streakers": 0.050761,
+  "The other pond": 0.045685,
+  "Track record": 0.039159,
+  "Winner echo": 0.04351
  }
 }
