@@ -24,6 +24,8 @@ body{background:var(--bg);color:var(--fg);font:15px/1.5 var(--body)}
 header{display:flex;flex-wrap:wrap;align-items:center;gap:12px}
 h1{font:800 clamp(26px,5vw,36px)/1.1 var(--display);margin:0;text-wrap:balance}
 h2{font:600 18px/1.2 var(--display);margin:0}
+.roundpick{display:inline-flex;gap:8px;align-items:center;margin-top:10px}
+.roundpick select{font:inherit;font-size:14px;padding:6px 10px;border-radius:10px;border:1px solid var(--line, #8884);background:var(--surface);color:inherit}
 .pill{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 10px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
 .sub{color:var(--muted);margin:0;flex-basis:100%}
 .tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
@@ -77,7 +79,7 @@ td,th{padding:4px 6px;white-space:nowrap;border-bottom:1px solid var(--line);tex
   <header>
     <h1 id="h1">Keno lab</h1><span class="pill" id="status"></span>
     <p class="sub" id="subline"></p>
-    <div class="group" id="rounds" role="group" aria-label="Round"><span class="lbl" style="align-self:center">Round</span></div>
+    <label class="roundpick"><span class="lbl">Round</span> <select id="rounds" aria-label="Round"></select></label>
   </header>
 
   <section class="tiles">
@@ -121,6 +123,13 @@ td,th{padding:4px 6px;white-space:nowrap;border-bottom:1px solid var(--line);tex
     <h2>AI builds</h2>
     <p class="note" id="buildnote"></p>
     <div class="scroll"><table id="builds" class="heat"></table></div>
+  </section>
+
+  <section class="panel" id="aiheatpanel" hidden>
+    <h2>AI cutoff wins by build and size</h2>
+    <p class="note" id="aiheatnote"></p>
+    <div class="scroll"><table id="aiheat" class="heat"></table></div>
+    <p class="note" id="aiheatdetail">Tap a cell to see the round-by-round results behind it.</p>
   </section>
 
   <section class="panel">
@@ -208,7 +217,7 @@ function render(){
       ${D.ideal[k] ? `<div class="meta"><span>Best size so far <b>K${D.ideal[k].size}</b> (underlined; ${idealTxt(D.ideal[k])})</span></div>` : ""}
       ${res(k, cs)}
     </article>`}).join("");
-  heatmap(); buildsRender();
+  heatmap(); buildsRender(); aiHeat();
   document.querySelectorAll("#cats button").forEach(b=>b.setAttribute("aria-pressed", b.dataset.v===cat));
   document.querySelectorAll("#sizes button").forEach(b=>{b.setAttribute("aria-pressed", +b.dataset.v===size); b.classList.toggle("best", +b.dataset.v===PS);});
 }
@@ -220,6 +229,33 @@ function buildsRender(){
   $("buildnote").textContent = `The AI pick ideas as fixed rules, all played every round as their own points group (outside the main weights and Agreement): +5 for a round with a cutoff win on any of K4-K10, +1 if no win but a ticket lasted to game 40, -1 if every ticket busted. Points carry each build's replay over rounds 18-54; live from round 55. The leader's K4 is the AI pick.${D.build_pts_after ? " Points after this round." : " Points going into this round."}`;
   $("builds").innerHTML = `<tr><th>Build</th><th>K4</th><th>Pts</th>${S ? "<th>Round</th><th>Wins</th>" : ""}</tr>` +
     names.map((n,i) => { const r = B[n].res; return `<tr><td>${i===0?"<b>":""}${n}${i===0?"</b>":""}</td><td>${B[n].t.slice(0,4).join(" ")}</td><td>${pts[n]??""}</td>${S ? `<td>${r ? tag(r.outcome) : ""}</td><td>${r ? r.wins : ""}</td>` : ""}</tr>`; }).join("");
+}
+function aiHeat(){
+  // AI builds live from round 55, plus the AI pick (K4 only) (Daryl, 11 Nov)
+  const upto = IDS.filter(r => r <= D.round && ALL[r].builds && ALL[r].scores && Object.values(ALL[r].builds).some(b => b.res));
+  $("aiheatpanel").hidden = !upto.length; if (!upto.length) return;
+  const sizes = [4,5,6,7,8,9,10], cell = {}, pts = D.build_pts_after || D.build_pts || {};
+  const names = Object.keys(D.builds || ALL[upto[upto.length-1]].builds).sort((a,b) => (pts[b]||0) - (pts[a]||0));
+  names.forEach(n => { cell[n] = {}; sizes.forEach(z => {
+    const runs = upto.filter(r => ALL[r].builds[n] && ALL[r].builds[n].res).map(r => [r, ALL[r].builds[n].res]);
+    cell[n][z] = runs.length ? {hits: runs.filter(([,x]) => (x.wins||"").split(" ").includes("K"+z)).length, runs, z} : null; }); });
+  const ai = IDS.filter(r => r <= D.round && r >= "R040" && ALL[r].ai && ALL[r].ai.result).map(r => [r, ALL[r].ai.result]);
+  const rate = c => c.hits / c.runs.length;
+  const max = Math.max(0.01, ...names.flatMap(n => sizes.map(z => cell[n][z] ? rate(cell[n][z]) : 0)));
+  const shade = h => h ? `background:color-mix(in srgb, var(--good) ${Math.round(15 + 55*h/max)}%, transparent)` : "";
+  const pct = x => `${Math.round(x*100)}`;
+  $("aiheatnote").textContent = `Percentage of live rounds (from round ${+upto[0].slice(1)}, when the builds went live) in which each build's ticket reached the take-win cutoff, rounds ${+upto[0].slice(1)}-${+upto[upto.length-1].slice(1)}. Rows are ordered by build points. The AI pick row is K4 only and counts every AI pick from round 40. With this few rounds a percentage swings a lot. The bottom row is chance per round.`;
+  let aiRow = "";
+  if (ai.length) { const c = {hits: ai.filter(([,x]) => x.end.startsWith("big win")).length, runs: ai, z: 4, ai: true}; cell["AI pick"] = {4: c};
+    aiRow = `<tr><td><b>AI pick</b></td><td class="hc" style="${shade(rate(c))}" data-k="AI pick" data-z="4" title="${c.hits} of ${ai.length} rounds">${pct(rate(c))}</td>${sizes.slice(1).map(()=>"<td>–</td>").join("")}<td>${ai.length}</td></tr>`; }
+  $("aiheat").innerHTML = `<tr><th>Build</th>${sizes.map(z=>`<th>K${z}</th>`).join("")}<th>Rds</th></tr>` + aiRow +
+    names.map(n => `<tr><td>${n}</td>${sizes.map(z => { const c = cell[n][z];
+      return c ? `<td class="hc" style="${shade(rate(c))}" data-k="${n}" data-z="${z}" title="${c.hits} of ${c.runs.length} rounds">${pct(rate(c))}</td>` : "<td>–</td>"; }).join("")}<td>${cell[n][4] ? cell[n][4].runs.length : 0}</td></tr>`).join("") +
+    `<tr><td>Chance per round</td>${sizes.map(z=>`<td>${Math.round(CH.chance[z]*100)}%</td>`).join("")}<td></td></tr>`;
+  $("aiheat").onclick = e => { const td = e.target.closest("td[data-k]"); if (!td) return; const c = cell[td.dataset.k][td.dataset.z];
+    $("aiheatdetail").innerHTML = `<b>${td.dataset.k} · K${td.dataset.z}</b>, ${c.hits} of ${c.runs.length} rounds: ` + c.runs.map(([r,x]) => c.ai
+      ? `round ${+r.slice(1)} ${x.end.startsWith("big win") ? `<b class="up">${x.end}</b>` : x.end} <b class="${cls(x.net)}">${money(x.net)}</b>`
+      : `round ${+r.slice(1)} ${(x.wins||"").split(" ").includes("K"+c.z) ? `<b class="up">win</b>` : "no win"}`).join(", "); };
 }
 function aiRender(){
   const A = D.ai; $("aisec").hidden = !A; if (!A) return;
@@ -243,7 +279,8 @@ $("copy").onclick = async () => {
   setTimeout(()=>$("copy").textContent="Copy numbers",1500);
 };
 for(let s=4;s<=10;s++){const b=document.createElement("button");b.type="button";b.textContent="K"+s;b.dataset.v=s;b.onclick=()=>{size=s;render()};$("sizes").append(b)}
-IDS.forEach(r=>{const b=document.createElement("button");b.type="button";b.textContent=+r.slice(1);b.dataset.v=r;b.onclick=()=>{try{history.replaceState(null,"","#"+r)}catch{};show(r)};$("rounds").append(b)});
+[...IDS].reverse().forEach(r=>{const o=document.createElement("option");o.value=r;o.textContent=`Round ${+r.slice(1)}${ALL[r].void?" (void)":ALL[r].scores?"":" (pending)"}`;$("rounds").append(o)});
+$("rounds").onchange=e=>{const r=e.target.value;try{history.replaceState(null,"","#"+r)}catch{};show(r)};
 function show(rid){
 D = ALL[rid]; N = +D.round.slice(1); S = D.scores; CS = {};
 const B = D.policies["Agreement"] ? "Agreement" : "Weighted blend"; PS = D.ideal[B] ? D.ideal[B].size : 0; PP = PS ? B : "Anomaly composite"; size = PS || D.primary;
@@ -253,7 +290,7 @@ const wNow = k => { const w = S && S[k] && S[k].adv !== "" ? S[k].w : D.weights[
 ORDER = ALLP.filter(k=>D.policies[k]).sort((a,b)=>wNow(b)-wNow(a));
 maxW = Math.max(...Object.values(D.weights));
 if (!["All", ...ORDER.map(k=>CAT[k])].includes(cat)) cat = "All";
-document.querySelectorAll("#rounds button").forEach(b=>b.setAttribute("aria-pressed", b.dataset.v===rid));
+$("rounds").value = rid;
 $("subline").textContent = `Frozen ${bneDate(D.frozen)}, ${bne(D.frozen.slice(11))} Brisbane time. Trained on games ${D.train[0]}-${D.train[1]}, tested on games ${D.test[0]}-${D.test[1]} (expected ${bne(D.close[0])} to ${bne(D.close[1])}).`;
 $("h1").textContent = `Keno lab · Round ${N}`;
 $("status").textContent = S ? "Scored" : D.void ? "Void" : "Frozen · test pending";
