@@ -1,0 +1,24 @@
+{
+ "round": "R060",
+ "ticket": [
+  34,
+  48,
+  61,
+  71
+ ],
+ "frozen_utc": "2026-11-10T09:14:35Z",
+ "idea": "Build group leader: Streakers",
+ "method": "aibuilds.leader",
+ "signals": {
+  "favour": [
+   "Hot last 3",
+   "Hot last 10",
+   "Not in last game",
+   "Rising",
+   "Pair cluster",
+   "Overdue"
+  ],
+  "against": []
+ },
+ "why": "Streakers leads the 23 builds on 139 points: 34 48 61 71. Signals lean most toward Hot last 3 and Hot last 10 (2 each), then Not in last game, Rising, Pair cluster and Overdue; Surge is mixed."
+}
