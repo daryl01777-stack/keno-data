@@ -1,5 +1,5 @@
 {
- "picks": 30,
+ "picks": 31,
  "by_kind": {
   "free-form": {
    "picks": 15,
@@ -23,11 +23,11 @@
    "near_misses_per_pick": 3.25
   },
   "holistic": {
-   "picks": 6,
+   "picks": 7,
    "wins": 2,
-   "net": 100,
-   "hit_rate": 27.43,
-   "near_misses_per_pick": 2.5
+   "net": 80,
+   "hit_rate": 26.43,
+   "near_misses_per_pick": 2.29
   }
  },
  "by_recipe": {
@@ -165,10 +165,10 @@
    "near_misses_per_pick": 2.5
   },
   "signal anchor + spread": {
-   "picks": 2,
+   "picks": 3,
    "wins": 1,
-   "net": 33,
-   "hit_rate": 23.95,
+   "net": 13,
+   "hit_rate": 22.77,
    "near_misses_per_pick": 1.0
   }
  },
@@ -181,18 +181,18 @@
    "near_misses_per_pick": 2.22
   },
   "6": {
-   "picks": 3,
+   "picks": 4,
    "wins": 1,
-   "net": 13,
-   "hit_rate": 23.6,
-   "near_misses_per_pick": 0.67
+   "net": -7,
+   "hit_rate": 22.8,
+   "near_misses_per_pick": 0.75
   }
  },
  "numbers_by_source_policy": {
   "Neighbours of last game": {
-   "numbers": 6,
-   "avg_draws": 11.5,
-   "hit_rate": 28.75
+   "numbers": 7,
+   "avg_draws": 11.14,
+   "hit_rate": 27.86
   },
   "Cold": {
    "numbers": 7,
@@ -200,39 +200,39 @@
    "hit_rate": 26.07
   },
   "Just drawn": {
-   "numbers": 48,
-   "avg_draws": 10.29,
-   "hit_rate": 25.73
-  },
-  "Hot last 3": {
-   "numbers": 38,
-   "avg_draws": 10.26,
-   "hit_rate": 25.66
+   "numbers": 50,
+   "avg_draws": 10.18,
+   "hit_rate": 25.45
   },
   "Hot": {
-   "numbers": 62,
-   "avg_draws": 10.13,
-   "hit_rate": 25.32
+   "numbers": 63,
+   "avg_draws": 10.08,
+   "hit_rate": 25.2
+  },
+  "Hot last 3": {
+   "numbers": 43,
+   "avg_draws": 10.05,
+   "hit_rate": 25.12
   },
   "Pairs with last game": {
-   "numbers": 57,
-   "avg_draws": 10.07,
-   "hit_rate": 25.18
+   "numbers": 59,
+   "avg_draws": 9.98,
+   "hit_rate": 24.96
   },
   "Surge": {
-   "numbers": 69,
-   "avg_draws": 10.01,
-   "hit_rate": 25.04
-  },
-  "Not in last game": {
-   "numbers": 33,
-   "avg_draws": 9.91,
-   "hit_rate": 24.77
+   "numbers": 73,
+   "avg_draws": 9.88,
+   "hit_rate": 24.69
   },
   "Hot last 10": {
-   "numbers": 65,
-   "avg_draws": 9.89,
-   "hit_rate": 24.73
+   "numbers": 67,
+   "avg_draws": 9.78,
+   "hit_rate": 24.44
+  },
+  "Not in last game": {
+   "numbers": 34,
+   "avg_draws": 9.76,
+   "hit_rate": 24.41
   },
   "Rising": {
    "numbers": 26,
@@ -245,9 +245,9 @@
    "hit_rate": 23.87
   },
   "Pair cluster": {
-   "numbers": 48,
-   "avg_draws": 9.5,
-   "hit_rate": 23.75
+   "numbers": 49,
+   "avg_draws": 9.45,
+   "hit_rate": 23.62
   },
   "Overdue": {
    "numbers": 4,
@@ -257,14 +257,14 @@
  },
  "numbers_by_policies_backing": {
   "3+": {
-   "numbers": 88,
-   "avg_draws": 10.02,
-   "hit_rate": 25.06
+   "numbers": 91,
+   "avg_draws": 9.91,
+   "hit_rate": 24.78
   },
   "1": {
-   "numbers": 19,
-   "avg_draws": 9.74,
-   "hit_rate": 24.34
+   "numbers": 20,
+   "avg_draws": 9.75,
+   "hit_rate": 24.38
   },
   "0": {
    "numbers": 3,
@@ -272,9 +272,9 @@
    "hit_rate": 22.5
   },
   "2": {
-   "numbers": 16,
-   "avg_draws": 8.88,
-   "hit_rate": 22.19
+   "numbers": 18,
+   "avg_draws": 8.94,
+   "hit_rate": 22.36
   }
  },
  "numbers_by_builds_backing": {
@@ -284,26 +284,26 @@
    "hit_rate": 26.35
   },
   "13+": {
-   "numbers": 16,
-   "avg_draws": 10.44,
-   "hit_rate": 26.09
+   "numbers": 18,
+   "avg_draws": 9.94,
+   "hit_rate": 24.86
   },
   "3-6": {
-   "numbers": 18,
-   "avg_draws": 9.89,
-   "hit_rate": 24.72
+   "numbers": 20,
+   "avg_draws": 9.8,
+   "hit_rate": 24.5
   },
   "0-2": {
-   "numbers": 6,
-   "avg_draws": 9.33,
-   "hit_rate": 23.33
+   "numbers": 8,
+   "avg_draws": 9.38,
+   "hit_rate": 23.44
   }
  },
  "numbers_by_signal_lean": {
   "backed by a favoured policy": {
-   "numbers": 41,
-   "avg_draws": 10.63,
-   "hit_rate": 26.59
+   "numbers": 47,
+   "avg_draws": 10.32,
+   "hit_rate": 25.8
   },
   "no signal either way": {
    "numbers": 2,
