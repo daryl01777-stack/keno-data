@@ -1,5 +1,5 @@
 {
- "picks": 29,
+ "picks": 30,
  "by_kind": {
   "free-form": {
    "picks": 15,
@@ -23,11 +23,11 @@
    "near_misses_per_pick": 3.25
   },
   "holistic": {
-   "picks": 5,
+   "picks": 6,
    "wins": 2,
-   "net": 120,
-   "hit_rate": 28.34,
-   "near_misses_per_pick": 2.8
+   "net": 100,
+   "hit_rate": 27.43,
+   "near_misses_per_pick": 2.5
   }
  },
  "by_recipe": {
@@ -165,10 +165,10 @@
    "near_misses_per_pick": 2.5
   },
   "signal anchor + spread": {
-   "picks": 1,
+   "picks": 2,
    "wins": 1,
-   "net": 53,
-   "hit_rate": 25.0,
+   "net": 33,
+   "hit_rate": 23.95,
    "near_misses_per_pick": 1.0
   }
  },
@@ -181,11 +181,11 @@
    "near_misses_per_pick": 2.22
   },
   "6": {
-   "picks": 2,
+   "picks": 3,
    "wins": 1,
-   "net": 33,
-   "hit_rate": 23.95,
-   "near_misses_per_pick": 0.5
+   "net": 13,
+   "hit_rate": 23.6,
+   "near_misses_per_pick": 0.67
   }
  },
  "numbers_by_source_policy": {
@@ -195,59 +195,59 @@
    "hit_rate": 28.75
   },
   "Cold": {
-   "numbers": 6,
-   "avg_draws": 10.67,
-   "hit_rate": 26.67
+   "numbers": 7,
+   "avg_draws": 10.43,
+   "hit_rate": 26.07
   },
   "Just drawn": {
-   "numbers": 45,
-   "avg_draws": 10.42,
-   "hit_rate": 26.06
+   "numbers": 48,
+   "avg_draws": 10.29,
+   "hit_rate": 25.73
   },
   "Hot last 3": {
-   "numbers": 37,
-   "avg_draws": 10.35,
-   "hit_rate": 25.88
+   "numbers": 38,
+   "avg_draws": 10.26,
+   "hit_rate": 25.66
   },
   "Hot": {
-   "numbers": 61,
-   "avg_draws": 10.18,
-   "hit_rate": 25.45
+   "numbers": 62,
+   "avg_draws": 10.13,
+   "hit_rate": 25.32
   },
   "Pairs with last game": {
-   "numbers": 55,
-   "avg_draws": 10.15,
-   "hit_rate": 25.36
+   "numbers": 57,
+   "avg_draws": 10.07,
+   "hit_rate": 25.18
   },
   "Surge": {
-   "numbers": 64,
-   "avg_draws": 10.08,
-   "hit_rate": 25.2
-  },
-  "Hot last 10": {
-   "numbers": 63,
-   "avg_draws": 9.95,
-   "hit_rate": 24.88
+   "numbers": 69,
+   "avg_draws": 10.01,
+   "hit_rate": 25.04
   },
   "Not in last game": {
    "numbers": 33,
    "avg_draws": 9.91,
    "hit_rate": 24.77
   },
+  "Hot last 10": {
+   "numbers": 65,
+   "avg_draws": 9.89,
+   "hit_rate": 24.73
+  },
   "Rising": {
-   "numbers": 24,
-   "avg_draws": 9.79,
-   "hit_rate": 24.48
+   "numbers": 26,
+   "avg_draws": 9.65,
+   "hit_rate": 24.13
   },
   "Persistence": {
-   "numbers": 30,
-   "avg_draws": 9.63,
-   "hit_rate": 24.08
+   "numbers": 31,
+   "avg_draws": 9.55,
+   "hit_rate": 23.87
   },
   "Pair cluster": {
-   "numbers": 47,
-   "avg_draws": 9.55,
-   "hit_rate": 23.88
+   "numbers": 48,
+   "avg_draws": 9.5,
+   "hit_rate": 23.75
   },
   "Overdue": {
    "numbers": 4,
@@ -257,14 +257,14 @@
  },
  "numbers_by_policies_backing": {
   "3+": {
-   "numbers": 85,
-   "avg_draws": 10.11,
-   "hit_rate": 25.26
+   "numbers": 88,
+   "avg_draws": 10.02,
+   "hit_rate": 25.06
   },
   "1": {
-   "numbers": 18,
-   "avg_draws": 9.61,
-   "hit_rate": 24.03
+   "numbers": 19,
+   "avg_draws": 9.74,
+   "hit_rate": 24.34
   },
   "0": {
    "numbers": 3,
@@ -272,38 +272,38 @@
    "hit_rate": 22.5
   },
   "2": {
-   "numbers": 14,
-   "avg_draws": 8.71,
-   "hit_rate": 21.79
+   "numbers": 16,
+   "avg_draws": 8.88,
+   "hit_rate": 22.19
   }
  },
  "numbers_by_builds_backing": {
   "7-12": {
-   "numbers": 24,
-   "avg_draws": 10.75,
-   "hit_rate": 26.88
+   "numbers": 26,
+   "avg_draws": 10.54,
+   "hit_rate": 26.35
   },
   "13+": {
-   "numbers": 15,
-   "avg_draws": 10.67,
-   "hit_rate": 26.67
+   "numbers": 16,
+   "avg_draws": 10.44,
+   "hit_rate": 26.09
   },
   "3-6": {
-   "numbers": 16,
-   "avg_draws": 9.81,
-   "hit_rate": 24.53
+   "numbers": 18,
+   "avg_draws": 9.89,
+   "hit_rate": 24.72
   },
   "0-2": {
-   "numbers": 5,
-   "avg_draws": 9.0,
-   "hit_rate": 22.5
+   "numbers": 6,
+   "avg_draws": 9.33,
+   "hit_rate": 23.33
   }
  },
  "numbers_by_signal_lean": {
   "backed by a favoured policy": {
-   "numbers": 35,
-   "avg_draws": 10.89,
-   "hit_rate": 27.21
+   "numbers": 41,
+   "avg_draws": 10.63,
+   "hit_rate": 26.59
   },
   "no signal either way": {
    "numbers": 2,
