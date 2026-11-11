@@ -225,17 +225,18 @@ function render(){
 function buildsRender(){
   const B = D.builds; $("buildpanel").hidden = !B; if (!B) return;
   const pts = D.build_pts_after || D.build_pts || {};
-  const names = Object.keys(B).sort((a,b) => (pts[b]||0) - (pts[a]||0) || Object.keys(B).indexOf(a) - Object.keys(B).indexOf(b));
+  const live = D.build_live || {};
+  const names = Object.keys(B).sort((a,b) => (live[b]||0) - (live[a]||0) || (pts[b]||0) - (pts[a]||0) || Object.keys(B).indexOf(a) - Object.keys(B).indexOf(b));
   const tag = o => o === "win" ? `<b class="up">win</b>` : o === "survive" ? "timed out" : o ? `<span class="down">bust</span>` : "";
-  $("buildnote").textContent = `The AI pick ideas as fixed rules, all played every round as their own points group (outside the main weights and Agreement): +5 for a round with a cutoff win on any of K4-K10, +1 if no win but a ticket lasted to game 40, -1 if every ticket busted. Points carry each build's replay over rounds 18-54; live from round 55. The leader's K4 is the AI pick.${D.build_pts_after ? " Points after this round." : " Points going into this round."}`;
-  $("builds").innerHTML = `<tr><th>Build</th><th>K4</th><th>Pts</th>${S ? "<th>Round</th><th>Wins</th>" : ""}</tr>` +
-    names.map((n,i) => { const r = B[n].res; return `<tr><td>${i===0?"<b>":""}${n}${i===0?"</b>":""}</td><td>${B[n].t.slice(0,4).join(" ")}</td><td>${pts[n]??""}</td>${S ? `<td>${r ? tag(r.outcome) : ""}</td><td>${r ? r.wins : ""}</td>` : ""}</tr>`; }).join("");
+  $("buildnote").textContent = `The AI pick ideas as fixed rules, all played every round as their own points group (outside the main weights and Agreement): +5 for a round with a cutoff win on any of K4-K10, +1 if no win but a ticket lasted to game 40, -1 if every ticket busted. Ordered by Live points: every build started on 100 when the builds went live at round 55, so only rounds a build never saw count (${D.build_live_n || 0} so far). The Replay column adds each build's hindsight replay over rounds 18-54, which flatters builds designed after those rounds.${D.build_pts_after ? " Points after this round." : " Points going into this round."}`;
+  $("builds").innerHTML = `<tr><th>Build</th><th>K4</th><th>Live</th><th>Replay</th>${S ? "<th>Round</th><th>Wins</th>" : ""}</tr>` +
+    names.map((n,i) => { const r = B[n].res; return `<tr><td>${i===0?"<b>":""}${n}${i===0?"</b>":""}</td><td>${B[n].t.slice(0,4).join(" ")}</td><td><b>${live[n]??""}</b></td><td>${pts[n]??""}</td>${S ? `<td>${r ? tag(r.outcome) : ""}</td><td>${r ? r.wins : ""}</td>` : ""}</tr>`; }).join("");
 }
 function aiHeat(){
   // AI builds live from round 55, plus the AI pick (K4 only) (Daryl, 11 Nov)
   const upto = IDS.filter(r => r <= D.round && ALL[r].builds && ALL[r].scores && Object.values(ALL[r].builds).some(b => b.res));
   $("aiheatpanel").hidden = !upto.length; if (!upto.length) return;
-  const sizes = [4,5,6,7,8,9,10], cell = {}, pts = D.build_pts_after || D.build_pts || {};
+  const sizes = [4,5,6,7,8,9,10], cell = {}, pts = D.build_live || D.build_pts_after || D.build_pts || {};
   const names = Object.keys(D.builds || ALL[upto[upto.length-1]].builds).sort((a,b) => (pts[b]||0) - (pts[a]||0));
   names.forEach(n => { cell[n] = {}; sizes.forEach(z => {
     const runs = upto.filter(r => ALL[r].builds[n] && ALL[r].builds[n].res).map(r => [r, ALL[r].builds[n].res]);
@@ -245,7 +246,7 @@ function aiHeat(){
   const max = Math.max(0.01, ...names.flatMap(n => sizes.map(z => cell[n][z] ? rate(cell[n][z]) : 0)));
   const shade = h => h ? `background:color-mix(in srgb, var(--good) ${Math.round(15 + 55*h/max)}%, transparent)` : "";
   const pct = x => `${Math.round(x*100)}`;
-  $("aiheatnote").textContent = `Percentage of live rounds (from round ${+upto[0].slice(1)}, when the builds went live) in which each build's ticket reached the take-win cutoff, rounds ${+upto[0].slice(1)}-${+upto[upto.length-1].slice(1)}. Rows are ordered by build points. The AI pick row counts every AI pick from round 40 at its own size: K4 to round 63, K6 from round 64. With this few rounds a percentage swings a lot. The bottom row is chance per round.`;
+  $("aiheatnote").textContent = `Percentage of live rounds (from round ${+upto[0].slice(1)}, when the builds went live) in which each build's ticket reached the take-win cutoff, rounds ${+upto[0].slice(1)}-${+upto[upto.length-1].slice(1)}. Rows are ordered by live build points. The AI pick row counts every AI pick from round 40 at its own size: K4 to round 63, K6 from round 64. With this few rounds a percentage swings a lot. The bottom row is chance per round.`;
   let aiRow = "";
   if (ai.length) { cell["AI pick"] = {};
     sizes.forEach(z => { const runs = ai.filter(([r]) => ALL[r].ai.ticket.length === z); if (runs.length) cell["AI pick"][z] = {hits: runs.filter(([,x]) => x.end.startsWith("big win")).length, runs, z, ai: true}; });

@@ -129,6 +129,10 @@ def main(rid, out_path):
                 prev = [r for r in sorted(after) if r < rid_]
                 d["build_pts"] = after[prev[-1]] if prev else base
                 d["build_pts_after"] = after.get(rid_)
+                # live-only standings (Daryl, 11 Nov): 100 at the first live round, same +5/+1/-1, no hindsight points
+                upto = rid_ if rid_ in after else (prev[-1] if prev else "")
+                d["build_live"] = {b: 100 + sum({"win": 5, "survive": 1, "bust": -1}[r["outcome"]] for r in rows if r["build"] == b and r["round"] <= upto) for b in d["builds"]}
+                d["build_live_n"] = len({r["round"] for r in rows if r["round"] <= upto})
     tpl = open(os.path.join(ROOT, "lab", "dashboard.tpl.html")).read()
     open(out_path, "w").write(tpl.replace("__DATA__", json.dumps(rounds))
                               .replace("__ODDS__", json.dumps({"odds": odds, "pay": pay, "sizes": sizes, "chance": {k: round(v, 4) for k, v in chance().items()}})))

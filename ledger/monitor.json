@@ -1,0 +1,325 @@
+{
+ "games": 9061,
+ "from": "2026-10-20T19:38:40Z",
+ "to": "2026-11-11T05:44:00Z",
+ "sims": 400,
+ "checks": [
+  {
+   "check": "Number frequency: spread across the 80 numbers",
+   "value": 50.6642,
+   "random_typical": 59.5599,
+   "random_low": 43.5763,
+   "random_high": 76.9189,
+   "p": 0.3142,
+   "flag": false
+  },
+  {
+   "check": "Number frequency: most drawn number",
+   "value": 2350.0,
+   "random_typical": 2364.0,
+   "random_low": 2337.975,
+   "random_high": 2407.0,
+   "p": 0.3791,
+   "flag": false
+  },
+  {
+   "check": "Number frequency: least drawn number",
+   "value": 2151.0,
+   "random_typical": 2167.0,
+   "random_low": 2127.975,
+   "random_high": 2192.0,
+   "p": 0.3392,
+   "flag": false
+  },
+  {
+   "check": "Low half (1-40) per game: average",
+   "value": 10.0038,
+   "random_typical": 10.0017,
+   "random_low": 9.96,
+   "random_high": 10.0386,
+   "p": 0.9027,
+   "flag": false
+  },
+  {
+   "check": "Low half (1-40) per game: spread",
+   "value": 1.9626,
+   "random_typical": 1.9481,
+   "random_low": 1.9189,
+   "random_high": 1.9742,
+   "p": 0.2993,
+   "flag": false
+  },
+  {
+   "check": "Odd numbers per game: average",
+   "value": 10.017,
+   "random_typical": 10.0029,
+   "random_low": 9.9618,
+   "random_high": 10.0413,
+   "p": 0.4589,
+   "flag": false
+  },
+  {
+   "check": "Board rows (tens): spread of row totals",
+   "value": 5.0569,
+   "random_typical": 5.0473,
+   "random_low": 1.4281,
+   "random_high": 11.6999,
+   "p": 1.0,
+   "flag": false
+  },
+  {
+   "check": "Board columns (last digit): spread of column totals",
+   "value": 7.4405,
+   "random_typical": 6.5166,
+   "random_low": 2.2209,
+   "random_high": 15.3629,
+   "p": 0.7631,
+   "flag": false
+  },
+  {
+   "check": "Draw order: spread of each number's average position",
+   "value": 1533.985,
+   "random_typical": 2606.6056,
+   "random_low": 1914.0436,
+   "random_high": 3496.7511,
+   "p": 0.01,
+   "flag": true
+  },
+  {
+   "check": "Draw order: most extreme average position",
+   "value": 10.3431,
+   "random_typical": 15.0277,
+   "random_low": 11.5731,
+   "random_high": 20.0395,
+   "p": 0.01,
+   "flag": true
+  },
+  {
+   "check": "Draw order: first ball spread across numbers",
+   "value": 61.8341,
+   "random_typical": 77.6999,
+   "random_low": 57.0651,
+   "random_high": 106.5352,
+   "p": 0.1496,
+   "flag": false
+  },
+  {
+   "check": "Draw order: last ball spread across numbers",
+   "value": 88.798,
+   "random_typical": 77.488,
+   "random_low": 54.9916,
+   "random_high": 105.9096,
+   "p": 0.409,
+   "flag": false
+  },
+  {
+   "check": "Draw order: do low numbers come out early (correlation)",
+   "value": -0.001,
+   "random_typical": 0.0002,
+   "random_low": -0.0046,
+   "random_high": 0.0048,
+   "p": 0.6633,
+   "flag": false
+  },
+  {
+   "check": "Draw order: neighbours drawn back to back (count)",
+   "value": 4400.0,
+   "random_typical": 4307.0,
+   "random_low": 4171.875,
+   "random_high": 4435.175,
+   "p": 0.1147,
+   "flag": false
+  },
+  {
+   "check": "Draw order: same board row back to back (count)",
+   "value": 19612.0,
+   "random_typical": 19616.5,
+   "random_low": 19354.9,
+   "random_high": 19844.2,
+   "p": 0.9825,
+   "flag": false
+  },
+  {
+   "check": "Time of day: number frequency differs by part of day",
+   "value": 252.109,
+   "random_typical": 239.9178,
+   "random_low": 203.4334,
+   "random_high": 275.397,
+   "p": 0.5087,
+   "flag": false
+  },
+  {
+   "check": "Daily pause: number spread in the first 5 games after the 4 am restart",
+   "value": 52.8421,
+   "random_typical": 60.1754,
+   "random_low": 43.3667,
+   "random_high": 80.093,
+   "p": 0.394,
+   "flag": false
+  },
+  {
+   "check": "Daily pause: number spread in the last 5 games before the 3:20 am pause",
+   "value": 58.9474,
+   "random_typical": 59.6842,
+   "random_low": 41.7421,
+   "random_high": 81.207,
+   "p": 0.9377,
+   "flag": false
+  },
+  {
+   "check": "Game number cycle (0-999): number frequency differs by hundred",
+   "value": 589.2899,
+   "random_typical": 601.0869,
+   "random_low": 543.0707,
+   "random_high": 656.9745,
+   "p": 0.7082,
+   "flag": false
+  },
+  {
+   "check": "Pairs: spread of how often each pair comes together",
+   "value": 475.8026,
+   "random_typical": 510.2757,
+   "random_low": 454.6763,
+   "random_high": 569.7306,
+   "p": 0.2594,
+   "flag": false
+  },
+  {
+   "check": "Pairs: most frequent pair",
+   "value": 626.0,
+   "random_typical": 626.0,
+   "random_low": 614.0,
+   "random_high": 644.025,
+   "p": 1.0,
+   "flag": false
+  },
+  {
+   "check": "Pairs: least frequent pair",
+   "value": 461.0,
+   "random_typical": 467.0,
+   "random_low": 451.975,
+   "random_high": 477.0,
+   "p": 0.4389,
+   "flag": false
+  },
+  {
+   "check": "Triples: most frequent triple",
+   "value": 177.0,
+   "random_typical": 176.0,
+   "random_low": 171.0,
+   "random_high": 186.0,
+   "p": 0.8978,
+   "flag": false
+  },
+  {
+   "check": "Triples: least frequent triple",
+   "value": 76.0,
+   "random_typical": 81.0,
+   "random_low": 74.0,
+   "random_high": 84.025,
+   "p": 0.1995,
+   "flag": false
+  },
+  {
+   "check": "Memory: numbers repeated from 1 game back (average)",
+   "value": 4.9773,
+   "random_typical": 4.9993,
+   "random_low": 4.966,
+   "random_high": 5.0318,
+   "p": 0.2594,
+   "flag": false
+  },
+  {
+   "check": "Memory: numbers repeated from 2 games back (average)",
+   "value": 4.9755,
+   "random_typical": 4.9993,
+   "random_low": 4.9688,
+   "random_high": 5.0354,
+   "p": 0.1796,
+   "flag": false
+  },
+  {
+   "check": "Memory: numbers repeated from 3 games back (average)",
+   "value": 4.9943,
+   "random_typical": 5.0022,
+   "random_low": 4.9671,
+   "random_high": 5.037,
+   "p": 0.6883,
+   "flag": false
+  },
+  {
+   "check": "Memory: numbers repeated from 5 games back (average)",
+   "value": 5.0033,
+   "random_typical": 5.0002,
+   "random_low": 4.9661,
+   "random_high": 5.035,
+   "p": 0.8728,
+   "flag": false
+  },
+  {
+   "check": "Memory: numbers repeated from 10 games back (average)",
+   "value": 5.0444,
+   "random_typical": 5.0007,
+   "random_low": 4.9663,
+   "random_high": 5.0339,
+   "p": 0.02,
+   "flag": true
+  },
+  {
+   "check": "Memory: numbers repeated from 20 games back (average)",
+   "value": 4.9718,
+   "random_typical": 5.0001,
+   "random_low": 4.9646,
+   "random_high": 5.0331,
+   "p": 0.1596,
+   "flag": false
+  },
+  {
+   "check": "Memory: some numbers repeat more than others (spread)",
+   "value": 53.9668,
+   "random_typical": 58.1202,
+   "random_low": 43.5006,
+   "random_high": 82.6227,
+   "p": 0.5985,
+   "flag": false
+  },
+  {
+   "check": "Memory: neighbours of last game's numbers drawn (count)",
+   "value": 89289.0,
+   "random_typical": 89263.0,
+   "random_low": 88885.775,
+   "random_high": 89702.15,
+   "p": 0.9576,
+   "flag": false
+  },
+  {
+   "check": "Memory: same draw position as last game (count)",
+   "value": 2299.0,
+   "random_typical": 2262.0,
+   "random_low": 2173.0,
+   "random_high": 2344.05,
+   "p": 0.3691,
+   "flag": false
+  },
+  {
+   "check": "Streaks: longest run of one number in consecutive games",
+   "value": 10.0,
+   "random_typical": 9.0,
+   "random_low": 8.0,
+   "random_high": 11.025,
+   "p": 0.818,
+   "flag": false
+  },
+  {
+   "check": "Streaks: longest absence of one number",
+   "value": 37.0,
+   "random_typical": 43.0,
+   "random_low": 37.0,
+   "random_high": 56.0,
+   "p": 0.0998,
+   "flag": false
+  }
+ ],
+ "flags": 3,
+ "flags_expected_by_luck": 1.8
+}
