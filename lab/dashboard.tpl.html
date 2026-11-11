@@ -90,7 +90,7 @@ td,th{padding:4px 6px;white-space:nowrap;border-bottom:1px solid var(--line);tex
   </section>
 
   <section class="primary" id="aisec" hidden>
-    <div class="row"><div><div class="tag">Primary prediction · AI pick</div><h2>Claude's K4</h2></div>
+    <div class="row"><div><div class="tag">Primary prediction · AI pick</div><h2 id="aititle">Claude's K4</h2></div>
       <button id="aicopy" type="button">Copy numbers</button></div>
     <div class="balls" id="aiballs"></div>
     <p class="note" id="aiwhy"></p>
@@ -186,9 +186,10 @@ function heatmap(){
   $("heat").innerHTML = `<tr><th>Policy</th>${sizes.map(z=>`<th>K${z}</th>`).join("")}<th>Rds</th></tr>` +
     ORDER.map(k => { const bz = best(k); return `<tr><td>${k.replace(/ \(.*\)/,"")}</td>${sizes.map(z => { const c = cell[k][z];
       return c ? `<td class="hc${z===bz?" best":""}" style="${shade(rate(c))}" data-k="${k}" data-z="${z}" title="${c.hits} of ${c.runs.length} rounds">${pct(rate(c))}</td>` : "<td>–</td>"; }).join("")}<td>${cell[k][4] ? cell[k][4].runs.length : 0}</td></tr>`; }).join("") +
-    (() => { const runs = upto.filter(r => ALL[r].ai && ALL[r].ai.result).map(r => [r, ALL[r].ai.result]); if (!runs.length) return "";
-      const c = {hits: runs.filter(([,x]) => x.end.startsWith("big win")).length, runs}; cell["AI pick"] = {4: c};
-      return `<tr><td>AI pick</td><td class="hc best" style="${shade(rate(c))}" data-k="AI pick" data-z="4" title="${c.hits} of ${runs.length} rounds">${pct(rate(c))}</td>${sizes.slice(1).map(()=>"<td>–</td>").join("")}<td>${runs.length}</td></tr>`; })() +
+    (() => { const all = upto.filter(r => ALL[r].ai && ALL[r].ai.result); if (!all.length) return ""; cell["AI pick"] = {};
+      sizes.forEach(z => { const runs = all.filter(r => ALL[r].ai.ticket.length === z).map(r => [r, ALL[r].ai.result]);
+        if (runs.length) cell["AI pick"][z] = {hits: runs.filter(([,x]) => x.end.startsWith("big win")).length, runs}; });
+      return `<tr><td>AI pick</td>${sizes.map(z => { const c = cell["AI pick"][z]; return c ? `<td class="hc" style="${shade(rate(c))}" data-k="AI pick" data-z="${z}" title="${c.hits} of ${c.runs.length} rounds">${pct(rate(c))}</td>` : "<td>–</td>"; }).join("")}<td>${all.length}</td></tr>`; })() +
     `<tr><td>Chance per round</td>${sizes.map(z=>`<td>${Math.round(CH.chance[z]*100)}%</td>`).join("")}<td></td></tr>`;
   $("heat").onclick = e => { const td = e.target.closest("td[data-k]"); if (!td) return; const c = cell[td.dataset.k][td.dataset.z];
     $("heatdetail").innerHTML = `<b>${td.dataset.k} · K${td.dataset.z}</b>, ${c.hits} of ${c.runs.length} rounds: ` + c.runs.map(([r,x]) => `round ${+r.slice(1)} ${x.end.startsWith("big win") ? `<b class="up">${x.end}</b>` : x.end} <b class="${cls(x.net)}">${money(x.net)}</b>`).join(", "); };
@@ -244,10 +245,11 @@ function aiHeat(){
   const max = Math.max(0.01, ...names.flatMap(n => sizes.map(z => cell[n][z] ? rate(cell[n][z]) : 0)));
   const shade = h => h ? `background:color-mix(in srgb, var(--good) ${Math.round(15 + 55*h/max)}%, transparent)` : "";
   const pct = x => `${Math.round(x*100)}`;
-  $("aiheatnote").textContent = `Percentage of live rounds (from round ${+upto[0].slice(1)}, when the builds went live) in which each build's ticket reached the take-win cutoff, rounds ${+upto[0].slice(1)}-${+upto[upto.length-1].slice(1)}. Rows are ordered by build points. The AI pick row is K4 only and counts every AI pick from round 40. With this few rounds a percentage swings a lot. The bottom row is chance per round.`;
+  $("aiheatnote").textContent = `Percentage of live rounds (from round ${+upto[0].slice(1)}, when the builds went live) in which each build's ticket reached the take-win cutoff, rounds ${+upto[0].slice(1)}-${+upto[upto.length-1].slice(1)}. Rows are ordered by build points. The AI pick row counts every AI pick from round 40 at its own size: K4 to round 63, K6 from round 64. With this few rounds a percentage swings a lot. The bottom row is chance per round.`;
   let aiRow = "";
-  if (ai.length) { const c = {hits: ai.filter(([,x]) => x.end.startsWith("big win")).length, runs: ai, z: 4, ai: true}; cell["AI pick"] = {4: c};
-    aiRow = `<tr><td><b>AI pick</b></td><td class="hc" style="${shade(rate(c))}" data-k="AI pick" data-z="4" title="${c.hits} of ${ai.length} rounds">${pct(rate(c))}</td>${sizes.slice(1).map(()=>"<td>–</td>").join("")}<td>${ai.length}</td></tr>`; }
+  if (ai.length) { cell["AI pick"] = {};
+    sizes.forEach(z => { const runs = ai.filter(([r]) => ALL[r].ai.ticket.length === z); if (runs.length) cell["AI pick"][z] = {hits: runs.filter(([,x]) => x.end.startsWith("big win")).length, runs, z, ai: true}; });
+    aiRow = `<tr><td><b>AI pick</b></td>${sizes.map(z => { const c = cell["AI pick"][z]; return c ? `<td class="hc" style="${shade(rate(c))}" data-k="AI pick" data-z="${z}" title="${c.hits} of ${c.runs.length} rounds">${pct(rate(c))}</td>` : "<td>–</td>"; }).join("")}<td>${ai.length}</td></tr>`; }
   $("aiheat").innerHTML = `<tr><th>Build</th>${sizes.map(z=>`<th>K${z}</th>`).join("")}<th>Rds</th></tr>` + aiRow +
     names.map(n => `<tr><td>${n}</td>${sizes.map(z => { const c = cell[n][z];
       return c ? `<td class="hc" style="${shade(rate(c))}" data-k="${n}" data-z="${z}" title="${c.hits} of ${c.runs.length} rounds">${pct(rate(c))}</td>` : "<td>–</td>"; }).join("")}<td>${cell[n][4] ? cell[n][4].runs.length : 0}</td></tr>`).join("") +
@@ -261,6 +263,7 @@ function aiHeat(){
 }
 function aiRender(){
   const A = D.ai; $("aisec").hidden = !A; if (!A) return;
+  $("aititle").textContent = `Claude's K${A.ticket.length}`;
   $("aiballs").innerHTML = A.ticket.map(n=>`<span class="ball">${n}</span>`).join("");
   $("aiwhy").textContent = A.why || "";
   const r = A.result;

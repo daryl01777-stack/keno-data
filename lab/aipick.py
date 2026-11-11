@@ -15,7 +15,7 @@ usage: python lab/aipick.py build R0NN     write rounds/R0NN/aipick.json (run at
        python lab/aipick.py ledger          rebuild ledger/aipick.csv, the learning ledger (run after scoring)
 
 The learning ledger (Daryl, 2 Nov) has one row per AI pick: the idea, the ticket, how it did (replay result,
-best catch, how many games caught 3+, each number's draws in the 40 test games), the policies whose K4 won
+best catch, how many games caught 3+ (4+ for the K6 picks from R064), each number's draws in the 40 test games), the policies whose K4 won
 that round and how many numbers they shared with the pick, and a lesson. The idea and lesson columns are
 written by hand and kept when the ledger is rebuilt; read the ledger before every new pick.
 """
@@ -107,11 +107,12 @@ def ledger():
         t = d["ticket"]; x = result(r, t); h, cnt = hits(r, t)
         win = []
         for p, v in s["results"].items():
-            if p in f["policies"] and v["sizes"]["4"]["replay"]["end"].startswith("big"):
-                win.append(f"{p} {' '.join(map(str, f['policies'][p][:4]))} (shares {len(set(t) & set(f['policies'][p][:4]))})")
+            k = str(len(t))                        # winners at the AI pick's own size (K4, or K6 from R064)
+            if p in f["policies"] and v["sizes"][k]["replay"]["end"].startswith("big"):
+                win.append(f"{p} {' '.join(map(str, f['policies'][p][:len(t)]))} (shares {len(set(t) & set(f['policies'][p][:len(t)]))})")
         rid = d["round"]; o = old.get(rid, {})
         rows.append({"round": rid, "idea": o.get("idea") or d.get("idea", ""), "ticket": " ".join(map(str, t)),
-                     "end": x["end"], "net": x["net"], "best_catch": max(h), "games_3plus": sum(c >= 3 for c in h),
+                     "end": x["end"], "net": x["net"], "best_catch": max(h), "games_3plus": sum(c >= (3 if len(t) == 4 else 4) for c in h),
                      "draws_in_test": " ".join(f"{n}:{c}" for n, c in cnt.items()), "k4_winners": "; ".join(win),
                      "lesson": o.get("lesson", "")})
     with open(LEDGER, "w", newline="") as fh:
@@ -126,8 +127,9 @@ def result(r, t):
     after = [x for x in rd.load(os.path.join(ROOT, "draws.csv")) if x["closed"] > f["frozen_utc"]]
     i = next(i for i, x in enumerate(after) if x["game"] == s["test_games"][0])
     hits = [len(set(t) & set(x["draw"])) for x in after[i:i + 40]]
-    pay = rp.paytable()[4]
-    return rp.replay(4, hits, [pay.get(h, 0) for h in hits], s["test_games"][0])
+    k = len(t)                                     # K4 to R063; K6 from R064 (Daryl, 11 Nov)
+    pay = rp.paytable()[k]
+    return rp.replay(k, hits, [pay.get(h, 0) for h in hits], s["test_games"][0])
 
 
 if __name__ == "__main__":
