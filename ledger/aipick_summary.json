@@ -1,0 +1,306 @@
+{
+ "picks": 27,
+ "by_kind": {
+  "free-form": {
+   "picks": 15,
+   "wins": 0,
+   "net": -299,
+   "hit_rate": 23.37,
+   "near_misses_per_pick": 2.0
+  },
+  "build leader": {
+   "picks": 5,
+   "wins": 0,
+   "net": -100,
+   "hit_rate": 24.38,
+   "near_misses_per_pick": 0.8
+  },
+  "holistic (side)": {
+   "picks": 4,
+   "wins": 0,
+   "net": -74,
+   "hit_rate": 25.0,
+   "near_misses_per_pick": 3.25
+  },
+  "holistic": {
+   "picks": 3,
+   "wins": 1,
+   "net": 87,
+   "hit_rate": 31.27,
+   "near_misses_per_pick": 4.33
+  }
+ },
+ "by_recipe": {
+  "Momentum": {
+   "picks": 1,
+   "wins": 0,
+   "net": -20,
+   "hit_rate": 21.9,
+   "near_misses_per_pick": 3.0
+  },
+  "Cluster": {
+   "picks": 1,
+   "wins": 0,
+   "net": -20,
+   "hit_rate": 21.2,
+   "near_misses_per_pick": 2.0
+  },
+  "Streakers": {
+   "picks": 1,
+   "wins": 0,
+   "net": -20,
+   "hit_rate": 23.1,
+   "near_misses_per_pick": 2.0
+  },
+  "All-rounders": {
+   "picks": 1,
+   "wins": 0,
+   "net": -20,
+   "hit_rate": 30.0,
+   "near_misses_per_pick": 3.0
+  },
+  "Proven quartet": {
+   "picks": 1,
+   "wins": 0,
+   "net": -20,
+   "hit_rate": 20.6,
+   "near_misses_per_pick": 1.0
+  },
+  "Rising tide": {
+   "picks": 1,
+   "wins": 0,
+   "net": -20,
+   "hit_rate": 25.6,
+   "near_misses_per_pick": 2.0
+  },
+  "Cold awakening": {
+   "picks": 1,
+   "wins": 0,
+   "net": -20,
+   "hit_rate": 22.5,
+   "near_misses_per_pick": 2.0
+  },
+  "Spring-loaded": {
+   "picks": 1,
+   "wins": 0,
+   "net": -20,
+   "hit_rate": 30.0,
+   "near_misses_per_pick": 1.0
+  },
+  "Fresh off the press": {
+   "picks": 1,
+   "wins": 0,
+   "net": -19,
+   "hit_rate": 26.9,
+   "near_misses_per_pick": 5.0
+  },
+  "Short-clock crew": {
+   "picks": 1,
+   "wins": 0,
+   "net": -20,
+   "hit_rate": 20.6,
+   "near_misses_per_pick": 0.0
+  },
+  "The other pond": {
+   "picks": 1,
+   "wins": 0,
+   "net": -20,
+   "hit_rate": 25.6,
+   "near_misses_per_pick": 3.0
+  },
+  "Engine room": {
+   "picks": 1,
+   "wins": 0,
+   "net": -20,
+   "hit_rate": 18.8,
+   "near_misses_per_pick": 1.0
+  },
+  "Near-miss leaders": {
+   "picks": 1,
+   "wins": 0,
+   "net": -20,
+   "hit_rate": 17.5,
+   "near_misses_per_pick": 0.0
+  },
+  "Barbell": {
+   "picks": 1,
+   "wins": 0,
+   "net": -20,
+   "hit_rate": 23.1,
+   "near_misses_per_pick": 2.0
+  },
+  "Head count": {
+   "picks": 1,
+   "wins": 0,
+   "net": -20,
+   "hit_rate": 23.1,
+   "near_misses_per_pick": 3.0
+  },
+  "build leader (Streakers)": {
+   "picks": 5,
+   "wins": 0,
+   "net": -100,
+   "hit_rate": 24.38,
+   "near_misses_per_pick": 0.8
+  },
+  "consensus": {
+   "picks": 1,
+   "wins": 0,
+   "net": -20,
+   "hit_rate": 20.6,
+   "near_misses_per_pick": 2.0
+  },
+  "signal tops": {
+   "picks": 3,
+   "wins": 0,
+   "net": -52,
+   "hit_rate": 28.13,
+   "near_misses_per_pick": 4.67
+  },
+  "signal anchor + consensus": {
+   "picks": 3,
+   "wins": 1,
+   "net": 85,
+   "hit_rate": 29.6,
+   "near_misses_per_pick": 3.33
+  }
+ },
+ "by_size": {
+  "4": {
+   "picks": 27,
+   "wins": 1,
+   "net": -386,
+   "hit_rate": 24.67,
+   "near_misses_per_pick": 2.22
+  }
+ },
+ "numbers_by_source_policy": {
+  "Neighbours of last game": {
+   "numbers": 6,
+   "avg_draws": 11.5,
+   "hit_rate": 28.75
+  },
+  "Cold": {
+   "numbers": 6,
+   "avg_draws": 10.67,
+   "hit_rate": 26.67
+  },
+  "Hot last 3": {
+   "numbers": 32,
+   "avg_draws": 10.53,
+   "hit_rate": 26.33
+  },
+  "Just drawn": {
+   "numbers": 37,
+   "avg_draws": 10.51,
+   "hit_rate": 26.28
+  },
+  "Hot": {
+   "numbers": 54,
+   "avg_draws": 10.24,
+   "hit_rate": 25.6
+  },
+  "Pairs with last game": {
+   "numbers": 47,
+   "avg_draws": 10.19,
+   "hit_rate": 25.48
+  },
+  "Not in last game": {
+   "numbers": 31,
+   "avg_draws": 10.1,
+   "hit_rate": 25.24
+  },
+  "Surge": {
+   "numbers": 61,
+   "avg_draws": 10.08,
+   "hit_rate": 25.2
+  },
+  "Hot last 10": {
+   "numbers": 57,
+   "avg_draws": 10.07,
+   "hit_rate": 25.18
+  },
+  "Rising": {
+   "numbers": 23,
+   "avg_draws": 9.83,
+   "hit_rate": 24.57
+  },
+  "Persistence": {
+   "numbers": 27,
+   "avg_draws": 9.74,
+   "hit_rate": 24.35
+  },
+  "Pair cluster": {
+   "numbers": 40,
+   "avg_draws": 9.55,
+   "hit_rate": 23.88
+  },
+  "Overdue": {
+   "numbers": 4,
+   "avg_draws": 8.25,
+   "hit_rate": 20.62
+  }
+ },
+ "numbers_by_policies_backing": {
+  "3+": {
+   "numbers": 75,
+   "avg_draws": 10.2,
+   "hit_rate": 25.5
+  },
+  "1": {
+   "numbers": 17,
+   "avg_draws": 9.41,
+   "hit_rate": 23.53
+  },
+  "0": {
+   "numbers": 3,
+   "avg_draws": 9.0,
+   "hit_rate": 22.5
+  },
+  "2": {
+   "numbers": 13,
+   "avg_draws": 8.77,
+   "hit_rate": 21.92
+  }
+ },
+ "numbers_by_builds_backing": {
+  "7-12": {
+   "numbers": 20,
+   "avg_draws": 11.0,
+   "hit_rate": 27.5
+  },
+  "13+": {
+   "numbers": 11,
+   "avg_draws": 11.0,
+   "hit_rate": 27.5
+  },
+  "3-6": {
+   "numbers": 14,
+   "avg_draws": 10.21,
+   "hit_rate": 25.54
+  },
+  "0-2": {
+   "numbers": 3,
+   "avg_draws": 7.0,
+   "hit_rate": 17.5
+  }
+ },
+ "numbers_by_signal_lean": {
+  "backed by a favoured policy": {
+   "numbers": 23,
+   "avg_draws": 11.57,
+   "hit_rate": 28.91
+  },
+  "no signal either way": {
+   "numbers": 2,
+   "avg_draws": 9.0,
+   "hit_rate": 22.5
+  },
+  "backed by an against policy": {
+   "numbers": 3,
+   "avg_draws": 7.67,
+   "hit_rate": 19.17
+  }
+ },
+ "note": "Chance is 10 draws per number in 40 games (hit rate 25%). Small counts swing a lot; treat any line under about 40 numbers as a hint only."
+}

@@ -13,11 +13,18 @@ be rebuilt at any time.
 usage: python lab/aipick.py build R0NN     write rounds/R0NN/aipick.json (run at freeze)
        python lab/aipick.py report          replay every scored round that has one
        python lab/aipick.py ledger          rebuild ledger/aipick.csv, the learning ledger (run after scoring)
+       python lab/aipick.py summary         what the ledger adds up to (also written to ledger/aipick_summary.json)
+       python lab/aipick.py brief R0NN      pre-pick briefing for a frozen round: summary, last lessons, candidates
 
-The learning ledger (Daryl, 2 Nov) has one row per AI pick: the idea, the ticket, how it did (replay result,
-best catch, how many games caught 3+ (4+ for the K6 picks from R064), each number's draws in the 40 test games), the policies whose K4 won
-that round and how many numbers they shared with the pick, and a lesson. The idea and lesson columns are
-written by hand and kept when the ledger is rebuilt; read the ledger before every new pick.
+The learning ledger (Daryl, 2 Nov; rebuilt 11 Nov) has one row per AI pick, including the holistic side picks of
+R056-R060: its kind (free-form R040-R054, build leader R055-R060, holistic from R061), the recipe used, the idea,
+size and ticket; how it did (replay result, best catch, near misses = games with 3+ of a K4 or 4+ of a K6, hit
+rate = share of its numbers drawn per game against 25% by chance, each number's draws in the 40 test games, the
+best number and the one that let it down); where each number came from (policies with it in their top 6 and
+how many builds had it in theirs); which policies the signals leaned for and against; the policies that won at
+the pick's size and how many numbers they shared; and a lesson. recipe, idea and lesson are written by hand and
+kept when the ledger is rebuilt. The summary adds it up by kind, recipe and source so each pick can use what
+the earlier ones showed: run `brief` before every pick.
 """
 import itertools, json, os, sys
 import numpy as np
@@ -95,29 +102,149 @@ def hits(r, t):
 
 
 LEDGER = os.path.join(ROOT, "ledger", "aipick.csv")
-COLS = ["round", "idea", "ticket", "end", "net", "best_catch", "games_3plus", "draws_in_test", "k4_winners", "lesson"]
+SUMMARY = os.path.join(ROOT, "ledger", "aipick_summary.json")
+COLS = ["round", "kind", "recipe", "idea", "size", "ticket", "end", "net", "best_catch", "near_misses", "hit_rate",
+        "draws_in_test", "best_number", "letdown", "sources", "signals_for", "signals_against", "winners", "lesson"]
+SIDE = "holistic (side)"
+
+
+def kind(r):
+    """Which era a main AI pick belongs to."""
+    return "free-form" if r <= 54 else "build leader" if r <= 60 else "holistic"
+
+
+def picks():
+    """Every scored AI pick, oldest first: (round number, kind, the pick's json). Side holistic picks follow their round's main pick."""
+    for r in scored(FIRST):
+        yield r, kind(r), load(r, "aipick.json")
+        h = load(r, "holistic.json")
+        if h:
+            yield r, SIDE, h
+
+
+def sources(r, t):
+    """{number: (policies with it in their top 6, how many AI builds have it in their top 6)} at the freeze."""
+    f, b = load(r, "frozen.json"), load(r, "aibuilds.json")
+    out = {}
+    for n in t:
+        pol = [p for p in FAMILY if p in f["policies"] and n in f["policies"][p][:6]]
+        out[n] = (pol, sum(n in v[:6] for v in b["builds"].values()) if b else None)
+    return out
+
+
+def short(p):
+    return p.split(" (")[0]
 
 
 def ledger():
+    """Rebuild the learning ledger. recipe, idea and lesson are hand-written and kept (keyed by round and kind)."""
     import csv
-    old = {row["round"]: row for row in csv.DictReader(open(LEDGER))} if os.path.exists(LEDGER) else {}
+    old = {}
+    if os.path.exists(LEDGER):
+        for row in csv.DictReader(open(LEDGER)):
+            old[(row["round"], row.get("kind") or kind(int(row["round"][1:])))] = row
     rows = []
-    for r in scored(FIRST):
-        d, f, s = load(r, "aipick.json"), load(r, "frozen.json"), load(r, "scores.json")
-        t = d["ticket"]; x = result(r, t); h, cnt = hits(r, t)
+    for r, kd, d in picks():
+        f, s = load(r, "frozen.json"), load(r, "scores.json")
+        t = d["ticket"]; k = len(t); x = result(r, t); h, cnt = hits(r, t); src = sources(r, t)
         win = []
-        for p, v in s["results"].items():
-            k = str(len(t))                        # winners at the AI pick's own size (K4, or K6 from R064)
-            if p in f["policies"] and v["sizes"][k]["replay"]["end"].startswith("big"):
-                win.append(f"{p} {' '.join(map(str, f['policies'][p][:len(t)]))} (shares {len(set(t) & set(f['policies'][p][:len(t)]))})")
-        rid = d["round"]; o = old.get(rid, {})
-        rows.append({"round": rid, "idea": o.get("idea") or d.get("idea", ""), "ticket": " ".join(map(str, t)),
-                     "end": x["end"], "net": x["net"], "best_catch": max(h), "games_3plus": sum(c >= (3 if len(t) == 4 else 4) for c in h),
-                     "draws_in_test": " ".join(f"{n}:{c}" for n, c in cnt.items()), "k4_winners": "; ".join(win),
-                     "lesson": o.get("lesson", "")})
+        for p, v in s["results"].items():          # winners at the pick's own size (K4, or K6 from R064)
+            if p in f["policies"] and v["sizes"][str(k)]["replay"]["end"].startswith("big"):
+                win.append(f"{p} {' '.join(map(str, f['policies'][p][:k]))} (shares {len(set(t) & set(f['policies'][p][:k]))})")
+        rid = f"R{r:03d}"; o = old.get((rid, kd), {}); sg = d.get("signals") or {}
+        hi, lo = max(t, key=lambda n: cnt[n]), min(t, key=lambda n: cnt[n])
+        rows.append({
+            "round": rid, "kind": kd, "recipe": o.get("recipe") or d.get("recipe", ""), "idea": o.get("idea") or d.get("idea", ""),
+            "size": k, "ticket": " ".join(map(str, t)), "end": x["end"], "net": x["net"], "best_catch": max(h),
+            "near_misses": sum(c >= (3 if k == 4 else k - 2) for c in h),        # 3+ of a K4, 4+ of a K6
+            "hit_rate": f"{100 * sum(cnt.values()) / (40 * k):.1f}",              # % of the ticket's numbers drawn per game; chance 25
+            "draws_in_test": " ".join(f"{n}:{c}" for n, c in cnt.items()),
+            "best_number": f"{hi} ({cnt[hi]} draws)", "letdown": f"{lo} ({cnt[lo]} draws)",
+            "sources": "; ".join(f"{n}={'+'.join(short(p) for p in src[n][0]) or 'none'}" + (f" [{src[n][1]} builds]" if src[n][1] is not None else "") for n in t),
+            "signals_for": ", ".join(sg.get("favour", [])), "signals_against": ", ".join(sg.get("against", [])),
+            "winners": "; ".join(win), "lesson": o.get("lesson", "")})
     with open(LEDGER, "w", newline="") as fh:
         w = csv.DictWriter(fh, COLS); w.writeheader(); w.writerows(rows)
+    summary(rows)
     return rows
+
+
+def summary(rows=None):
+    """What the ledger adds up to: record by kind and by recipe, and how the numbers did by where they came from.
+    Written to ledger/aipick_summary.json; chance is 10 draws per number in 40 games (25%)."""
+    import csv
+    rows = rows or list(csv.DictReader(open(LEDGER)))
+
+    def group(key):
+        g = {}
+        for x in rows:
+            a = g.setdefault(x[key] or "(none)", {"picks": 0, "wins": 0, "net": 0, "hit": 0.0, "near": 0})
+            a["picks"] += 1; a["wins"] += x["end"].startswith("big"); a["net"] += int(x["net"]); a["hit"] += float(x["hit_rate"]); a["near"] += int(x["near_misses"])
+        return {k: {"picks": a["picks"], "wins": a["wins"], "net": a["net"], "hit_rate": round(a["hit"] / a["picks"], 2),
+                    "near_misses_per_pick": round(a["near"] / a["picks"], 2)} for k, a in g.items()}
+    pol, nb, npol, sig = {}, {}, {}, {}
+    for r, kd, d in picks():
+        t = d["ticket"]; _, cnt = hits(r, t); src = sources(r, t); fav = set((d.get("signals") or {}).get("favour", []))
+        ag = set((d.get("signals") or {}).get("against", []))
+        for n in t:
+            ps, b = src[n]
+            for p in ps:
+                pol.setdefault(short(p), []).append(cnt[n])
+            npol.setdefault("0" if not ps else "1" if len(ps) == 1 else "2" if len(ps) == 2 else "3+", []).append(cnt[n])
+            if b is not None:
+                nb.setdefault("0-2" if b <= 2 else "3-6" if b <= 6 else "7-12" if b <= 12 else "13+", []).append(cnt[n])
+            if "signals" in d:
+                names = {short(p) for p in ps}
+                key = "backed by a favoured policy" if names & fav else "backed by an against policy" if names & ag else "no signal either way"
+                sig.setdefault(key, []).append(cnt[n])
+    avg = lambda m: {k: {"numbers": len(v), "avg_draws": round(sum(v) / len(v), 2), "hit_rate": round(2.5 * sum(v) / len(v), 2)} for k, v in sorted(m.items(), key=lambda kv: -sum(kv[1]) / len(kv[1]))}
+    out = {"picks": len(rows), "by_kind": group("kind"), "by_recipe": group("recipe"), "by_size": group("size"),
+           "numbers_by_source_policy": avg(pol), "numbers_by_policies_backing": avg(npol), "numbers_by_builds_backing": avg(nb),
+           "numbers_by_signal_lean": avg(sig),
+           "note": "Chance is 10 draws per number in 40 games (hit rate 25%). Small counts swing a lot; treat any line under about 40 numbers as a hint only."}
+    json.dump(out, open(SUMMARY, "w"), indent=1)
+    return out
+
+
+def show_summary(o):
+    print(f"{o['picks']} picks in the ledger. Chance: hit rate 25%, 10 draws per number.")
+    for title, key in (("By kind", "by_kind"), ("By recipe", "by_recipe"), ("By size", "by_size")):
+        print(title)
+        for k, a in o[key].items():
+            print(f"  {str(k):34s} {a['picks']:2d} picks  {a['wins']} wins  ${a['net']:+5d}  hit rate {a['hit_rate']:.1f}%  near misses {a['near_misses_per_pick']:.1f} a pick")
+    for title, key in (("Numbers by source policy (in its top 6 at the freeze)", "numbers_by_source_policy"),
+                       ("Numbers by how many policies backed them", "numbers_by_policies_backing"),
+                       ("Numbers by how many builds backed them", "numbers_by_builds_backing"),
+                       ("Numbers by signal lean of their policies", "numbers_by_signal_lean")):
+        print(title)
+        for k, a in o[key].items():
+            print(f"  {k:34s} {a['numbers']:3d} numbers  {a['avg_draws']:5.2f} draws each  ({a['hit_rate']:.1f}%)")
+
+
+def brief(r):
+    """Pre-pick briefing for a frozen round: the ledger's summary, the last lessons, and every candidate number
+    with who backs it (policies with it in their top 6, builds with it in their top 6, signal leans of those policies)."""
+    import csv, signals
+    o = summary(); show_summary(o)
+    rows = list(csv.DictReader(open(LEDGER)))
+    print("Last lessons")
+    for x in rows[-4:]:
+        print(f"  {x['round']} {x['kind']} [{x['recipe']}] {x['ticket']} -> {x['end']} {x['net']}: {x['lesson']}")
+    f, b = load(r, "frozen.json"), load(r, "aibuilds.json")
+    lean = {}
+    for _, p, _, _, _, l in signals.today(r):
+        lean[p] = lean.get(p, 0) + {"better": 1, "worse": -1}.get(l, 0)
+    lift = {k: a["avg_draws"] - 10 for k, a in o["numbers_by_source_policy"].items()}
+    X = window(f); c100, c20 = X.sum(0), X[-20:].sum(0); cand = []
+    for n in range(1, 81):
+        ps = [p for p in FAMILY if p in f["policies"] and n in f["policies"][p][:6]]
+        nb = sum(n in v[:6] for v in b["builds"].values()) if b else 0
+        if ps or nb >= 3:
+            cand.append((n, ps, nb, sum(lean.get(p, 0) for p in ps), sum(lift.get(short(p), 0) for p in ps)))
+    print(f"Signal lean by policy: " + ", ".join(f"{short(p)} {v:+d}" for p, v in sorted(lean.items(), key=lambda kv: -kv[1]) if v))
+    print(f"Candidates for R{r:03d} (number: policies | builds | signal lean | ledger lift | draws in 100 / last 20)")
+    for n, ps, nb, sl, ll in sorted(cand, key=lambda c: -(2 * len(c[1]) + c[2] / 3 + c[3]))[:24]:
+        print(f"  {n:2d}: {len(ps)} {'+'.join(short(p) for p in ps):60s} | {nb:2d} | {sl:+d} | {ll:+.1f} | {int(c100[n - 1])}/{int(c20[n - 1])}")
 
 
 def result(r, t):
@@ -140,7 +267,11 @@ if __name__ == "__main__":
         print(d)
     elif sys.argv[1] == "ledger":
         for row in ledger():
-            print(row["round"], row["ticket"], row["end"], row["net"], row["best_catch"], row["games_3plus"])
+            print(row["round"], row["kind"], row["ticket"], row["end"], row["net"], row["best_catch"], row["near_misses"], row["hit_rate"])
+    elif sys.argv[1] == "summary":
+        show_summary(summary())
+    elif sys.argv[1] == "brief":
+        brief(int(sys.argv[2].lstrip("R")))
     else:
         n = b = net = 0
         for r in scored(FIRST):

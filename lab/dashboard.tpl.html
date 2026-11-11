@@ -24,6 +24,9 @@ body{background:var(--bg);color:var(--fg);font:15px/1.5 var(--body)}
 header{display:flex;flex-wrap:wrap;align-items:center;gap:12px}
 h1{font:800 clamp(26px,5vw,36px)/1.1 var(--display);margin:0;text-wrap:balance}
 h2{font:600 18px/1.2 var(--display);margin:0}
+.led{border-top:1px solid var(--line);padding:10px 0}
+#ledgerbox{margin-top:10px}
+#ledgerbox summary{cursor:pointer;font-weight:700}
 .roundpick{display:inline-flex;gap:8px;align-items:center;margin-top:10px}
 .roundpick select{font:inherit;font-size:14px;padding:6px 10px;border-radius:10px;border:1px solid var(--line, #8884);background:var(--surface);color:inherit}
 .pill{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 10px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
@@ -90,11 +93,16 @@ td,th{padding:4px 6px;white-space:nowrap;border-bottom:1px solid var(--line);tex
   </section>
 
   <section class="primary" id="aisec" hidden>
-    <div class="row"><div><div class="tag">Primary prediction · AI pick</div><h2 id="aititle">Claude's K4</h2></div>
+    <div class="row"><div><div class="tag" id="aitag">Primary prediction · AI pick</div><h2 id="aititle">Claude's K4</h2></div>
       <button id="aicopy" type="button">Copy numbers</button></div>
     <div class="balls" id="aiballs"></div>
     <p class="note" id="aiwhy"></p>
     <p class="note" id="airesult"></p>
+    <details id="ledgerbox" hidden><summary>Learning ledger</summary>
+      <p class="note" id="ledgernote"></p>
+      <div class="scroll"><table id="ledgersum" class="heat"></table></div>
+      <div id="ledgerrows"></div>
+    </details>
   </section>
   <section class="primary">
     <div class="row"><div><div class="tag" id="ptag">Primary prediction</div><h2 id="ptitle"></h2></div>
@@ -218,7 +226,7 @@ function render(){
       ${D.ideal[k] ? `<div class="meta"><span>Best size so far <b>K${D.ideal[k].size}</b> (underlined; ${idealTxt(D.ideal[k])})</span></div>` : ""}
       ${res(k, cs)}
     </article>`}).join("");
-  heatmap(); buildsRender(); aiHeat();
+  heatmap(); buildsRender(); aiHeat(); ledgerRender();
   document.querySelectorAll("#cats button").forEach(b=>b.setAttribute("aria-pressed", b.dataset.v===cat));
   document.querySelectorAll("#sizes button").forEach(b=>{b.setAttribute("aria-pressed", +b.dataset.v===size); b.classList.toggle("best", +b.dataset.v===PS);});
 }
@@ -262,15 +270,30 @@ function aiHeat(){
           return y ? `round ${+r.slice(1)} ${y.end.startsWith("big win") ? `<b class="up">${y.end}</b>` : y.end} <b class="${cls(y.net)}">${money(y.net)}</b>`
                    : `round ${+r.slice(1)} ${(x.wins||"").split(" ").includes("K"+c.z) ? `<b class="up">win</b>` : "no win"}`; })()).join(", "); };
 }
+function ledgerRender(){
+  // learning ledger: every scored AI pick up to this round, newest first, with a running record by kind (Daryl, 11 Nov)
+  const rows = IDS.filter(r => r <= D.round && ALL[r].ledger).flatMap(r => ALL[r].ledger.map(x => [r, x])).reverse();
+  $("ledgerbox").hidden = !rows.length; if (!rows.length) return;
+  const kinds = []; rows.forEach(([,x]) => { if (!kinds.includes(x.kind)) kinds.push(x.kind); });
+  const agg = k => { const g = rows.filter(([,x]) => x.kind === k).map(([,x]) => x); const net = g.reduce((a,x)=>a+ +x.net,0);
+    return `<tr><td>${k}</td><td>${g.length}</td><td>${g.filter(x=>x.end.startsWith("big win")).length}</td><td class="${cls(net)}">${money(net)}</td><td>${(g.reduce((a,x)=>a+ +x.hit_rate,0)/g.length).toFixed(1)}%</td><td>${(g.reduce((a,x)=>a+ +x.near_misses,0)/g.length).toFixed(1)}</td></tr>`; };
+  $("ledgernote").textContent = `Every scored AI pick up to round ${N}. Hit rate is how often the ticket's numbers were drawn (25% by chance). Near misses are games one short of the big win (3 of a K4, 4 of a K6).`;
+  $("ledgersum").innerHTML = `<tr><th>Kind</th><th>Picks</th><th>Wins</th><th>Net</th><th>Hit rate</th><th>Near misses</th></tr>` + kinds.map(agg).join("");
+  $("ledgerrows").innerHTML = rows.map(([r,x]) => `<div class="led"><div class="meta"><span><b>Round ${+r.slice(1)}</b> · ${x.kind}${x.recipe ? " · " + x.recipe : ""}</span></div>
+    <div class="meta"><span><b>${x.ticket}</b> · ${x.end.startsWith("big win") ? `<b class="up">${x.end}</b>` : x.end} <b class="${cls(+x.net)}">${money(+x.net)}</b> · hit rate ${x.hit_rate}% · ${x.near_misses} near misses</span></div>
+    <div class="meta"><span>Best ${x.best_number}, let down by ${x.letdown}</span></div>
+    ${x.lesson ? `<p class="note">${x.lesson}</p>` : ""}</div>`).join("");
+}
 function aiRender(){
   const A = D.ai; $("aisec").hidden = !A; if (!A) return;
   $("aititle").textContent = `Claude's K${A.ticket.length}`;
+  $("aitag").textContent = D.round >= "R064" ? "Main pick · Claude's AI pick" : "Primary prediction · AI pick";
   $("aiballs").innerHTML = A.ticket.map(n=>`<span class="ball">${n}</span>`).join("");
   $("aiwhy").textContent = A.why || "";
   const r = A.result;
   $("airesult").innerHTML = r ? `Round ${N}: <b class="${cls(r.net)}">${money(r.net)}</b> on a $20 ticket with winnings replayed. Ended: <b>${r.end}</b> after ${r.games} games.` : (D.void ? "Round void, not scored." : "Frozen with the round; scored with it.");
   const all = IDS.filter(x => x <= D.round && ALL[x].ai && ALL[x].ai.result).map(x => ALL[x].ai.result);
-  if (all.length) $("airesult").innerHTML += ` <br>So far: <b>${all.filter(x => x.end.startsWith("big win")).length} wins in ${all.length} rounds</b>, <b class="${cls(all.reduce((a,x)=>a+x.net,0))}">${money(all.reduce((a,x)=>a+x.net,0))}</b> in total.`;
+  if (all.length) $("airesult").innerHTML += ` <br>So far: <b>${all.filter(x => x.end.startsWith("big win")).length} win${all.filter(x => x.end.startsWith("big win")).length===1?"":"s"} in ${all.length} rounds</b>, <b class="${cls(all.reduce((a,x)=>a+x.net,0))}">${money(all.reduce((a,x)=>a+x.net,0))}</b> in total.`;
 }
 $("aicopy").onclick = async () => {
   const txt = D.ai ? D.ai.ticket.join(" ") : "";
@@ -290,7 +313,7 @@ $("rounds").onchange=e=>{const r=e.target.value;try{history.replaceState(null,""
 function show(rid){
 D = ALL[rid]; N = +D.round.slice(1); S = D.scores; CS = {};
 const B = D.policies["Agreement"] ? "Agreement" : "Weighted blend"; PS = D.ideal[B] ? D.ideal[B].size : 0; PP = PS ? B : "Anomaly composite"; size = PS || D.primary;
-$("ptag").textContent = PS ? `Primary prediction · ${PP}` : "Primary prediction · Anomaly composite";
+$("ptag").textContent = D.round >= "R064" && D.ai ? `Second pick · ${PP}` : PS ? `Primary prediction · ${PP}` : "Primary prediction · Anomaly composite";
 $("legend").hidden = !S;
 const wNow = k => { const w = S && S[k] && S[k].adv !== "" ? S[k].w : D.weights[k]; return w === undefined ? -1 : w; };
 ORDER = ALLP.filter(k=>D.policies[k]).sort((a,b)=>wNow(b)-wNow(a));

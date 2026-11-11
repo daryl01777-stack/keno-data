@@ -133,6 +133,12 @@ def main(rid, out_path):
                 upto = rid_ if rid_ in after else (prev[-1] if prev else "")
                 d["build_live"] = {b: 100 + sum({"win": 5, "survive": 1, "bust": -1}[r["outcome"]] for r in rows if r["build"] == b and r["round"] <= upto) for b in d["builds"]}
                 d["build_live_n"] = len({r["round"] for r in rows if r["round"] <= upto})
+    lg = os.path.join(ROOT, "ledger", "aipick.csv")       # learning ledger rows, attached to their rounds (Daryl, 11 Nov)
+    if os.path.exists(lg):
+        for row in csv.DictReader(open(lg)):
+            d = rounds.get(row["round"])
+            if d is not None:
+                d.setdefault("ledger", []).append({k: row[k] for k in ("kind", "recipe", "idea", "size", "ticket", "end", "net", "near_misses", "hit_rate", "best_number", "letdown", "sources", "lesson")})
     tpl = open(os.path.join(ROOT, "lab", "dashboard.tpl.html")).read()
     open(out_path, "w").write(tpl.replace("__DATA__", json.dumps(rounds))
                               .replace("__ODDS__", json.dumps({"odds": odds, "pay": pay, "sizes": sizes, "chance": {k: round(v, 4) for k, v in chance().items()}})))
