@@ -9,6 +9,12 @@ forward on rounds scored after it was found. Only the forward correlation can te
 
 usage: python lab/signals.py update        refresh forward results in ledger/signals.csv (run after scoring)
        python lab/signals.py today R0NN    which way each signal leans for a frozen round (for the AI pick)
+       python lab/signals.py tally         rebuild ledger/signal_tally.csv and print the summary (update runs it too)
+
+Signal tally (Daryl, 11 Nov: "something extra to reference when doing your AI pick"): for every scored round
+from R055 (when the signals started forward), each policy's count of signals leaning its way and against it,
+the net, and how its K4 did (games with 3+, cutoff win, replay end), so policies with several signals behind
+them can be compared with the rest. Tested as a count, not as signal combinations.
 """
 import csv, itertools, os, sys
 import numpy as np
@@ -17,6 +23,8 @@ import aipick
 
 ROOT = aipick.ROOT
 LEDGER = os.path.join(ROOT, "ledger", "signals.csv")
+TALLY = os.path.join(ROOT, "ledger", "signal_tally.csv")
+FORWARD = 55
 POL = list(aipick.FAMILY)
 
 
@@ -95,7 +103,49 @@ def update():
         s["forward_r"] = "" if c != c else f"{c:+.2f}"
         s["forward_holds"] = "" if c != c or len(x) < 10 else ("yes" if np.sign(c) == (1 if s["direction"] == "+" else -1) else "no")
     save(rows)
+    tally()
     return rows
+
+
+def tally():
+    """Rebuild ledger/signal_tally.csv over scored, non-void rounds from FORWARD; return the rows."""
+    import replay as rp
+    pay = rp.paytable(); out = []; r = FORWARD
+    while aipick.load(r, "frozen.json"):
+        s = aipick.load(r, "scores.json")
+        if aipick.load(r, "void.json") or not s:
+            if not aipick.load(r, "void.json"):
+                break
+            r += 1; continue
+        reps = rp.round_replays(s, pay); lean = {p: [0, 0] for p in POL}
+        for _, p, _, _, _, l in today(r):
+            if l == "better": lean[p][0] += 1
+            elif l == "worse": lean[p][1] += 1
+        for p in POL:
+            g = s["results"][p]["sizes"]["4"]["per_game"]; x = reps[p][4]
+            out.append({"round": f"R{r:03d}", "policy": p, "for": lean[p][0], "against": lean[p][1],
+                        "net": lean[p][0] - lean[p][1], "k4_3plus": sum(h >= 3 for h in g), "k4_best": max(g),
+                        "k4_end": x["end"], "k4_win": int(x["end"].startswith("big")),
+                        "any_win": int(any(v["end"].startswith("big") for v in reps[p].values()))})
+        r += 1
+    if out:
+        with open(TALLY, "w", newline="") as fh:
+            w = csv.DictWriter(fh, list(out[0])); w.writeheader(); w.writerows(out)
+    return out
+
+
+def summary(rows):
+    groups = [("net +2 or more", lambda n: n >= 2), ("net +1", lambda n: n == 1), ("net 0", lambda n: n == 0),
+              ("net -1 or less", lambda n: n <= -1)]
+    lines = []
+    for name, f in groups:
+        g = [x for x in rows if f(int(x["net"]))]
+        if g:
+            lines.append(f"{name:16s} {len(g):3d} policy-rounds  K4 wins {sum(int(x['k4_win']) for x in g):2d} "
+                         f"({100 * sum(int(x['k4_win']) for x in g) / len(g):4.1f}%, chance 8.8%)  "
+                         f"K4 3+ games {sum(int(x['k4_3plus']) for x in g) / len(g):.2f} a round (chance 1.84)  "
+                         f"any-size win {100 * sum(int(x['any_win']) for x in g) / len(g):4.1f}%")
+    return lines
 
 
 def today(r):
@@ -112,6 +162,10 @@ if __name__ == "__main__":
     if sys.argv[1] == "update":
         for s in update():
             print(f"{s['id']:>3} {s['policy']:24s} {s['feature']:34s} in-sample {s['r']} forward {s['forward_r'] or '-':>6} ({s['forward_rounds']} rds) {s['forward_holds']}")
+    elif sys.argv[1] == "tally":
+        rows = tally()
+        print(f"{len({x['round'] for x in rows})} rounds from R{FORWARD:03d}")
+        print("\n".join(summary(rows)))
     elif sys.argv[1] == "today":
         for i, p, feat, v, med, lean in today(int(sys.argv[2].lstrip("R"))):
             print(f"{i:>3} {p:24s} {feat:34s} {v:7.2f} (median {med:.2f}) -> {lean}")

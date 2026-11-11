@@ -1,0 +1,92 @@
+round,policy,for,against,net,k4_3plus,k4_best,k4_end,k4_win,any_win
+R055,Hot (most drawn),0,0,0,0,2,bust,0,0
+R055,Pairs with last game,0,0,0,0,2,bust,0,0
+R055,Pair cluster,1,1,0,0,2,bust,0,0
+R055,Persistence,0,0,0,1,3,bust,0,0
+R055,Not in last game,2,0,2,0,2,bust,0,0
+R055,Surge (last 20 games),1,1,0,5,3,timed out,0,1
+R055,Hot last 10,0,2,-2,1,3,bust,0,0
+R055,Hot last 3,1,0,1,1,4,bust,0,0
+R055,Rising (2nd half),1,0,1,2,3,bust,0,0
+R055,Just drawn (last game),1,0,1,1,3,bust,0,0
+R055,Neighbours of last game,0,0,0,2,3,bust,0,0
+R055,Cold (100),0,0,0,3,3,bust,0,0
+R055,Overdue (longest gap),0,1,-1,2,3,bust,0,0
+R056,Hot (most drawn),0,0,0,2,3,bust,0,0
+R056,Pairs with last game,0,0,0,3,3,bust,0,0
+R056,Pair cluster,1,1,0,3,4,big win 4/4,1,1
+R056,Persistence,0,0,0,2,3,bust,0,0
+R056,Not in last game,1,0,1,0,2,bust,0,0
+R056,Surge (last 20 games),1,1,0,0,2,bust,0,1
+R056,Hot last 10,2,0,2,2,3,bust,0,1
+R056,Hot last 3,2,0,2,0,2,bust,0,1
+R056,Rising (2nd half),1,0,1,2,4,big win 4/4,1,1
+R056,Just drawn (last game),1,0,1,1,3,bust,0,1
+R056,Neighbours of last game,0,0,0,1,3,bust,0,0
+R056,Cold (100),0,0,0,2,3,bust,0,0
+R056,Overdue (longest gap),0,1,-1,0,2,bust,0,0
+R058,Hot (most drawn),0,0,0,3,3,bust,0,0
+R058,Pairs with last game,0,0,0,3,3,bust,0,0
+R058,Pair cluster,1,1,0,2,3,bust,0,0
+R058,Persistence,0,0,0,3,3,bust,0,0
+R058,Not in last game,1,0,1,2,3,bust,0,0
+R058,Surge (last 20 games),0,2,-2,0,2,bust,0,1
+R058,Hot last 10,1,2,-1,0,2,bust,0,0
+R058,Hot last 3,1,3,-2,1,3,bust,0,0
+R058,Rising (2nd half),1,0,1,2,3,bust,0,0
+R058,Just drawn (last game),1,0,1,2,3,bust,0,0
+R058,Neighbours of last game,0,0,0,3,3,bust,0,0
+R058,Cold (100),0,0,0,0,2,bust,0,0
+R058,Overdue (longest gap),1,1,0,2,3,bust,0,1
+R059,Hot (most drawn),0,0,0,5,4,bust,0,0
+R059,Pairs with last game,0,0,0,4,3,bust,0,0
+R059,Pair cluster,1,0,1,3,3,bust,0,0
+R059,Persistence,0,0,0,0,2,bust,0,0
+R059,Not in last game,0,0,0,3,3,bust,0,1
+R059,Surge (last 20 games),2,1,1,1,3,bust,0,0
+R059,Hot last 10,1,1,0,1,3,bust,0,0
+R059,Hot last 3,1,3,-2,0,2,bust,0,0
+R059,Rising (2nd half),0,1,-1,2,4,bust,0,0
+R059,Just drawn (last game),1,0,1,2,3,bust,0,0
+R059,Neighbours of last game,0,0,0,3,3,bust,0,0
+R059,Cold (100),0,0,0,7,3,timed out,0,0
+R059,Overdue (longest gap),0,0,0,4,3,timed out,0,0
+R060,Hot (most drawn),0,0,0,1,3,bust,0,0
+R060,Pairs with last game,0,0,0,3,3,bust,0,0
+R060,Pair cluster,1,0,1,1,3,bust,0,0
+R060,Persistence,0,0,0,0,2,bust,0,0
+R060,Not in last game,1,0,1,3,3,bust,0,0
+R060,Surge (last 20 games),1,1,0,5,3,timed out,0,1
+R060,Hot last 10,2,0,2,1,3,bust,0,0
+R060,Hot last 3,2,0,2,1,3,bust,0,0
+R060,Rising (2nd half),1,0,1,3,3,timed out,0,1
+R060,Just drawn (last game),0,0,0,3,3,bust,0,0
+R060,Neighbours of last game,0,0,0,1,3,bust,0,0
+R060,Cold (100),0,0,0,1,4,bust,0,0
+R060,Overdue (longest gap),1,0,1,1,3,bust,0,0
+R061,Hot (most drawn),0,0,0,5,3,timed out,0,0
+R061,Pairs with last game,0,0,0,3,3,timed out,0,1
+R061,Pair cluster,2,0,2,3,4,big win 4/4,1,1
+R061,Persistence,0,0,0,0,2,bust,0,0
+R061,Not in last game,2,0,2,1,3,bust,0,0
+R061,Surge (last 20 games),2,1,1,6,3,timed out,0,0
+R061,Hot last 10,0,1,-1,4,3,bust,0,0
+R061,Hot last 3,1,0,1,3,4,big win 4/4,1,1
+R061,Rising (2nd half),1,0,1,2,3,bust,0,0
+R061,Just drawn (last game),0,1,-1,4,4,big win 4/4,1,1
+R061,Neighbours of last game,0,0,0,1,3,bust,0,0
+R061,Cold (100),0,0,0,3,3,bust,0,0
+R061,Overdue (longest gap),1,0,1,2,3,bust,0,1
+R062,Hot (most drawn),0,0,0,4,3,bust,0,0
+R062,Pairs with last game,0,0,0,3,3,bust,0,1
+R062,Pair cluster,1,1,0,2,3,bust,0,0
+R062,Persistence,0,0,0,0,2,bust,0,0
+R062,Not in last game,0,1,-1,2,3,bust,0,0
+R062,Surge (last 20 games),3,0,3,3,3,bust,0,0
+R062,Hot last 10,3,0,3,2,3,bust,0,0
+R062,Hot last 3,1,0,1,4,3,timed out,0,1
+R062,Rising (2nd half),1,0,1,2,3,bust,0,0
+R062,Just drawn (last game),1,0,1,3,3,bust,0,1
+R062,Neighbours of last game,0,0,0,2,3,bust,0,0
+R062,Cold (100),0,0,0,1,4,big win 4/4,1,1
+R062,Overdue (longest gap),1,0,1,3,3,bust,0,0
