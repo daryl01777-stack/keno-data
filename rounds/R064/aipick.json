@@ -1,0 +1,26 @@
+{
+ "round": "R064",
+ "ticket": [
+  11,
+  4,
+  3,
+  73,
+  61,
+  8
+ ],
+ "frozen_utc": "2026-11-11T05:45:59Z",
+ "idea": "Holistic",
+ "signals": {
+  "favour": [
+   "Hot last 3",
+   "Surge",
+   "Hot last 10",
+   "Rising",
+   "Just drawn"
+  ],
+  "against": [
+   "Pair cluster"
+  ]
+ },
+ "why": "First 6-number pick, same recipe as R063's win: anchor on the policy with the most signals for it (Hot last 3, +2) and blend in the builds' favourites. 11 is #1 on Surge and Hot last 10, #2 on Hot last 3 and in 14 build tickets; 4 is in 14 build tickets and top 2 on Surge, Not in last game and Hot; 3 is Hot last 3's #1; 73 is #1 for Just drawn (on a roll) and Hot; 61 and 8 are both on Hot last 3 and Just drawn."
+}
