@@ -1,0 +1,25 @@
+{
+ "round": "R063",
+ "ticket": [
+  44,
+  21,
+  46,
+  61
+ ],
+ "frozen_utc": "2026-11-11T01:13:08Z",
+ "idea": "Holistic",
+ "signals": {
+  "favour": [
+   "Hot last 3",
+   "Not in last game",
+   "Rising"
+  ],
+  "against": [
+   "Surge",
+   "Hot last 10",
+   "Pair cluster",
+   "Overdue"
+  ]
+ },
+ "why": "Hot last 3 has four signals leaning its way, the most any policy has had, so it anchors the ticket: 44 (its #1, also on Hot last 10 and Signal board) and 21 (its #5, plus Persistence #1, Pair cluster #2 and Just drawn #5). 46 is the builds' favourite (13 of 23 K4s) and sits on Surge, Just drawn, Hot, Persistence and Hot last 10. 61 is #1 for Not in last game (favoured), Hot and Pairs with last game."
+}
