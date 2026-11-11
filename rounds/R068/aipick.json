@@ -1,0 +1,9 @@
+{
+ "round": "R068",
+ "ticket": [19, 10, 11, 13, 70, 4],
+ "frozen_utc": "2026-11-11T22:16:54Z",
+ "idea": "Holistic",
+ "recipe": "signal anchor + cold hedge",
+ "signals": {"favour": ["Surge", "Overdue", "Not in last game", "Pair cluster", "Just drawn"], "against": ["Hot last 10"]},
+ "why": "Anchored on Surge (+3) with a new twist: Overdue has signals for it (+2) for the first time, so the ticket leans across both sides of the board. 19 (+5: Pair cluster, Not in last game, Surge) and 10 (+4) are the Surge numbers with the best leans; 11 is the single heavy-consensus slot (6 policies, 15 builds, 12 draws in the last 20); 13 is a lightly backed Surge and Rising number. Then the hedge after three rounds of hot-family numbers underdrawing: 70 from Overdue and 4, a cold number (1 draw in the last 20) no build has."
+}
