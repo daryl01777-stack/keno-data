@@ -1,0 +1,9 @@
+{
+ "round": "R066",
+ "ticket": [60, 40, 21, 39, 31, 7],
+ "frozen_utc": "2026-11-11T11:03:09Z",
+ "idea": "Holistic",
+ "recipe": "signal anchor + spread",
+ "signals": {"favour": ["Surge", "Pair cluster", "Rising", "Just drawn"], "against": ["Hot last 3", "Not in last game"]},
+ "why": "Same half-and-half shape that won R065, anchored on Surge (most signals for it, +2). Consensus half: 60 is on 8 policies and 14 builds; 40 has the strongest lean on the board (+4: Surge, Rising, Just drawn; 11 builds); 21 is on Surge, Hot last 10 and Pairs with last game (10 builds). Spread half: 39 (Surge and Just drawn, +3, only 2 builds), 31 (Surge alone, +2) and 7, a cold number from Rising and Cold that sits right outside the hot family."
+}
