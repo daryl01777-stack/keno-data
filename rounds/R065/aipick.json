@@ -1,0 +1,9 @@
+{
+ "round": "R065",
+ "ticket": [20, 65, 53, 55, 79, 25],
+ "frozen_utc": "2026-11-11T07:51:50Z",
+ "idea": "Holistic",
+ "recipe": "signal anchor + spread",
+ "signals": {"favour": ["Pair cluster", "Hot last 10", "Just drawn"], "against": ["Hot last 3", "Surge", "Rising"]},
+ "why": "Anchor on Pair cluster (most signals for it, +2) but spread the back half away from the hot family, after R064's all-consensus ticket went down as one bet. 20 has the strongest signal lean on the board (+3: Hot, Pairs with last game, Pair cluster, Just drawn; 12 builds); 65 is the widest consensus (5 policies, 15 builds); 53 is on Pair cluster, Rising and Just drawn (+2, 11 builds). Then the spread: 55 comes from Persistence, Not in last game and Hot last 10; 79 is a Pair cluster number nobody else has (+2); 25 has a favourable lean and no build backing at all."
+}
