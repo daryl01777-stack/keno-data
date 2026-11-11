@@ -1,0 +1,9 @@
+{
+ "round": "R067",
+ "ticket": [15, 16, 36, 1, 21, 38],
+ "frozen_utc": "2026-11-11T19:50:15Z",
+ "idea": "Holistic",
+ "recipe": "signal anchor + spread",
+ "signals": {"favour": ["Hot last 3", "Surge", "Not in last game", "Rising", "Just drawn"], "against": ["Overdue"]},
+ "why": "Anchored on Hot last 3 (+3, its best lean since the R063 win) with Surge (+2) behind it. 15 and 16 carry the strongest leans seen so far (+6 each; both on Surge and Hot last 3). After R066, where the most-backed numbers were the weak slots, only one heavy-consensus number goes in: 36 (6 policies, 15 builds, 10 draws in the last 20). The rest are lightly backed numbers from the favoured policies: 1 (Surge and Hot last 3, +5), 21 (Hot last 3 and Neighbours, no builds) and 38 (Hot last 3 alone)."
+}
