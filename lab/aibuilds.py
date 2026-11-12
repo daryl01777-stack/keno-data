@@ -12,8 +12,9 @@ usage: python lab/aibuilds.py build R0NN      write rounds/R0NN/aibuilds.json (r
        python lab/aibuilds.py hindsight A B   replay every build over rounds A-B (no files written)
        python lab/aibuilds.py init A B        start ledger/aibuilds.json with points carried from rounds A-B
 
-Builds added later (Last-3 skip and Signal board from R056, built on the 5 Nov signals) join on the group's
-median points, because their hindsight replay would be in-sample.
+Builds added later (Last-3 skip and Signal board from R056, built on the 5 Nov signals; Boosted trees from R073,
+a machine-learning build in lab/boosted.py that needs scikit-learn) join on the group's median points instead of
+carrying hindsight points.
 
 Starting points (Daryl, 5 Nov, as for the main points weights): every build starts on 100 at R018 and carries
 its R018-R054 hindsight points into R055. The top-weighted build's K4 is the AI pick from R055 (ties to more
@@ -258,14 +259,23 @@ def signal_board(ctx):                 # policies ordered by how many recorded s
     return list(dict.fromkeys(out))[:10]
 
 
+# ---- machine learning (13 Nov) ----
+
+def boosted_trees(ctx):                # gradient-boosted trees on every game before the freeze (lab/boosted.py)
+    import boosted
+    return boosted.ticket(ctx.r)
+
+
 BUILDS = {"Momentum": momentum, "Cluster": cluster, "Streakers": streakers, "All-rounders": all_rounders,
           "Proven quartet": proven_quartet, "Rising tide": rising_tide, "Cold awakening": cold_awakening,
           "Spring-loaded": spring_loaded, "Fresh off the press": fresh_press, "Short-clock crew": short_clock,
           "The other pond": other_pond, "Engine room": engine_room, "Near-miss leaders": near_miss,
           "Barbell": barbell, "Head count": head_count, "Rhythm": rhythm, "Board shape": board_shape,
           "Winner echo": winner_echo, "Odd one out": odd_one_out, "Pair-only": pair_only, "Track record": track_record,
-          "Last-3 skip": last3_skip, "Signal board": signal_board}
-LATE = {"Last-3 skip": "R056", "Signal board": "R056"}   # built from 5 Nov findings: no hindsight points (they'd be in-sample)
+          "Last-3 skip": last3_skip, "Signal board": signal_board, "Boosted trees": boosted_trees}
+# joined after the start: no hindsight points carried. Last-3 skip and Signal board were built from the 5 Nov
+# findings (in-sample); Boosted trees (Daryl, 13 Nov) joins the same way so it is judged on live rounds only.
+LATE = {"Last-3 skip": "R056", "Signal board": "R056", "Boosted trees": "R073"}
 
 
 def build(r):
@@ -315,6 +325,8 @@ def update(r):
     rid = f"R{r:03d}"
     assert rid not in led["rounds"], f"{rid} already scored"
     res = score(r)
+    if any(n not in led["points"] for n in res):          # a build scored for the first time joins here
+        ensure(led, rid)
     rows = []
     for name, x in res.items():
         o, pts = outcome(x)
@@ -334,19 +346,20 @@ def update(r):
     return rows, led
 
 
-def ensure(led):
-    """Builds added after the start join on the group's median points, since their hindsight would be in-sample."""
+def ensure(led, rid=None):
+    """Builds added after the start join on the group's median points, since their hindsight would be in-sample.
+    update() calls this the first time a new build is scored (rid = that round)."""
     med = int(np.median([v for k, v in led["points"].items() if k not in LATE])) if led["points"] else START
     for b in BUILDS:
         if b not in led["points"]:
-            led["points"][b] = med; led.setdefault("joined", {})[b] = {"round": LATE.get(b, ""), "points": med}
+            led["points"][b] = med; led.setdefault("joined", {})[b] = {"round": rid or LATE.get(b, ""), "points": med}
     T = sum(led["points"].values()); led["weights"] = {b: round(p / T, 6) for b, p in led["points"].items()}
     return led
 
 
 def leader(led):
     t = led.get("tally", {})
-    return max(BUILDS, key=lambda b: (led["points"][b], t.get(b, {}).get("win", 0), t.get(b, {}).get("k4", 0), -list(BUILDS).index(b)))
+    return max((b for b in BUILDS if b in led["points"]), key=lambda b: (led["points"][b], t.get(b, {}).get("win", 0), t.get(b, {}).get("k4", 0), -list(BUILDS).index(b)))
 
 
 def hindsight(a, b):
