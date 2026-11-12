@@ -13,8 +13,8 @@ usage: python lab/aibuilds.py build R0NN      write rounds/R0NN/aibuilds.json (r
        python lab/aibuilds.py init A B        start ledger/aibuilds.json with points carried from rounds A-B
 
 Builds added later (Last-3 skip and Signal board from R056, built on the 5 Nov signals; Boosted trees from R073,
-a machine-learning build in lab/boosted.py that needs scikit-learn) join on the group's median points instead of
-carrying hindsight points.
+a machine-learning K6 build in lab/boosted.py that needs scikit-learn and takes about a minute) join on the group's
+median points instead of carrying hindsight points.
 
 Starting points (Daryl, 5 Nov, as for the main points weights): every build starts on 100 at R018 and carries
 its R018-R054 hindsight points into R055. The top-weighted build's K4 is the AI pick from R055 (ties to more
@@ -261,7 +261,7 @@ def signal_board(ctx):                 # policies ordered by how many recorded s
 
 # ---- machine learning (13 Nov) ----
 
-def boosted_trees(ctx):                # gradient-boosted trees on every game before the freeze (lab/boosted.py)
+def boosted_trees(ctx):                # boosted trees scoring whole K6 tickets on landing together (lab/boosted.py)
     import boosted
     return boosted.ticket(ctx.r)
 
