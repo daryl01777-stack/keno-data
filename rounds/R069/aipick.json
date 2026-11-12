@@ -1,0 +1,9 @@
+{
+ "round": "R069",
+ "ticket": [58, 26, 25, 14, 9, 43],
+ "frozen_utc": "2026-11-12T00:33:36Z",
+ "idea": "Holistic",
+ "recipe": "signal anchor + spread",
+ "signals": {"favour": ["Hot last 10", "Rising", "Just drawn"], "against": []},
+ "why": "Back to the plain half-and-half shape that won R065, anchored on Hot last 10 (the only policy with a real lean, +3). Consensus half: 58 and 26 (6 policies each, both on Hot last 10, 13 and 11 builds) and 25 (the most drawn number in the window at 39, Just drawn's #1, 11 builds). Spread half, all lightly backed Hot last 10 numbers: 14 (also Hot last 3 and Just drawn), 9 (also Just drawn) and 43 (Hot last 10 alone)."
+}
