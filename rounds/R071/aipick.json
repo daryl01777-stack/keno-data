@@ -1,0 +1,9 @@
+{
+ "round": "R071",
+ "ticket": [76, 39, 62, 20, 55, 1],
+ "frozen_utc": "2026-11-12T06:08:33Z",
+ "idea": "Holistic",
+ "recipe": "signal anchor + spread",
+ "signals": {"favour": ["Hot last 10", "Surge", "Just drawn"], "against": ["Hot last 3", "Overdue", "Not in last game"]},
+ "why": "Same recipe, and this time two favoured policies agree: Hot last 10 (+3, the anchor that won R069) and Surge (+2). 76 (8 policies, 14 builds), 39 and 62 (12 draws in the last 20) are on both and carry the best leans on the board (+4 each). 20 is Hot last 10's with Pair cluster and Just drawn behind it. The spread half is one solo number from each anchor: 55 (Surge alone) and 1 (Hot last 10 alone, no builds)."
+}
