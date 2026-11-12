@@ -194,3 +194,16 @@ R070,Just drawn (last game),1,0,1,1,3,bust,0,1
 R070,Neighbours of last game,0,0,0,1,3,bust,0,0
 R070,Cold (100),0,0,0,2,4,big win 4/4,1,1
 R070,Overdue (longest gap),0,2,-2,1,3,bust,0,0
+R071,Hot (most drawn),0,0,0,3,4,bust,0,0
+R071,Pairs with last game,0,0,0,2,3,bust,0,0
+R071,Pair cluster,0,0,0,1,4,bust,0,0
+R071,Persistence,0,0,0,3,3,bust,0,0
+R071,Not in last game,0,1,-1,2,3,bust,0,0
+R071,Surge (last 20 games),2,0,2,2,3,bust,0,0
+R071,Hot last 10,3,0,3,1,3,bust,0,0
+R071,Hot last 3,0,2,-2,3,3,bust,0,0
+R071,Rising (2nd half),0,0,0,2,3,bust,0,0
+R071,Just drawn (last game),1,0,1,1,3,bust,0,0
+R071,Neighbours of last game,0,0,0,1,3,bust,0,0
+R071,Cold (100),0,0,0,3,3,bust,0,0
+R071,Overdue (longest gap),0,1,-1,1,3,bust,0,0
