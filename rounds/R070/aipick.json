@@ -1,0 +1,9 @@
+{
+ "round": "R070",
+ "ticket": [41, 25, 64, 33, 36, 44],
+ "frozen_utc": "2026-11-12T02:41:30Z",
+ "idea": "Holistic",
+ "recipe": "signal anchor + spread",
+ "signals": {"favour": ["Pair cluster", "Not in last game", "Rising", "Just drawn"], "against": ["Hot last 3", "Overdue", "Surge", "Hot last 10"]},
+ "why": "Same recipe as the R065 and R069 wins: anchor on the policy with the clearest lean and take its numbers, half well backed and half lightly backed. Pair cluster is the anchor (+2; Hot last 3, Overdue, Surge and Hot last 10 all lean against). Well-backed half: 41 (6 policies, 11 builds), 25 (5 policies, best lean on the board at +3) and 64 (6 policies, 14 builds, 9 draws in the last 20). Spread half: 33 (Pair cluster, Hot last 10 and Just drawn), plus 36 and 44, which only Pair cluster has."
+}
