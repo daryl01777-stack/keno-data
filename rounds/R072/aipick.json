@@ -1,0 +1,9 @@
+{
+ "round": "R072",
+ "ticket": [48, 59, 2, 24, 80, 77],
+ "frozen_utc": "2026-11-12T09:51:24Z",
+ "idea": "Holistic",
+ "recipe": "three-way spread",
+ "signals": {"favour": ["Not in last game", "Hot last 10", "Rising"], "against": ["Hot last 3", "Surge", "Overdue"]},
+ "why": "No clear anchor this round: three policies lean +1 (Not in last game, Hot last 10, Rising) and Hot last 3 and Surge both lean -3. So instead of betting on one policy, two numbers from each of the three. Not in last game: 48 (4 policies, 12 builds, 35 draws in the window) and 2 (with Pair cluster). Hot last 10: 59 (6 policies, 15 builds, the board's favourite) and 77 (Hot last 10 alone). Rising: 24 (with Neighbours) and 80. Kept clear of the Hot last 3 and Surge numbers (21, 54, 70, 38)."
+}
