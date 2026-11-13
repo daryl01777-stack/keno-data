@@ -1,0 +1,9 @@
+{
+ "round": "R073",
+ "ticket": [19, 74, 18, 14, 65, 54],
+ "frozen_utc": "2026-11-13T01:55:34Z",
+ "idea": "Holistic",
+ "recipe": "three-way spread",
+ "signals": {"favour": ["Hot last 10", "Rising", "Just drawn"], "against": ["Surge", "Overdue", "Not in last game", "Pair cluster"]},
+ "why": "Same board shape as R072: three policies lean +1 (Hot last 10, Rising, Just drawn) and Surge leans hard against (-3), so two numbers from each favoured policy rather than one anchor. Hot last 10: 19 (6 policies, 15 builds, 39 draws in the window, the most on the board) and 74 (with Rising, +2). Just drawn: 18 (with Hot last 3 and Neighbours) and 14. Rising: 65 and 54. Kept off the Surge numbers (47, 29) and 8 (-3)."
+}
