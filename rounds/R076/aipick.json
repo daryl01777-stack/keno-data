@@ -1,0 +1,9 @@
+{
+ "round": "R076",
+ "ticket": [78, 73, 9, 17, 77, 34],
+ "frozen_utc": "2026-11-13T09:59:07Z",
+ "idea": "Holistic",
+ "recipe": "three-way spread",
+ "signals": {"favour": ["Surge", "Rising", "Just drawn"], "against": ["Hot last 3", "Overdue", "Pair cluster", "Hot last 10"]},
+ "why": "Same board shape as the R072 win: three policies at +1 (Surge, Rising, Just drawn) and no clear anchor, with Hot last 3 leaning hard against (-4), so 18, the board's favourite but a Hot last 3 number (-3), stays off. Surge: 78 (5 policies, 9 builds) plus 73 and 9, which are on Surge and Just drawn both. Just drawn: 17 (with Pairs with last game and Persistence). Rising: 77 (with Cold) and 34. Boosted trees reads high confidence for the first time, but its numbers (26 7 1 10 40 35) sit on the policies leaning against, so I left them to its own card."
+}
