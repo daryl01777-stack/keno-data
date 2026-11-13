@@ -390,9 +390,14 @@ if __name__ == "__main__":
     if cmd == "build":
         r = int(sys.argv[2].lstrip("R"))
         d = {"round": f"R{r:03d}", "frozen_utc": aipick.load(r, "frozen.json")["frozen_utc"], "builds": build(r)}
+        import boosted
+        if boosted.LAST.get("round") == d["round"]:      # Boosted trees' confidence in its own ticket (Daryl, 13 Nov)
+            d["confidence"] = {"Boosted trees": {k: boosted.LAST[k] for k in ("confidence", "lift", "views", "trees", "score", "typical")}}
         json.dump(d, open(os.path.join(ROOT, "rounds", d["round"], "aibuilds.json"), "w"), indent=1)
         for k, v in d["builds"].items():
             print(f"{k:20s} {v[:4]}")
+        for k, c in d.get("confidence", {}).items():
+            print(f"{k} confidence: {c['confidence']} (forecast {c['lift']:+.1%} against a typical ticket; {c['views']} of {len(c['trees'])} copies found something)")
     elif cmd == "join":
         led = ensure(json.load(open(LEDGER))); json.dump(led, open(LEDGER, "w"), indent=1, sort_keys=True); print(led.get("joined"))
     elif cmd == "score":

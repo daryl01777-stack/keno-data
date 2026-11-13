@@ -46,7 +46,11 @@ def round_data(rid):
     if os.path.exists(bp):
         bl = os.path.join(ROOT, "ledger", "aibuilds.csv")
         res = {r["build"]: r for r in csv.DictReader(open(bl)) if r["round"] == rid} if os.path.exists(bl) else {}
-        data["builds"] = {n: {"t": t, "res": res.get(n)} for n, t in json.load(open(bp))["builds"].items()}
+        bj = json.load(open(bp))
+        data["builds"] = {n: {"t": t, "res": res.get(n)} for n, t in bj["builds"].items()}
+        for n, c in bj.get("confidence", {}).items():   # a build's confidence in its own ticket (Boosted trees; Daryl, 13 Nov)
+            if n in data["builds"]:
+                data["builds"][n]["conf"] = c
         if os.path.exists(os.path.join(rdir, "scores.json")) and res:   # per-size replay for the AI heatmap detail
             import aipick, replay as rpl
             pay_ = rpl.paytable(); first_ = json.load(open(os.path.join(rdir, "scores.json")))["test_games"][0]
@@ -127,7 +131,11 @@ def main(rid, out_path):
         for rid_, d in rounds.items():
             if "builds" in d:
                 prev = [r for r in sorted(after) if r < rid_]
-                d["build_pts"] = after[prev[-1]] if prev else base
+                d["build_pts"] = dict(after[prev[-1]] if prev else base)
+                import aibuilds                  # a build not scored yet shows the points it will start on
+                for b, c in aibuilds.CARRY.items():
+                    if b in d["builds"]:
+                        d["build_pts"].setdefault(b, c["points"])
                 d["build_pts_after"] = after.get(rid_)
                 # live-only standings (Daryl, 11 Nov): 100 at the first live round, same +5/+1/-1, no hindsight points
                 upto = rid_ if rid_ in after else (prev[-1] if prev else "")
