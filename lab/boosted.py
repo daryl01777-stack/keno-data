@@ -27,13 +27,15 @@ random six (a draft settled ties towards lower numbers and kept handing back 1 2
 facts about a ticket's shape on the board. Needs scikit-learn (`pip install scikit-learn`); takes two to three minutes. The ticket
 is written into aibuilds.json at the freeze, so scoring never rebuilds it.
 
-Tested before it went in, as the draft with the board-shape facts (tuned on games up to 10 Nov, then
-a held-back exam on the latest 1,500 games played as 37 rounds, then 129 earlier walk-forward rounds):
-steadier and aimed at K6, but its tickets landed no more often than chance (166 rounds: 13 K6 wins
-under the lab rule against 13.9 expected).
+Tested before it went in, as an earlier draft (tuned on games up to 10 Nov, then a held-back exam on
+the latest 1,500 games played as 37 rounds, then 129 earlier walk-forward rounds): steadier and aimed
+at K6, but its tickets landed no more often than chance (166 rounds: 13 K6 wins under the lab rule
+against 13.9 expected; part of that draft's picks were the low-number tie-break). The build as it
+stands, replayed walk-forward over R018-R071: 12 winning rounds of 53, 137 points, K6 5 wins (4.5 by
+chance); in 8 of the 53 rounds no copy found anything and the ticket was a random six.
 
 usage: python lab/boosted.py R0NN            print the ranked top 10 for a frozen round
-       python lab/boosted.py replay A B      replay rounds A-B (no files written; about 2 minutes a round)
+       python lab/boosted.py replay A B      replay rounds A-B (no files written; about 20 seconds a round after the first)
 """
 import csv, itertools, json, os, sys
 from datetime import datetime, timedelta
