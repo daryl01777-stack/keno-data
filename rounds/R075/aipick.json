@@ -1,0 +1,9 @@
+{
+ "round": "R075",
+ "ticket": [23, 12, 8, 33, 73, 17],
+ "frozen_utc": "2026-11-13T06:45:15Z",
+ "idea": "Holistic",
+ "recipe": "signal anchor + spread",
+ "signals": {"favour": ["Hot last 3", "Not in last game", "Just drawn"], "against": ["Overdue", "Surge", "Rising"]},
+ "why": "Hot last 3 has a clear lean again (+3, its best since the R063 win), with Not in last game and Just drawn at +1 behind it. Anchor half from Hot last 3: 23 (6 policies, 15 builds), 12 (with Just drawn, +4, the best lean on the board), 8 (with Hot last 10, +3) and 33, the one number Hot last 3 and the Boosted trees build (medium confidence) both pick. Spread half: 73 from Not in last game and 17 from Just drawn."
+}
