@@ -1,0 +1,9 @@
+{
+ "round": "R074",
+ "ticket": [74, 65, 80, 2, 34, 56],
+ "frozen_utc": "2026-11-13T04:14:58Z",
+ "idea": "Holistic",
+ "recipe": "policy spread + boosted",
+ "signals": {"favour": ["Pair cluster", "Not in last game"], "against": ["Hot last 3", "Surge", "Overdue", "Hot last 10"]},
+ "why": "R072's spread idea with two favoured policies this time: Pair cluster (+2) and Not in last game (+1); Hot last 3 and Surge lean hard against (-3 each), so 32, 12 and 15 stay off. 74 and 65 are on both favoured policies (+3 each; 74 has 12 builds). 80 and 2 are Not in last game numbers backed by Hot and Persistence. 34 is a Pair cluster number. The last slot goes to the new Boosted trees build's #1, 56, since it reads medium confidence on its first live round (5 of 5 copies found something)."
+}
