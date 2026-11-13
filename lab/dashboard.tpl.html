@@ -104,6 +104,13 @@ td,th{padding:4px 6px;white-space:nowrap;border-bottom:1px solid var(--line);tex
       <div id="ledgerrows"></div>
     </details>
   </section>
+  <section class="primary" id="btsec" hidden>
+    <div class="row"><div><div class="tag">Machine-learning pick · Boosted trees build</div><h2 id="bttitle">Boosted trees K6</h2></div>
+      <button id="btcopy" type="button">Copy numbers</button></div>
+    <div class="balls" id="btballs"></div>
+    <p class="note" id="btconf"></p>
+    <p class="note" id="btresult"></p>
+  </section>
   <section class="primary">
     <div class="row"><div><div class="tag" id="ptag">Primary prediction</div><h2 id="ptitle"></h2></div>
       <button id="copy" type="button">Copy numbers</button></div>
@@ -295,6 +302,25 @@ function aiRender(){
   const all = IDS.filter(x => x <= D.round && ALL[x].ai && ALL[x].ai.result).map(x => ALL[x].ai.result);
   if (all.length) $("airesult").innerHTML += ` <br>So far: <b>${all.filter(x => x.end.startsWith("big win")).length} win${all.filter(x => x.end.startsWith("big win")).length===1?"":"s"} in ${all.length} rounds</b>, <b class="${cls(all.reduce((a,x)=>a+x.net,0))}">${money(all.reduce((a,x)=>a+x.net,0))}</b> in total.`;
 }
+function btRender(){
+  // Boosted trees card under Claude's pick (Daryl, 13 Nov): its K6, the size it is built for, with its confidence and record
+  const b = D.builds && D.builds["Boosted trees"]; $("btsec").hidden = !b; if (!b) return;
+  const t = b.t.slice(0,6);
+  $("btballs").innerHTML = t.map(n=>`<span class="ball">${n}</span>`).join("");
+  const c = b.conf;
+  $("btconf").innerHTML = c ? `Confidence: <b>${c.confidence}</b>. It forecasts ${(Math.abs(c.lift)*100).toFixed(1)}% ${c.lift<0?"fewer":"more"} games with 4+ than a typical ticket, and ${c.views} of ${c.trees.length} copies found something.${c.confidence==="none" ? " With no view, this six is in effect a random ticket." : ""} This measures how sure the model is, not how right.` : "";
+  const y = b.rp ? b.rp[6] : null;
+  $("btresult").innerHTML = y ? `Round ${N}: K6 <b class="${cls(y.net)}">${money(y.net)}</b> on a $20 ticket with winnings replayed. Ended: <b>${y.end.startsWith("big win") ? `<span class="up">${y.end}</span>` : y.end}</b>.` : (D.void ? "Round void, not scored." : "Frozen with the round; scored with it.");
+  const all = IDS.filter(x => x <= D.round && ALL[x].builds && ALL[x].builds["Boosted trees"] && ALL[x].builds["Boosted trees"].rp).map(x => ALL[x].builds["Boosted trees"].rp[6]);
+  if (all.length) { const w = all.filter(x => x.end.startsWith("big win")).length, net = all.reduce((a,x)=>a+x.net,0);
+    $("btresult").innerHTML += ` <br>Live so far at K6: <b>${w} win${w===1?"":"s"} in ${all.length} round${all.length===1?"":"s"}</b>, <b class="${cls(net)}">${money(net)}</b> in total.`; }
+}
+$("btcopy").onclick = async () => {
+  const b = D.builds && D.builds["Boosted trees"]; const txt = b ? b.t.slice(0,6).join(" ") : "";
+  try { await navigator.clipboard.writeText(txt); $("btcopy").textContent="Copied"; }
+  catch { const r=document.createRange(); r.selectNodeContents($("btballs")); getSelection().removeAllRanges(); getSelection().addRange(r); $("btcopy").textContent="Selected"; }
+  setTimeout(()=>$("btcopy").textContent="Copy numbers",1500);
+};
 $("aicopy").onclick = async () => {
   const txt = D.ai ? D.ai.ticket.join(" ") : "";
   try { await navigator.clipboard.writeText(txt); $("aicopy").textContent="Copied"; }
@@ -332,7 +358,7 @@ $("presult").innerHTML = S
   : PS ? `The blend is built from the policy weights (${["Hot (most drawn)","Surge (last 20 games)","Pair cluster","Overdue (longest gap)","Persistence"].filter(k=>D.weights[k]!==undefined).sort((a,b)=>D.weights[b]-D.weights[a])[0]} leads). K${PS} is its best size so far (${idealTxt(D.ideal[PP])}). That comes from luck in earlier rounds, not skill.`
   : `On a roll: <b>${D.roll}</b>. That comes from luck in earlier rounds, not skill.`;
 rollNow = S ? D.next_roll : D.roll;
-aiRender();
+aiRender(); btRender();
 $("sha").textContent = D.sha + (D.shadow && D.shadow.sha ? `\nRetro pick (shadow.json, added later): ${D.shadow.sha}` : "");
 
 $("cats").innerHTML = "";
