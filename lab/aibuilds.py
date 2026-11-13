@@ -14,7 +14,8 @@ usage: python lab/aibuilds.py build R0NN      write rounds/R0NN/aibuilds.json (r
 
 Builds added later (Last-3 skip and Signal board from R056, built on the 5 Nov signals; Boosted trees from R073,
 a machine-learning K6 build in lab/boosted.py that needs scikit-learn and takes about a minute) join on the group's
-median points instead of carrying hindsight points.
+median points instead of carrying hindsight points, except Boosted trees, which starts on the 137 points of its
+walk-forward replay over R018-R071 (see CARRY).
 
 Starting points (Daryl, 5 Nov, as for the main points weights): every build starts on 100 at R018 and carries
 its R018-R054 hindsight points into R055. The top-weighted build's K4 is the AI pick from R055 (ties to more
@@ -346,13 +347,23 @@ def update(r):
     return rows, led
 
 
+# Boosted trees starts on its walk-forward replay instead of the median (Daryl, 13 Nov: "we did all that back
+# testing, should it start on its 137 points?"). Over R018-R071 (53 rounds, each ticket built only from games before
+# that round's freeze; `python lab/boosted.py replay 18 71`) it won 12 rounds, survived 9 and bust 32: 100 + 60 + 9 - 32.
+CARRY = {"Boosted trees": {"points": 137, "tally": {"win": 12, "survive": 9, "bust": 32, "k4": 5}, "from": "R018-R071 walk-forward replay"}}
+
+
 def ensure(led, rid=None):
-    """Builds added after the start join on the group's median points, since their hindsight would be in-sample.
-    update() calls this the first time a new build is scored (rid = that round)."""
+    """Builds added after the start join on the group's median points, since their hindsight would be in-sample,
+    unless CARRY gives them replay points. update() calls this the first time a new build is scored (rid = that round)."""
     med = int(np.median([v for k, v in led["points"].items() if k not in LATE])) if led["points"] else START
     for b in BUILDS:
         if b not in led["points"]:
-            led["points"][b] = med; led.setdefault("joined", {})[b] = {"round": rid or LATE.get(b, ""), "points": med}
+            c = CARRY.get(b)
+            led["points"][b] = c["points"] if c else med
+            led.setdefault("joined", {})[b] = {"round": rid or LATE.get(b, ""), "points": led["points"][b], **({"carried": c["from"]} if c else {})}
+            if c:
+                led.setdefault("tally", {})[b] = dict(c["tally"])
     T = sum(led["points"].values()); led["weights"] = {b: round(p / T, 6) for b, p in led["points"].items()}
     return led
 
