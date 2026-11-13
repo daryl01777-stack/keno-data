@@ -1,0 +1,3 @@
+{
+ "reason": "Voided before scoring at Daryl's request (13 Nov, 12:11 pm Brisbane). The freeze was redone at 11:55 am after a restart lost the first attempt, and its training data ended at game 236 (10:45 am), leaving games 237-265 unused between training and test. Daryl chose to void it and freeze a new round from fresh draws."
+}
