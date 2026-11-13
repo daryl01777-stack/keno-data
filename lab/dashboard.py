@@ -131,7 +131,11 @@ def main(rid, out_path):
         for rid_, d in rounds.items():
             if "builds" in d:
                 prev = [r for r in sorted(after) if r < rid_]
-                d["build_pts"] = after[prev[-1]] if prev else base
+                d["build_pts"] = dict(after[prev[-1]] if prev else base)
+                import aibuilds                  # a build not scored yet shows the points it will start on
+                for b, c in aibuilds.CARRY.items():
+                    if b in d["builds"]:
+                        d["build_pts"].setdefault(b, c["points"])
                 d["build_pts_after"] = after.get(rid_)
                 # live-only standings (Daryl, 11 Nov): 100 at the first live round, same +5/+1/-1, no hindsight points
                 upto = rid_ if rid_ in after else (prev[-1] if prev else "")
