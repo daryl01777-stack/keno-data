@@ -182,7 +182,8 @@ def reading(trees, score, typical):
     lift = how many more games with 4+ it forecasts for its ticket than for a typical ticket (0.03 = 3% more).
     views = how many of the five copies kept more than one tree, i.e. found anything at all in their check period.
     The label comes from the lift, and is "none" whenever no copy has a view: then the ticket is a random six.
-    It says how sure the model is, not how right: over the R018-R071 replay, sure rounds won no more often."""
+    It says how sure the model is, not how right: over the R018-R071 replay the label was none in 29 rounds
+    (7 wins), low in 13 (4), medium in 7 (0) and high in 4 (1)."""
     views = sum(n > 1 for n in trees); lift = score / typical - 1
     label = "none" if views == 0 else next((name for cap, name in LEVELS if lift < cap), "high")
     return dict(confidence=label, lift=round(lift, 4), views=views, trees=list(trees), score=round(score, 4), typical=round(typical, 4))
