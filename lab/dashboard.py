@@ -46,7 +46,11 @@ def round_data(rid):
     if os.path.exists(bp):
         bl = os.path.join(ROOT, "ledger", "aibuilds.csv")
         res = {r["build"]: r for r in csv.DictReader(open(bl)) if r["round"] == rid} if os.path.exists(bl) else {}
-        data["builds"] = {n: {"t": t, "res": res.get(n)} for n, t in json.load(open(bp))["builds"].items()}
+        bj = json.load(open(bp))
+        data["builds"] = {n: {"t": t, "res": res.get(n)} for n, t in bj["builds"].items()}
+        for n, c in bj.get("confidence", {}).items():   # a build's confidence in its own ticket (Boosted trees; Daryl, 13 Nov)
+            if n in data["builds"]:
+                data["builds"][n]["conf"] = c
         if os.path.exists(os.path.join(rdir, "scores.json")) and res:   # per-size replay for the AI heatmap detail
             import aipick, replay as rpl
             pay_ = rpl.paytable(); first_ = json.load(open(os.path.join(rdir, "scores.json")))["test_games"][0]

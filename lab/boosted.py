@@ -170,7 +170,22 @@ def forecast(L, gap, seed=0, detail=False):
     six = [int(best[i]) for i in sorted(range(6), key=lambda i: (-round(float(adds[i]), 9), shuffle[best[i]]))]
     rest = [int(new[j]) for j in sorted(range(len(new)), key=lambda j: (-round(float(sw[:, j].mean()), 9), shuffle[new[j]]))[:4]]
     top10 = [n + 1 for n in six + rest]
-    return (top10, dict(trees=[n for _, n in fits], score=top, typical=float(y.mean()), examples=int(len(y)))) if detail else top10
+    info = reading([n for _, n in fits], top, float(y.mean())); info["examples"] = int(len(y))
+    return (top10, info) if detail else top10
+
+
+LEVELS = ((0.005, "none"), (0.02, "low"), (0.05, "medium"))     # lift below 0.5% / 2% / 5%; anything above is "high"
+
+
+def reading(trees, score, typical):
+    """The build's confidence in its own ticket (Daryl, 13 Nov: "I'd like to know when it finds nothing to go on").
+    lift = how many more games with 4+ it forecasts for its ticket than for a typical ticket (0.03 = 3% more).
+    views = how many of the five copies kept more than one tree, i.e. found anything at all in their check period.
+    The label comes from the lift, and is "none" whenever no copy has a view: then the ticket is a random six.
+    It says how sure the model is, not how right: over the R018-R071 replay, sure rounds won no more often."""
+    views = sum(n > 1 for n in trees); lift = score / typical - 1
+    label = "none" if views == 0 else next((name for cap, name in LEVELS if lift < cap), "high")
+    return dict(confidence=label, lift=round(lift, 4), views=views, trees=list(trees), score=round(score, 4), typical=round(typical, 4))
 
 
 def window(rid):
@@ -188,7 +203,12 @@ def ticket(r, detail=False):
     """Ranked top 10 for frozen round r (int or 'R0NN')."""
     rid = r if isinstance(r, str) else f"R{r:03d}"
     L, gap = window(rid)
-    return forecast(L, gap, detail=detail)
+    top10, info = forecast(L, gap, detail=True)
+    LAST.clear(); LAST.update(info, round=rid)
+    return (top10, info) if detail else top10
+
+
+LAST = {}                                                      # the reading for the ticket built last (aibuilds.py stores it)
 
 
 if __name__ == "__main__":
@@ -204,7 +224,7 @@ if __name__ == "__main__":
             res = ab.score_ticket(t, games, first); o, p = ab.outcome(res); pts += p; wins += o == "win"; net6 += res[6]["net"]
             for k, x in res.items():
                 sizes[k] += rp.big(x)
-            print(f"R{r:03d} {t}  trees {info['trees']}  {o:8s} {pts}  K6 {res[6]['end']:14s} " + " ".join(f"K{k}" for k, x in res.items() if rp.big(x)), flush=True)
+            print(f"R{r:03d} {t}  trees {info['trees']} lift {info['lift']:+.4f} {info['confidence']:6s}  {o:8s} {pts}  K6 {res[6]['end']:14s} " + " ".join(f"K{k}" for k, x in res.items() if rp.big(x)), flush=True)
         print(f"rounds won {wins}, points {pts}, wins by size {sizes}, K6 net {net6:+d}")
     else:
         t, info = ticket(sys.argv[1], detail=True)

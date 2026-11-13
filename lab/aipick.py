@@ -241,6 +241,9 @@ def brief(r):
         nb = sum(n in v[:6] for v in b["builds"].values()) if b else 0
         if ps or nb >= 3:
             cand.append((n, ps, nb, sum(lean.get(p, 0) for p in ps), sum(lift.get(short(p), 0) for p in ps)))
+    for k, c in ((b or {}).get("confidence") or {}).items():
+        print(f"{k} build's confidence in its ticket {b['builds'][k][:6]}: {c['confidence']} (forecast {c['lift']:+.1%} against a typical ticket; "
+              f"{c['views']} of {len(c['trees'])} copies found something{'; treat its numbers as a random six' if c['confidence'] == 'none' else ''})")
     print(f"Signal lean by policy: " + ", ".join(f"{short(p)} {v:+d}" for p, v in sorted(lean.items(), key=lambda kv: -kv[1]) if v))
     print(f"Candidates for R{r:03d} (number: policies | builds | signal lean | ledger lift | draws in 100 / last 20)")
     for n, ps, nb, sl, ll in sorted(cand, key=lambda c: -(2 * len(c[1]) + c[2] / 3 + c[3]))[:24]:
