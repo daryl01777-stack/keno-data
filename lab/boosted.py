@@ -22,17 +22,20 @@ What it does at a freeze, using only games up to the round's last training game:
    The six are ordered by how much each one adds; numbers 7-10 are the best four to swap in. That
    ranked top 10 is the build, nested K4-K10 like the others, though K6 is the size it is built for.
 
-It has no facts about a ticket's shape on the board: an earlier draft had them and kept choosing
-1 2 3 4 5 6. Needs scikit-learn (`pip install scikit-learn`); takes two to three minutes. The ticket
+Equal scores are settled by a seeded shuffle, so when the model has no view the ticket is in effect a
+random six (a draft settled ties towards lower numbers and kept handing back 1 2 3 4 5 6). It has no
+facts about a ticket's shape on the board. Needs scikit-learn (`pip install scikit-learn`); takes two to three minutes. The ticket
 is written into aibuilds.json at the freeze, so scoring never rebuilds it.
 
-Tested before it went in, as the draft with the board-shape facts (tuned on games up to 10 Nov, then
-a held-back exam on the latest 1,500 games played as 37 rounds, then 129 earlier walk-forward rounds):
-steadier and aimed at K6, but its tickets landed no more often than chance (166 rounds: 13 K6 wins
-under the lab rule against 13.9 expected).
+Tested before it went in, as an earlier draft (tuned on games up to 10 Nov, then a held-back exam on
+the latest 1,500 games played as 37 rounds, then 129 earlier walk-forward rounds): steadier and aimed
+at K6, but its tickets landed no more often than chance (166 rounds: 13 K6 wins under the lab rule
+against 13.9 expected; part of that draft's picks were the low-number tie-break). The build as it
+stands, replayed walk-forward over R018-R071: 12 winning rounds of 53, 137 points, K6 5 wins (4.5 by
+chance); in 8 of the 53 rounds no copy found anything and the ticket was a random six.
 
 usage: python lab/boosted.py R0NN            print the ranked top 10 for a frozen round
-       python lab/boosted.py replay A B      replay rounds A-B (no files written; about 2 minutes a round)
+       python lab/boosted.py replay A B      replay rounds A-B (no files written; about 20 seconds a round after the first)
 """
 import csv, itertools, json, os, sys
 from datetime import datetime, timedelta
@@ -144,8 +147,14 @@ def forecast(L, gap, seed=0, detail=False):
     F, y, tt = examples(L, gap)
     fits = [learn(F, y, tt, gap, seed + s) for s in range(COPIES)]
     score = lambda T: np.mean([m.predict(ticket_facts(L + 1, T)) for m, _ in fits], 0)
-    order = lambda T, p: T[np.lexsort(tuple(T.T[::-1]) + (-np.round(p, 9),))]     # best first; ties to the lower numbers
-    T = deal(L + 1, DEAL, np.random.default_rng(seed + L)); T = order(T, score(T))[:15]
+    rng = np.random.default_rng(seed + L)
+    T = deal(L + 1, DEAL, rng)
+    # Best first. Equal scores are common (small trees score in steps, and a copy with nothing to say scores every
+    # ticket alike), so ties are settled by a seeded shuffle of the 80 numbers: never by lower numbers, which would
+    # hand back 1 2 3 4 5 6 whenever the model has no view.
+    shuffle = rng.permutation(80)
+    order = lambda T, p: T[np.lexsort(tuple(np.sort(shuffle[T], 1).T[::-1]) + (-np.round(p, 9),))]
+    T = order(T, score(T))[:15]
     for _ in range(4):                                         # swap one number at a time
         cand = [T]
         for row in T:
@@ -158,8 +167,8 @@ def forecast(L, gap, seed=0, detail=False):
     swaps = np.stack([np.sort(np.column_stack([np.tile(np.delete(best, pos), (len(new), 1)), new]), 1) for pos in range(6)])
     sw = score(swaps.reshape(-1, 6)).reshape(6, len(new))
     adds = top - sw.mean(1)                                    # what each of the six adds over a typical replacement
-    six = [int(best[i]) for i in sorted(range(6), key=lambda i: (-round(float(adds[i]), 9), best[i]))]
-    rest = [int(new[j]) for j in sorted(range(len(new)), key=lambda j: (-round(float(sw[:, j].mean()), 9), new[j]))[:4]]
+    six = [int(best[i]) for i in sorted(range(6), key=lambda i: (-round(float(adds[i]), 9), shuffle[best[i]]))]
+    rest = [int(new[j]) for j in sorted(range(len(new)), key=lambda j: (-round(float(sw[:, j].mean()), 9), shuffle[new[j]]))[:4]]
     top10 = [n + 1 for n in six + rest]
     return (top10, dict(trees=[n for _, n in fits], score=top, typical=float(y.mean()), examples=int(len(y)))) if detail else top10
 
