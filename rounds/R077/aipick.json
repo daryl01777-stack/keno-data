@@ -1,0 +1,9 @@
+{
+ "round": "R077",
+ "ticket": [70, 31, 17, 22, 53, 39],
+ "frozen_utc": "2026-11-15T22:13:17Z",
+ "idea": "Holistic",
+ "recipe": "policy spread + boosted",
+ "signals": {"favour": ["Surge", "Hot last 10", "Rising", "Just drawn"], "against": ["Hot last 3", "Overdue", "Not in last game"]},
+ "why": "Four policies lean +1 (Surge, Hot last 10, Rising, Just drawn) and Hot last 3 leans hard against, so a spread across the four. 70 is the board's favourite (7 policies, 16 builds, +3, 40 draws in the window); 31 sits on Surge, Hot last 10 and Rising (+3); 17 on Surge and Rising; 22 on Just drawn; 53 on Rising. After R076, where leaving Boosted trees out was the wrong call, the last slot is its #1, 39 (medium confidence), which Cold and Agreement also have."
+}
