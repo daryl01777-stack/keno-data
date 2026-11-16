@@ -1,0 +1,9 @@
+{
+ "round": "R078",
+ "ticket": [35, 79, 47, 3, 13, 40],
+ "frozen_utc": "2026-11-16T02:30:34Z",
+ "idea": "Holistic",
+ "recipe": "policy spread + boosted",
+ "signals": {"favour": ["Pair cluster", "Hot last 10"], "against": ["Surge", "Hot last 3", "Rising"]},
+ "why": "After R077 (four favoured policies spread the ticket too thin) this one uses just the two that lean +1: Pair cluster and Hot last 10. Surge and Hot last 3 lean against, so 12, 14 and 38 stay off. Pair cluster: 35 (5 policies, 10 builds) and 3; Hot last 10: 79 (Just drawn's #1, 12 builds) and 13; 47 is on both (+2). The last slot again goes to Boosted trees' #1, 40 (medium confidence; it has hit its K4 two rounds running), which Cold and Agreement also have."
+}
