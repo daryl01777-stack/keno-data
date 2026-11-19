@@ -1,5 +1,5 @@
 {
- "picks": 40,
+ "picks": 41,
  "by_kind": {
   "free-form": {
    "picks": 15,
@@ -23,11 +23,11 @@
    "near_misses_per_pick": 3.25
   },
   "holistic": {
-   "picks": 16,
+   "picks": 17,
    "wins": 4,
-   "net": 60,
-   "hit_rate": 25.62,
-   "near_misses_per_pick": 2.06
+   "net": 40,
+   "hit_rate": 25.44,
+   "near_misses_per_pick": 1.94
   }
  },
  "by_recipe": {
@@ -186,11 +186,11 @@
    "near_misses_per_pick": 3.0
   },
   "policy spread + boosted": {
-   "picks": 2,
+   "picks": 3,
    "wins": 0,
-   "net": -38,
-   "hit_rate": 26.25,
-   "near_misses_per_pick": 2.5
+   "net": -58,
+   "hit_rate": 25.0,
+   "near_misses_per_pick": 1.67
   }
  },
  "by_size": {
@@ -202,11 +202,11 @@
    "near_misses_per_pick": 2.22
   },
   "6": {
-   "picks": 13,
+   "picks": 14,
    "wins": 3,
-   "net": -27,
-   "hit_rate": 24.32,
-   "near_misses_per_pick": 1.54
+   "net": -47,
+   "hit_rate": 24.19,
+   "near_misses_per_pick": 1.43
   }
  },
  "numbers_by_source_policy": {
@@ -215,25 +215,25 @@
    "avg_draws": 11.18,
    "hit_rate": 27.95
   },
-  "Cold": {
-   "numbers": 10,
-   "avg_draws": 10.6,
-   "hit_rate": 26.5
-  },
   "Just drawn": {
-   "numbers": 68,
-   "avg_draws": 10.32,
-   "hit_rate": 25.81
+   "numbers": 70,
+   "avg_draws": 10.33,
+   "hit_rate": 25.82
   },
   "Hot": {
-   "numbers": 83,
-   "avg_draws": 10.16,
-   "hit_rate": 25.39
+   "numbers": 86,
+   "avg_draws": 10.19,
+   "hit_rate": 25.47
   },
   "Pairs with last game": {
-   "numbers": 77,
-   "avg_draws": 10.13,
-   "hit_rate": 25.32
+   "numbers": 79,
+   "avg_draws": 10.16,
+   "hit_rate": 25.41
+  },
+  "Cold": {
+   "numbers": 11,
+   "avg_draws": 10.09,
+   "hit_rate": 25.23
   },
   "Hot last 3": {
    "numbers": 52,
@@ -246,9 +246,9 @@
    "hit_rate": 24.76
   },
   "Persistence": {
-   "numbers": 44,
-   "avg_draws": 9.86,
-   "hit_rate": 24.66
+   "numbers": 46,
+   "avg_draws": 9.87,
+   "hit_rate": 24.67
   },
   "Rising": {
    "numbers": 36,
@@ -256,19 +256,19 @@
    "hit_rate": 24.58
   },
   "Not in last game": {
-   "numbers": 49,
+   "numbers": 51,
    "avg_draws": 9.8,
-   "hit_rate": 24.49
+   "hit_rate": 24.51
   },
   "Hot last 10": {
-   "numbers": 87,
+   "numbers": 90,
    "avg_draws": 9.79,
-   "hit_rate": 24.48
+   "hit_rate": 24.47
   },
   "Pair cluster": {
-   "numbers": 67,
-   "avg_draws": 9.58,
-   "hit_rate": 23.96
+   "numbers": 70,
+   "avg_draws": 9.57,
+   "hit_rate": 23.93
   },
   "Overdue": {
    "numbers": 6,
@@ -277,20 +277,20 @@
   }
  },
  "numbers_by_policies_backing": {
-  "1": {
-   "numbers": 34,
-   "avg_draws": 9.94,
-   "hit_rate": 24.85
-  },
   "3+": {
-   "numbers": 121,
-   "avg_draws": 9.93,
-   "hit_rate": 24.83
+   "numbers": 124,
+   "avg_draws": 9.96,
+   "hit_rate": 24.9
+  },
+  "1": {
+   "numbers": 35,
+   "avg_draws": 9.8,
+   "hit_rate": 24.5
   },
   "2": {
-   "numbers": 28,
-   "avg_draws": 9.21,
-   "hit_rate": 23.04
+   "numbers": 30,
+   "avg_draws": 9.13,
+   "hit_rate": 22.83
   },
   "0": {
    "numbers": 3,
@@ -300,9 +300,9 @@
  },
  "numbers_by_builds_backing": {
   "7-12": {
-   "numbers": 42,
-   "avg_draws": 10.4,
-   "hit_rate": 26.01
+   "numbers": 45,
+   "avg_draws": 10.44,
+   "hit_rate": 26.11
   },
   "13+": {
    "numbers": 25,
@@ -310,31 +310,31 @@
    "hit_rate": 25.2
   },
   "3-6": {
-   "numbers": 39,
-   "avg_draws": 9.82,
-   "hit_rate": 24.55
+   "numbers": 41,
+   "avg_draws": 9.66,
+   "hit_rate": 24.15
   },
   "0-2": {
-   "numbers": 20,
-   "avg_draws": 9.6,
-   "hit_rate": 24.0
+   "numbers": 21,
+   "avg_draws": 9.52,
+   "hit_rate": 23.81
   }
  },
  "numbers_by_signal_lean": {
   "backed by a favoured policy": {
-   "numbers": 98,
-   "avg_draws": 10.13,
-   "hit_rate": 25.33
-  },
-  "no signal either way": {
-   "numbers": 4,
-   "avg_draws": 9.5,
-   "hit_rate": 23.75
+   "numbers": 103,
+   "avg_draws": 10.12,
+   "hit_rate": 25.29
   },
   "backed by an against policy": {
    "numbers": 4,
    "avg_draws": 8.75,
    "hit_rate": 21.88
+  },
+  "no signal either way": {
+   "numbers": 5,
+   "avg_draws": 8.6,
+   "hit_rate": 21.5
   }
  },
  "note": "Chance is 10 draws per number in 40 games (hit rate 25%). Small counts swing a lot; treat any line under about 40 numbers as a hint only."
