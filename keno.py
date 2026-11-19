@@ -10,6 +10,7 @@ Other commands:
   python keno.py now             show the latest completed game
   python keno.py last 100        save the last 100 completed games to a file
   python keno.py range 237 276   save a run of games by number (handles 999 -> 0)
+  python keno.py range 856 895 2026-11-16   the same, from a past Brisbane date
   python keno.py watch 40        save the next 40 games to a file as they're drawn
   python keno.py probe           test the history request and print the raw reply
 """
@@ -141,13 +142,13 @@ def runs(numbers):
 
 # ---------- history ----------
 
-def history(numbers, ref_time, verbose=True):
+def history(numbers, ref_time, verbose=True, dates=None):
     """Fetch these game numbers, keeping only games that closed in the 30 h before ref_time.
-    Tries the Brisbane date of ref_time first, then the day before."""
+    Tries the Brisbane date of ref_time first, then the day before (or only `dates` if given)."""
     want = set(numbers)
     got = {}
     today = ref_time.astimezone(BNE).date()
-    dates = [today, today - timedelta(days=1)]
+    dates = dates or [today, today - timedelta(days=1)]
     for run in runs(numbers):
         for d in dates:
             missing = [n for n in run if n not in got]
@@ -251,13 +252,19 @@ def cmd_last(n):
     report(numbers, got, f"last{n}")
 
 
-def cmd_range(start, end):
+def cmd_range(start, end, day=None):
     numbers = span(start, end)
-    newest = latest()   # anchor to the feed's clock, not the phone's
-    print(f"Fetching games {start} to {end} ({len(numbers)} games); latest drawn is {newest['game']} ...")
-    got = history(numbers, newest["closed"])
-    if newest["game"] in numbers:
-        got.setdefault(newest["game"], newest)
+    if day:   # a past Brisbane date (YYYY-MM-DD): only games that closed on that day
+        d = datetime.strptime(day, "%Y-%m-%d").date()
+        ref = datetime(d.year, d.month, d.day, 23, 59, 59, tzinfo=BNE).astimezone(timezone.utc)
+        print(f"Fetching games {start} to {end} ({len(numbers)} games) from {d.isoformat()} (Brisbane) ...")
+        got = {n: g for n, g in history(numbers, ref, dates=[d]).items() if g["closed"].astimezone(BNE).date() == d}
+    else:
+        newest = latest()   # anchor to the feed's clock, not the phone's
+        print(f"Fetching games {start} to {end} ({len(numbers)} games); latest drawn is {newest['game']} ...")
+        got = history(numbers, newest["closed"])
+        if newest["game"] in numbers:
+            got.setdefault(newest["game"], newest)
     path = report(numbers, got, "range")
     if path and len(got) < len(numbers):
         print("If the missing games haven't been drawn yet, wait and run this again.")
@@ -478,8 +485,8 @@ def main(argv):
             if not 1 <= n <= 500:
                 sys.exit("Pick between 1 and 500 games.")
             cmd_last(n)
-        elif cmd == "range" and len(args) == 2:
-            cmd_range(int(args[0]) % CYCLE, int(args[1]) % CYCLE)
+        elif cmd == "range" and len(args) in (2, 3):
+            cmd_range(int(args[0]) % CYCLE, int(args[1]) % CYCLE, args[2] if len(args) == 3 else None)
         elif cmd == "watch":
             cmd_watch(int(args[0]) if args else 40)
         elif cmd == "probe":
